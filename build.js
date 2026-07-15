@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Static build. No dependencies. `node build.js` writes the site to dist/.
+// Static build. `node build.js` writes the site to dist/, compiling the CSS
+// through the Tailwind CLI (the only dependency).
 //
 // The words come straight from the copy-*.md files: this script parses each file's
 // headline (# ), standfirst (## ), and body paragraphs, so the rendered copy is
@@ -9,6 +10,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { execFileSync } = require("child_process");
 const { site, pieces, clippy } = require("./src/content.js");
 const t = require("./src/templates.js");
 
@@ -138,7 +140,6 @@ function shipChecks() {
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
 
-copyDir(path.join(ROOT, "src/css"), path.join(DIST, "css"));
 copyDir(path.join(ROOT, "src/js"), path.join(DIST, "js"));
 copyDir(path.join(ROOT, "src/fonts"), path.join(DIST, "fonts"));
 copyDir(path.join(ROOT, "src/static"), DIST);
@@ -177,6 +178,19 @@ const clippyResolved = { lead: resolveAsset(clippy.slug, clippy.lead) };
 if (clippyResolved.lead.exists) found++;
 else placeholders++;
 writePage("clippy/index.html", t.clippyPage({ site, clippy, resolved: clippyResolved }));
+
+// Compile the stylesheet. Font URLs must stay relative to dist/css/, so fail
+// loudly if the compiler ever rewrites them.
+const twBin = path.join(ROOT, "node_modules", ".bin", "tailwindcss");
+fs.mkdirSync(path.join(DIST, "css"), { recursive: true });
+execFileSync(twBin, ["-i", "src/css/site.css", "-o", "dist/css/site.css", "--minify"], {
+  cwd: ROOT,
+  stdio: ["ignore", "ignore", "inherit"],
+});
+const css = fs.readFileSync(path.join(DIST, "css/site.css"), "utf8");
+if (!css.includes("../fonts/newsreader-latin.woff2")) {
+  throw new Error("Compiled CSS lost the relative font path; check the Tailwind url() handling");
+}
 
 shipChecks();
 

@@ -1,6 +1,7 @@
-// HTML rendering. Every page goes through shell(); every piece goes through piecePage(),
-// which is the one component the spec asks for: kicker, headline, unlabeled standfirst,
-// lead asset, flowing body, supporting assets.
+// HTML rendering, styled with Tailwind utilities. This file is the only source
+// Tailwind scans, so every class must appear here as a literal string.
+// piecePage() is the one component the spec asks for: kicker, headline, unlabeled
+// standfirst, lead asset, flowing body, supporting assets.
 "use strict";
 
 function esc(s) {
@@ -10,6 +11,14 @@ function esc(s) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+
+// Recurring class recipes. Kept as named constants so the markup below stays legible.
+const META = "meta text-ink-faint";
+const PAGE = "mx-auto flex min-h-svh max-w-[62rem] flex-col px-[clamp(1.25rem,5vw,3rem)]";
+const DISPLAY = "[font-weight:420] tracking-[-0.02em] text-balance";
+const HOVER_TITLE = "group-hover:italic group-hover:text-oxblood group-focus-visible:italic group-focus-visible:text-oxblood";
+const CAPTION =
+  "mt-3.5 max-w-[35em] border-t border-line pt-3 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint";
 
 // root is "" on the home page and "../" on subpages, so the site works from any base path.
 function shell({ site, root, title, description, url, ogType, noindex, body }) {
@@ -34,7 +43,7 @@ ${noindex ? `<meta name="robots" content="noindex">\n` : ""}<link rel="canonical
 <script src="${root}js/site.js" defer></script>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+<a class="absolute top-0 -left-[100vw] z-10 bg-ink px-4 py-2 font-sans text-sm text-paper focus-visible:left-0" href="#main">Skip to content</a>
 ${body}
 </body>
 </html>
@@ -43,7 +52,8 @@ ${body}
 
 function figure(asset, resolved, root, slug) {
   const dir = `assets/${slug}/`;
-  const cap = asset.caption ? `<figcaption>${esc(asset.caption)}</figcaption>` : "";
+  const cap = asset.caption ? `<figcaption class="${CAPTION}">${esc(asset.caption)}</figcaption>` : "";
+  const media = `class="my-[clamp(2.75rem,7vh,4.5rem)]"`;
 
   if (asset.kind === "video") {
     if (!resolved.exists) {
@@ -53,8 +63,8 @@ function figure(asset, resolved, root, slug) {
     const attrs = asset.sound
       ? `controls preload="metadata"${poster}`
       : `data-autoplay muted loop playsinline preload="${resolved.poster ? "none" : "metadata"}"${poster}`;
-    return `<figure class="media">
-<video ${attrs} src="${root}${dir}${asset.file}" aria-label="${esc(asset.caption)}"></video>
+    return `<figure ${media}>
+<video class="block h-auto w-full bg-ink" ${attrs} src="${root}${dir}${asset.file}" aria-label="${esc(asset.caption)}"></video>
 ${cap}
 </figure>`;
   }
@@ -66,10 +76,10 @@ ${cap}
     const imgs = resolved.files
       .map(
         (f, i) =>
-          `<img src="${root}${dir}${f}" alt="${esc(asset.caption)} Still ${i + 1} of ${resolved.files.length}." loading="lazy" decoding="async">`
+          `<img class="block h-auto w-full bg-paper-deep" src="${root}${dir}${f}" alt="${esc(asset.caption)} Still ${i + 1} of ${resolved.files.length}." loading="lazy" decoding="async">`
       )
       .join("\n");
-    return `<figure class="media stills"><div class="stills-grid" data-count="${resolved.files.length}">
+    return `<figure ${media}><div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4">
 ${imgs}
 </div>${cap}</figure>`;
   }
@@ -78,8 +88,8 @@ ${imgs}
     if (!resolved.exists) {
       return placeholder("Playable artifact placeholder", asset.caption || asset.title, dir + asset.file);
     }
-    return `<figure class="media">
-<div class="frame"><iframe src="${root}${dir}${asset.file}" title="${esc(asset.title)}" loading="lazy" sandbox="allow-scripts allow-pointer-lock"></iframe></div>
+    return `<figure ${media}>
+<div class="aspect-[16/10] bg-ink"><iframe class="block h-full w-full border-0" src="${root}${dir}${asset.file}" title="${esc(asset.title)}" loading="lazy" sandbox="allow-scripts allow-pointer-lock"></iframe></div>
 ${cap}
 </figure>`;
   }
@@ -88,47 +98,47 @@ ${cap}
 }
 
 function placeholder(kindLabel, desc, expectedPath) {
-  return `<figure class="media">
-<div class="slot" role="img" aria-label="Placeholder. ${esc(desc)}">
-<span class="slot-kind">${esc(kindLabel)}</span>
-<span class="slot-desc">${esc(desc)}</span>
-<span class="slot-path">${esc(expectedPath)}</span>
+  return `<figure class="my-[clamp(2.75rem,7vh,4.5rem)]">
+<div class="flex aspect-video flex-col items-center justify-center gap-3 border border-dashed border-line bg-paper-deep p-8 text-center" role="img" aria-label="Placeholder. ${esc(desc)}">
+<span class="${META}">${esc(kindLabel)}</span>
+<span class="max-w-[26em] leading-[1.4] text-ink-soft italic">${esc(desc)}</span>
+<span class="font-mono text-[0.72rem] text-ink-faint">${esc(expectedPath)}</span>
 </div>
 </figure>`;
 }
 
 function header(site, root, right) {
-  return `<header class="bar">
-<a class="bar-name meta" href="${root || "./"}">${esc(site.name)}</a>
-${right ? `<span class="bar-right meta">${right}</span>` : ""}
+  return `<header class="flex items-baseline justify-between border-b border-line py-7">
+<a class="meta text-ink no-underline hover:text-oxblood" href="${root || "./"}">${esc(site.name)}</a>
+${right ? `<span class="${META}">${right}</span>` : ""}
 </header>`;
 }
 
 function footer(site, { clip } = {}) {
-  return `<footer class="foot">
-<a class="meta" href="mailto:${esc(site.email)}">${esc(site.email)}</a>
-${clip ? `<a class="clip" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
+  return `<footer class="mt-16 flex items-center justify-between gap-4 border-t border-line py-10">
+<a class="${META} no-underline hover:text-oxblood" href="mailto:${esc(site.email)}">${esc(site.email)}</a>
+${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,color] duration-200 hover:-rotate-8 hover:text-oxblood motion-reduce:hover:rotate-0" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
 </footer>`;
 }
 
 function home({ site, pieces, copies }) {
   const entries = pieces
     .map(
-      (p, i) => `<a class="entry" id="${p.slug}" href="${p.slug}/">
-<span class="entry-num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
-<span class="entry-headline">${esc(copies[p.slug].headline)}</span>
-<span class="entry-kicker meta">${esc(p.kicker)}</span>
+      (p, i) => `<a class="group grid grid-cols-[3.25rem_1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
+<span class="font-sans text-[0.72rem] tracking-[0.14em] text-ink-faint" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
+<span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.55rem,3.6vw,2.7rem)] leading-[1.08] tracking-[-0.015em] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
+<span class="${META} justify-self-end text-right max-sm:justify-self-start max-sm:text-left">${esc(p.kicker)}</span>
 </a>`
     )
     .join("\n");
 
-  const body = `<div class="page home">
-<header class="masthead">
-<h1>${esc(site.name)}</h1>
-<p class="tagline meta">${esc(site.tagline)}</p>
+  const body = `<div class="${PAGE}">
+<header class="pt-[clamp(4rem,16vh,9rem)] pb-[clamp(2.5rem,7vh,4.5rem)]">
+<h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.6rem,7.5vw,5.75rem)] leading-[1.02]">${esc(site.name)}</h1>
+<p class="meta mt-6 text-ink-soft">${esc(site.tagline)}</p>
 </header>
-<main id="main">
-<nav class="index" aria-label="Pieces">
+<main id="main" class="flex-1">
+<nav class="mb-16 border-b border-line" aria-label="Pieces">
 ${entries}
 </nav>
 </main>
@@ -151,9 +161,11 @@ function piecePage({ site, piece, copy, resolved, index, total, prev, next }) {
 
   const paragraphs = [];
   copy.body.forEach((para, i) => {
-    paragraphs.push(`<p>${esc(para)}</p>`);
+    paragraphs.push(`<p class="text-pretty">${esc(para)}</p>`);
     if (piece.pullQuote && piece.pullQuote.afterParagraph === i + 1) {
-      paragraphs.push(`<blockquote class="pull"><p>${esc(piece.pullQuote.text)}</p></blockquote>`);
+      paragraphs.push(
+        `<blockquote class="my-[2.6em] border-y border-line py-[1.8em]"><p class="text-center text-[clamp(1.5rem,3vw,2rem)] leading-[1.3] text-balance italic">${esc(piece.pullQuote.text)}</p></blockquote>`
+      );
     }
   });
 
@@ -161,22 +173,25 @@ function piecePage({ site, piece, copy, resolved, index, total, prev, next }) {
     .map((a, i) => figure(a, resolved.supporting[i], root, piece.slug))
     .join("\n");
 
-  const nav = `<nav class="flip" aria-label="More pieces">
-${prev ? `<a class="flip-prev" href="../${prev.slug}/"><span class="meta">Previous</span><span class="flip-title">${esc(prev.title)}</span></a>` : `<a class="flip-prev" href="../"><span class="meta">Start</span><span class="flip-title">Index</span></a>`}
-${next ? `<a class="flip-next" href="../${next.slug}/"><span class="meta">Next</span><span class="flip-title">${esc(next.title)}</span></a>` : `<a class="flip-next" href="../"><span class="meta">End</span><span class="flip-title">Back to the index</span></a>`}
+  const flipLink = (href, label, title, right) =>
+    `<a class="group flex flex-col gap-2 no-underline${right ? " ml-auto text-right" : ""}" href="${href}"><span class="${META}">${label}</span><span class="${HOVER_TITLE} text-[1.35rem] [font-weight:420]">${esc(title)}</span></a>`;
+
+  const nav = `<nav class="flex justify-between gap-8 border-t border-line py-10" aria-label="More pieces">
+${prev ? flipLink(`../${prev.slug}/`, "Previous", prev.title) : flipLink("../", "Start", "Index")}
+${next ? flipLink(`../${next.slug}/`, "Next", next.title, true) : flipLink("../", "End", "Back to the index", true)}
 </nav>`;
 
-  const body = `<div class="page">
+  const body = `<div class="${PAGE}">
 ${header(site, root, `${num}&hairsp;/&hairsp;${String(total).padStart(2, "0")}`)}
-<main id="main">
-<article class="piece">
-<header class="piece-head">
-<p class="kicker meta"><span class="kicker-num">${num}</span>${esc(piece.kicker)}</p>
-<h1>${esc(copy.headline)}</h1>
-<h2 class="standfirst">${esc(copy.standfirst)}</h2>
+<main id="main" class="flex-1">
+<article>
+<header class="max-w-[44rem] pt-[clamp(3rem,9vh,5.5rem)]">
+<p class="${META}"><span class="mr-[1em] text-oxblood">${num}</span>${esc(piece.kicker)}</p>
+<h1 class="${DISPLAY} mt-6 text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.03]">${esc(copy.headline)}</h1>
+<h2 class="mt-6 text-[clamp(1.25rem,2.4vw,1.5rem)] leading-[1.45] font-normal text-pretty text-ink-soft italic">${esc(copy.standfirst)}</h2>
 </header>
 ${figure(piece.lead, resolved.lead, root, piece.slug)}
-<div class="prose">
+<div class="mx-auto max-w-[35em] space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]">
 ${paragraphs.join("\n")}
 </div>
 ${supporting}
@@ -199,13 +214,13 @@ ${footer(site)}
 
 function clippyPage({ site, clippy, resolved }) {
   const root = "../";
-  const body = `<div class="page">
+  const body = `<div class="${PAGE}">
 ${header(site, root)}
-<main id="main">
-<article class="piece egg">
-<header class="piece-head">
-<h1>${esc(clippy.title)}</h1>
-<h2 class="standfirst">${esc(clippy.standfirst)}</h2>
+<main id="main" class="flex-1">
+<article>
+<header class="pt-[clamp(3rem,9vh,5.5rem)]">
+<h1 class="${DISPLAY} text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.03]">${esc(clippy.title)}</h1>
+<h2 class="mt-6 text-[clamp(1.25rem,2.4vw,1.5rem)] leading-[1.45] font-normal text-pretty text-ink-soft italic">${esc(clippy.standfirst)}</h2>
 </header>
 ${figure(clippy.lead, resolved.lead, root, clippy.slug)}
 </article>

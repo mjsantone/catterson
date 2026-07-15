@@ -1,0 +1,12 @@
+{
+  "name": "catterson",
+  "private": true,
+  "description": "A lean, static, flip-through portfolio. Paper and ink, one serif, four pieces.",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.2",
+    "tailwindcss": "^4.3.2"
+  }
+}
