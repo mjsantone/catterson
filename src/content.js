@@ -7,7 +7,7 @@
 "use strict";
 
 const site = {
-  name: "Matthew (Catterson) Santone",
+  name: "Matthew Santone",
   tagline: "Principal design architect. I think by making.",
   // Change this if the site moves to a custom domain. Used for canonical + OG URLs.
   url: "https://mjsantone.github.io/catterson/",
