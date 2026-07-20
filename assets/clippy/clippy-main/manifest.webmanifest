@@ -1,0 +1,16 @@
+{
+  "name": "CLIPPY.EXE: The Office Assistant Strikes Back",
+  "short_name": "CLIPPY.EXE",
+  "description": "An epic 90s-Windows side-scroller starring Clippy. It looks like you're trying to survive.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#008080",
+  "theme_color": "#000080",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -107,3 +107,29 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
+
+.clippy-cameo {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 30;
+  display: block;
+  width: 60px;
+  height: 90px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.clippy-cameo canvas {
+  display: block;
+  width: 60px;
+  height: 90px;
+  image-rendering: pixelated;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clippy-cameo {
+    display: none;
+  }
+}

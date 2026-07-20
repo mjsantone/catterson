@@ -1,0 +1,3339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000080">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CLIPPY.EXE">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>CLIPPY.EXE: The Office Assistant Strikes Back</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📎</text></svg>">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: Tahoma, 'MS Sans Serif', 'Segoe UI', sans-serif;
+    font-size: 11px;
+    background: #008080;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ---------- desktop icons ---------- */
+  .desktop-icons {
+    position: fixed; top: 12px; left: 12px;
+    display: flex; flex-direction: column; gap: 18px;
+    z-index: 1;
+  }
+  .dicon { width: 74px; text-align: center; color: #fff; cursor: default; }
+  .dicon .glyph { font-size: 30px; filter: drop-shadow(1px 1px 0 rgba(0,0,0,.5)); }
+  .dicon .lbl { margin-top: 3px; padding: 1px 2px; display: inline-block; }
+  .dicon:hover .lbl, .dicon.selected .lbl { background: #000080; }
+  .dicon.selected .lbl { outline: 1px dotted #ffe66e; }
+
+  /* ---------- win95 bevels ---------- */
+  .bevel-out {
+    background: #c0c0c0;
+    box-shadow: inset -1px -1px 0 #0a0a0a, inset 1px 1px 0 #ffffff,
+                inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf;
+  }
+  .bevel-in {
+    background: #c0c0c0;
+    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #0a0a0a,
+                inset -2px -2px 0 #dfdfdf, inset 2px 2px 0 #808080;
+  }
+  .bevel-thin-in {
+    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #808080;
+  }
+
+  /* ---------- main window ---------- */
+  .app-window {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, calc(-50% - 14px));
+    padding: 3px;
+    z-index: 2;
+  }
+  /* real Win95 maximize: fill everything above the taskbar */
+  .app-window.maximized {
+    top: 0; left: 0; right: 0; bottom: 30px;
+    transform: none;
+    display: flex; flex-direction: column;
+  }
+  .app-window.maximized .canvas-frame {
+    flex: 1; min-height: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: #000;
+  }
+  .app-window.maximized canvas#game {
+    height: min(100%, calc((100vw - 24px) * 9 / 16));
+    width: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .titlebar {
+    display: flex; align-items: center; gap: 4px;
+    height: 20px;
+    padding: 2px 3px;
+    background: linear-gradient(90deg, #000080, #1084d0);
+    color: #fff; font-weight: bold;
+  }
+  .titlebar .ticon { font-size: 13px; line-height: 1; }
+  .titlebar .ttext { flex: 1; white-space: nowrap; overflow: hidden; }
+  .tbtn {
+    width: 16px; height: 14px;
+    font-size: 9px; font-weight: bold; line-height: 12px; text-align: center;
+    color: #000; cursor: pointer;
+  }
+  .tbtn:active { box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #0a0a0a; }
+
+  .menubar { display: flex; padding: 1px 0; }
+  .menubar .mitem { padding: 2px 7px 3px; cursor: default; position: relative; }
+  .menubar .mitem:hover, .menubar .mitem.open { background: #000080; color: #fff; }
+  .menubar .mitem .u { text-decoration: underline; }
+  .dropdown {
+    position: absolute; top: 100%; left: 0;
+    min-width: 150px;
+    padding: 2px;
+    color: #000;
+    z-index: 50;
+    display: none;
+  }
+  .mitem.open .dropdown { display: block; }
+  .dropdown .ditem { padding: 4px 18px; white-space: nowrap; display: flex; justify-content: space-between; gap: 18px; }
+  .dropdown .ditem:hover { background: #000080; color: #fff; }
+  .dropdown .ditem .kbd { color: #808080; }
+  .dropdown .ditem:hover .kbd { color: #c0c0c0; }
+  .dropdown hr { border: 0; border-top: 1px solid #808080; border-bottom: 1px solid #fff; margin: 2px 1px; }
+
+  .canvas-frame { margin: 0 3px; padding: 2px; }
+  canvas#game {
+    display: block;
+    width: min(960px, 94vw, calc((100vh - 170px) * 16 / 9));
+    aspect-ratio: 16 / 9;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    background: #008080;
+    cursor: crosshair;
+    touch-action: none;               /* keep gestures ours: no scroll/zoom steal */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .statusbar { display: flex; gap: 2px; margin: 3px; height: 20px; }
+  .statusbar .pane { padding: 3px 6px; white-space: nowrap; overflow: hidden; }
+  .statusbar .pane.grow { flex: 1; }
+
+  /* ---------- taskbar ---------- */
+  .taskbar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    height: 30px;
+    padding: 2px 3px;
+    display: flex; align-items: center; gap: 5px;
+    background: #c0c0c0;
+    box-shadow: inset 0 1px 0 #dfdfdf, inset 0 2px 0 #ffffff;
+    z-index: 10;
+  }
+  .startbtn {
+    display: flex; align-items: center; gap: 4px;
+    height: 24px; padding: 0 8px;
+    font-weight: bold; font-size: 11px;
+    cursor: pointer;
+  }
+  .startbtn:active { box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #0a0a0a; }
+  .winflag { display: grid; grid-template-columns: 6px 6px; grid-template-rows: 6px 6px; gap: 1px; transform: skewY(-6deg); }
+  .winflag i { display: block; }
+  .winflag i:nth-child(1){ background:#e04b34; } .winflag i:nth-child(2){ background:#7db700; }
+  .winflag i:nth-child(3){ background:#2e8fef; } .winflag i:nth-child(4){ background:#ffba08; }
+  .taskbtn {
+    height: 24px; padding: 0 10px;
+    display: flex; align-items: center; gap: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #0a0a0a,
+                inset -2px -2px 0 #dfdfdf, inset 2px 2px 0 #808080;
+    background: repeating-conic-gradient(#ffffff 0 25%, #c0c0c0 0 50%) 0 0/2px 2px;
+  }
+  .taskbtn.min {  /* minimized: raised, plain */
+    box-shadow: inset -1px -1px 0 #0a0a0a, inset 1px 1px 0 #ffffff,
+                inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf;
+    background: #c0c0c0;
+    font-weight: normal;
+  }
+  .tray {
+    margin-left: auto;
+    height: 24px; padding: 0 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #clock { min-width: 52px; text-align: center; }
+  #trayVol { cursor: pointer; }
+
+  /* ---------- dialogs ---------- */
+  .dlg-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    display: none; align-items: center; justify-content: center;
+  }
+  .dlg-overlay.show { display: flex; }
+  .dlg { width: 330px; padding: 3px; }
+  .dlg .body { padding: 14px 12px; display: flex; gap: 12px; align-items: flex-start; color: #000; }
+  .dlg .body .icon { font-size: 32px; }
+  .dlg .btnrow { display: flex; justify-content: center; gap: 8px; padding: 0 0 12px; }
+
+  /* ---------- mobile game mode: phone + landscape = just the game ---------- */
+  body.mobile-game { background: #000; }
+  body.mobile-game .desktop-icons,
+  body.mobile-game .titlebar,
+  body.mobile-game .menubar,
+  body.mobile-game .statusbar,
+  body.mobile-game .taskbar { display: none; }
+  body.mobile-game .app-window {
+    top: 0; left: 0; right: 0; bottom: 0;
+    transform: none; padding: 0;
+    background: #000; box-shadow: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  body.mobile-game .canvas-frame {
+    margin: 0; padding: 0; box-shadow: none; background: #000;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  body.mobile-game canvas#game {
+    height: min(100vh, calc(100vw * 9 / 16));
+    width: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  #pauseChip {
+    display: none;
+    position: fixed;
+    top: max(8px, env(safe-area-inset-top));
+    right: max(8px, env(safe-area-inset-right));
+    width: 34px; height: 30px;
+    font-size: 15px; line-height: 28px; text-align: center;
+    z-index: 60;
+    cursor: pointer;
+    opacity: 0.85;
+  }
+  body.mobile-game #pauseChip { display: block; }
+
+  #rotateOverlay {
+    position: fixed; inset: 0;
+    background: #008080;
+    z-index: 200;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+  #rotateOverlay.show { display: flex; }
+  #rotateOverlay .dlg { width: min(320px, 86vw); }
+
+  /* ---------- Internet Exploder ---------- */
+  #browserWin {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, calc(-50% - 12px));
+    width: min(760px, 92vw);
+    height: min(560px, calc(100vh - 80px));
+    padding: 3px;
+    z-index: 40;
+    display: none;
+    flex-direction: column;
+  }
+  #browserWin.open { display: flex; }
+  .ie-toolbar { display: flex; gap: 3px; padding: 3px 4px; align-items: center; }
+  .ie-btn { padding: 2px 8px; font-size: 11px; cursor: pointer; }
+  .ie-btn:active { box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #0a0a0a; }
+  .ie-addr { display: flex; align-items: center; gap: 5px; padding: 3px 4px; }
+  .ie-addr input {
+    flex: 1; font: 11px 'Courier New', monospace;
+    border: none; padding: 3px 5px;
+    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #808080;
+    background: #ffffff;
+  }
+  .ie-page {
+    flex: 1; min-height: 0;
+    margin: 0 4px;
+    overflow-y: auto; overflow-x: hidden;
+    background: #ffffff;
+    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #0a0a0a;
+  }
+  .ie-status { display: flex; gap: 2px; margin: 3px 4px 4px; height: 18px; }
+  .ie-status .pane { padding: 2px 6px; font-size: 10px; }
+
+  /* the 1997 homepage itself */
+  .site97 {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    background:
+      repeating-linear-gradient(45deg, #d8d8e8 0 2px, transparent 2px 14px),
+      #e8e8f4;
+    padding: 12px;
+    text-align: center;
+    color: #000060;
+  }
+  .site97 h1 {
+    font-size: 26px;
+    background: linear-gradient(90deg, #ff0000, #ff8800, #ddcc00, #00aa00, #0066ff, #8800cc);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: #ff00ff;
+    margin: 6px 0 2px;
+  }
+  .blink97 { animation: blink97 1s steps(1) infinite; color: #ff0000; font-weight: bold; }
+  @keyframes blink97 { 50% { opacity: 0; } }
+  .marquee97 { overflow: hidden; background: #000080; color: #00ff00; font: bold 12px monospace; padding: 3px 0; }
+  .marquee97 span { display: inline-block; white-space: nowrap; padding-left: 100%; animation: marq 14s linear infinite; }
+  @keyframes marq { to { transform: translateX(-100%); } }
+  .constr {
+    background: repeating-linear-gradient(45deg, #ffdd00 0 14px, #202020 14px 28px);
+    color: #fff; font-weight: bold; padding: 3px;
+    text-shadow: 1px 1px 0 #000;
+    margin: 8px 0;
+  }
+  .site97 table.box { margin: 10px auto; border: 3px ridge #a0a0c0; background: #ffffff; border-collapse: collapse; }
+  .site97 td { padding: 8px 14px; font-size: 12px; }
+  .site97 img.shot { width: 200px; border: 2px outset #c0c0c0; image-rendering: pixelated; }
+  .hitctr { display: inline-flex; gap: 1px; }
+  .hitctr b { background: #000; color: #33ff33; font: bold 14px 'Courier New', monospace; padding: 1px 4px; border: 1px inset #808080; }
+  .badge97 {
+    display: inline-block; margin: 2px; padding: 2px 7px;
+    font: bold 9px Tahoma, sans-serif; color: #fff;
+    border: 1px outset #c0c0c0;
+  }
+  .dl97 {
+    display: inline-block; margin: 6px; padding: 8px 18px;
+    font: bold 14px 'Comic Sans MS', cursive;
+    background: #00aa00; color: #ffffff;
+    border: 3px outset #00cc00;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .dl97:active { border-style: inset; }
+  .site97 a { color: #0000ee; }
+  .site97 .visited { color: #551a8b; }
+  .btn95 {
+    min-width: 72px; padding: 4px 10px;
+    font-family: inherit; font-size: 11px;
+    border: none; cursor: pointer;
+  }
+  .btn95:active { box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #0a0a0a; }
+  .btn95.default { outline: 1px dotted #000; outline-offset: -5px; }
+</style>
+</head>
+<body>
+
+<div class="desktop-icons">
+  <div class="dicon" data-app="clippy"><div class="glyph">📎</div><div class="lbl">CLIPPY.EXE</div></div>
+  <div class="dicon" data-app="mycomputer"><div class="glyph">🖥️</div><div class="lbl">My Computer</div></div>
+  <div class="dicon" data-app="bin"><div class="glyph">🗑️</div><div class="lbl">Recycle Bin</div></div>
+  <div class="dicon" data-app="docs"><div class="glyph">📁</div><div class="lbl">My Documents</div></div>
+  <div class="dicon" data-app="internet"><div class="glyph">🌐</div><div class="lbl">The Internet</div></div>
+</div>
+
+<div class="app-window bevel-out">
+  <div class="titlebar">
+    <span class="ticon">📎</span>
+    <span class="ttext" id="winTitle">CLIPPY.EXE: The Office Assistant Strikes Back</span>
+    <div class="tbtn bevel-out" id="btnMin">_</div>
+    <div class="tbtn bevel-out" id="btnMax" title="Maximize">▢</div>
+    <div class="tbtn bevel-out" id="btnClose">✕</div>
+  </div>
+  <div class="menubar" id="menubar">
+    <div class="mitem" data-menu="file"><span class="u">F</span>ile
+      <div class="dropdown bevel-out">
+        <div class="ditem" data-act="new">New Game <span class="kbd">Enter</span></div>
+        <div class="ditem" data-act="pause">Pause <span class="kbd">P</span></div>
+        <hr>
+        <div class="ditem" data-act="exit">Exit</div>
+      </div>
+    </div>
+    <div class="mitem" data-menu="none"><span class="u">E</span>dit</div>
+    <div class="mitem" data-menu="none"><span class="u">V</span>iew</div>
+    <div class="mitem" data-menu="none"><span class="u">I</span>nsert</div>
+    <div class="mitem" data-menu="none">F<span class="u">o</span>rmat</div>
+    <div class="mitem" data-menu="help"><span class="u">H</span>elp
+      <div class="dropdown bevel-out">
+        <div class="ditem" data-act="about">About CLIPPY.EXE…</div>
+      </div>
+    </div>
+  </div>
+  <div class="canvas-frame bevel-in">
+    <canvas id="game" width="640" height="360"></canvas>
+  </div>
+  <div class="statusbar">
+    <div class="pane grow bevel-thin-in" id="statusMsg">Ready. It looks like you're trying to play a game.</div>
+    <div class="pane bevel-thin-in" id="statusScore">SCORE 0</div>
+    <div class="pane bevel-thin-in">640K RAM</div>
+  </div>
+</div>
+
+<div class="taskbar">
+  <div class="startbtn bevel-out" id="btnStart"><span class="winflag"><i></i><i></i><i></i><i></i></span>Start</div>
+  <div class="taskbtn" id="taskClippy">📎 CLIPPY.EXE</div>
+  <div class="taskbtn min" id="taskInternet" style="display:none">🌐 The Internet</div>
+  <div class="tray bevel-thin-in"><span id="trayVol" title="Toggle sound (M)">🔊</span><span id="clock">12:00 PM</span></div>
+</div>
+
+<div id="pauseChip" class="bevel-out" title="Pause">⏸</div>
+
+<div id="rotateOverlay">
+  <div class="dlg bevel-out">
+    <div class="titlebar"><span class="ticon">📎</span><span class="ttext">Display Settings</span></div>
+    <div class="body">
+      <div class="icon">🔄</div>
+      <div><b>It looks like you're holding your phone wrong.</b><br><br>
+        Rotate to landscape to play CLIPPY.EXE.</div>
+    </div>
+  </div>
+</div>
+
+<div class="dlg-overlay" id="dlgOverlay">
+  <div class="dlg bevel-out">
+    <div class="titlebar"><span class="ticon" id="dlgIcon">📎</span><span class="ttext" id="dlgTitle">About</span><div class="tbtn bevel-out" data-dlg="close">✕</div></div>
+    <div class="body"><div class="icon" id="dlgBigIcon">📎</div><div id="dlgText">…</div></div>
+    <div class="btnrow">
+      <button class="btn95 bevel-out" id="dlgConfirm" style="display:none">Yes</button>
+      <button class="btn95 bevel-out default" id="dlgOk" data-dlg="close">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="browserWin" class="bevel-out">
+  <div class="titlebar">
+    <span class="ticon">🌐</span>
+    <span class="ttext">The Official CLIPPY.EXE Homepage - Microsoft Internet Explorer</span>
+    <div class="tbtn bevel-out" id="ieMin">_</div>
+    <div class="tbtn bevel-out">▢</div>
+    <div class="tbtn bevel-out" id="ieClose">✕</div>
+  </div>
+  <div class="ie-toolbar">
+    <div class="ie-btn bevel-out">⬅ Back</div>
+    <div class="ie-btn bevel-out">Forward ➡</div>
+    <div class="ie-btn bevel-out">✖ Stop</div>
+    <div class="ie-btn bevel-out">🔄 Refresh</div>
+    <div class="ie-btn bevel-out">🏠 Home</div>
+  </div>
+  <div class="ie-addr">
+    <span style="font-size:11px"><u>A</u>ddress:</span>
+    <input readonly value="http://www.geocities.com/SiliconValley/2481/clippy.html">
+  </div>
+  <div class="ie-page">
+    <div class="site97">
+      <div class="marquee97"><span>*** WELCOME TO THE OFFICIAL CLIPPY.EXE HOMEPAGE *** Best viewed in 800x600 with 256 colors *** Now with TWO... no wait, THREE bosses!!! *** Sign the guestbook!!! *** This page is Y2K ready (probably) ***</span></div>
+      <h1>~*~ CLIPPY.EXE ~*~</h1>
+      <div style="font-size:13px">The Office Assistant Strikes Back</div>
+      <div class="blink97">★ NEW !! ★</div>
+      <div class="constr">🚧 UNDER CONSTRUCTION SINCE 1997 🚧</div>
+
+      <table class="box"><tr><td>
+        It looks like you're trying to visit a <b>web site</b>.<br>
+        He was fired from Office. He came back as a <b>video game</b>.<br>
+        Nine lands! Eight power-ups! Three bosses! One paperclip.
+      </td></tr></table>
+
+      <div>
+        <a class="dl97" id="playNow97">▶ PLAY NOW (FREE!!)</a><br>
+        <span style="font-size:10px">CLIPPY.EXE <span id="siteVersion">v1</span> | 1.44 MB | fits on ONE floppy disk!</span>
+      </div>
+
+      <table class="box"><tr>
+        <td><img class="shot" src="docs/title.png" alt="title"></td>
+        <td><img class="shot" src="docs/boss.png" alt="boss"></td>
+      </tr><tr>
+        <td colspan="2" style="font-size:11px"><b>ACTUAL SCREEN SHOTS</b> (may take 4 minutes to load on 28.8k)</td>
+      </tr></table>
+
+      <table class="box"><tr><td style="text-align:left">
+        <b>☆ HOT TIPS ☆</b><br>
+        • Stomp bosses on the TOP. Every other part is a mistake.<br>
+        • Three cups of tea = rich. Four cups = HR. Choose wisely.<br>
+        • The rainbow CD makes you invincible. The floppy saves your life.<br>
+        • You cannot pet the recycle bin. We asked.
+      </td></tr></table>
+
+      <div style="margin:8px">
+        You are visitor No. <span class="hitctr" id="hitCounter"></span> since 07/1997
+      </div>
+
+      <div>
+        <span class="badge97" style="background:#000080">Netscape NOW!</span>
+        <span class="badge97" style="background:#008080">IE 3.0 Enhanced</span>
+        <span class="badge97" style="background:#800080">800x600</span>
+        <span class="badge97" style="background:#aa0000">Made with Notepad</span>
+      </div>
+
+      <div style="margin:10px; font-size:12px">
+        <a href="#" id="guestbook97">📖 Sign My Guestbook</a> |
+        <a href="#" id="webringPrev">← Prev</a>
+        <b>[ Paperclip WebRing ]</b>
+        <a href="#" id="webringNext">Next →</a>
+      </div>
+
+      <hr style="border:1px inset #c0c0c0">
+      <div style="font-size:10px">
+        © 1997 Catterson Design · clippy@aol.com · Last updated: 07/10/97<br>
+        <span class="visited">This page is best experienced with your speakers ON and your manager AWAY.</span>
+      </div>
+    </div>
+  </div>
+  <div class="ie-status">
+    <div class="pane grow bevel-thin-in" style="flex:1">Done</div>
+    <div class="pane bevel-thin-in">🌍 Internet zone</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+(function () {
+
+/* ================================================================
+  CLIPPY.EXE: a 90s Windows side-scroller
+   Pixel-art Clippy ported from the original Clippy.tsx canvas drawer
+   ================================================================ */
+
+const GAME_VERSION = 'v1.1.1';   // bump on every release: it's how you know a deploy landed
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+const W = 640, H = 360;
+const GROUND_Y = 322;          // top of the taskbar-ground
+const HUD_H = 22;
+
+/* ---------------- Clippy pixel drawer (ported from Clippy.tsx) -------- */
+
+function createClippyDrawer(c, PX, pal) {
+  pal = pal || {};
+  const DK = pal.DK || '#48484f', MD = pal.MD || '#78787f', LT = pal.LT || '#a8a8b2', HI = pal.HI || '#c4c4ce';
+  const GL = pal.GL || '#dcdce4', WH = pal.WH || '#ffffff', PU = pal.PU || '#2a1810', EO = pal.EO || '#181820';
+  const EB = pal.EB || '#4a3828', EG = pal.EG || '#eeeef6';
+
+  const px = (x, y, col) => { c.fillStyle = col; c.fillRect(x * PX, y * PX, PX, PX); };
+
+  const drawBody = () => {
+    for (let y = 12; y <= 31; y++) { px(6,y,GL); px(7,y,HI); px(8,y,LT); px(9,y,MD); }
+    px(7,11,GL); px(8,11,HI); px(9,11,LT); px(10,11,MD);
+    px(8,10,GL); px(9,10,HI); px(10,10,HI); px(11,10,LT);
+    for (let x = 11; x <= 15; x++) { px(x,9,GL); px(x,10,HI); px(x,11,LT); }
+    px(16,10,HI); px(17,10,LT); px(16,11,LT); px(17,11,MD);
+    px(17,12,MD); px(18,11,MD); px(18,12,DK);
+    for (let y = 12; y <= 31; y++) { px(16,y,HI); px(17,y,LT); px(18,y,MD); px(19,y,DK); }
+    for (let x = 9; x <= 16; x++) { px(x,32,LT); px(x,33,MD); px(x,34,DK); }
+    px(6,32,HI); px(7,32,HI); px(8,32,LT); px(7,33,LT); px(8,33,MD); px(8,34,DK);
+    px(17,32,MD); px(18,32,DK); px(17,33,DK); px(18,33,DK);
+    for (let y = 20; y <= 28; y++) { px(10,y,GL); px(11,y,HI); px(12,y,MD); }
+    for (let y = 20; y <= 28; y++) { px(14,y,HI); px(15,y,LT); px(16,y,MD); }
+    px(10,19,HI); px(11,19,HI); px(12,19,LT); px(13,19,LT); px(14,19,LT); px(15,19,MD);
+    px(11,18,GL); px(12,18,HI); px(13,18,HI); px(14,18,LT); px(15,18,MD);
+    px(10,29,HI); px(11,29,LT); px(12,29,LT); px(13,29,MD); px(14,29,MD); px(15,29,DK);
+    px(11,30,LT); px(12,30,MD); px(13,30,MD); px(14,30,DK);
+    px(12,31,DK); px(13,31,DK);
+  };
+
+  const drawEyes = (pdx, pdy, blink) => {
+    const drawOneEye = (cx, cy) => {
+      if (blink) {
+        for (let x = cx-2; x <= cx+2; x++) px(x, cy, EO);
+        px(cx-1,cy-1,EB); px(cx,cy-1,EB); px(cx+1,cy-1,EB);
+        return;
+      }
+      px(cx-1,cy-4,EB); px(cx,cy-4,EB); px(cx+1,cy-4,EB);
+      px(cx-1,cy-3,EO); px(cx,cy-3,EO); px(cx+1,cy-3,EO);
+      for (let dy = -2; dy <= 1; dy++) {
+        px(cx-2,cy+dy,EO); px(cx-1,cy+dy,WH); px(cx,cy+dy,WH); px(cx+1,cy+dy,WH); px(cx+2,cy+dy,EO);
+      }
+      px(cx-1,cy+2,EO); px(cx,cy+2,EO); px(cx+1,cy+2,EO);
+      const ppx = cx+pdx, ppy = cy+pdy-1;
+      px(ppx,ppy,PU); px(ppx+1,ppy,PU); px(ppx,ppy+1,PU); px(ppx+1,ppy+1,PU);
+      px(ppx-1,ppy-1,EG);
+    };
+    drawOneEye(10, 7);
+    drawOneEye(16, 7);
+  };
+
+  return { drawBody, drawEyes };
+}
+
+/* Eye animation sequences, from Clippy.tsx */
+const IDLE_SEQUENCES = [
+  [{s:'center',d:80},{s:'right',d:50},{s:'center',d:25},{s:'blink',d:7},{s:'center',d:70},{s:'left',d:40},{s:'center',d:30},{s:'up',d:35},{s:'center',d:20},{s:'blink',d:7}],
+  [{s:'center',d:40},{s:'blink',d:6},{s:'center',d:8},{s:'blink',d:6},{s:'center',d:20},{s:'right',d:90},{s:'center',d:30}],
+  [{s:'center',d:30},{s:'left',d:120},{s:'blink',d:7},{s:'left',d:40},{s:'center',d:50}],
+  [{s:'center',d:20},{s:'left',d:12},{s:'right',d:12},{s:'left',d:10},{s:'center',d:15},{s:'blink',d:7},{s:'center',d:60}],
+  [{s:'center',d:140},{s:'blink',d:7},{s:'center',d:60}],
+  [{s:'up',d:50},{s:'center',d:15},{s:'right',d:35},{s:'center',d:20},{s:'blink',d:7},{s:'left',d:30},{s:'up',d:25},{s:'center',d:40}],
+];
+const HOP_PATTERN = [0,-1,-2,-3,-3,-3,-3,-2,-1,0];
+
+function resolveEyeState(s) {
+  let pdx = 0, pdy = 0, blink = false;
+  if (s === 'right') pdx = 1;
+  else if (s === 'left') pdx = -1;
+  else if (s === 'up') pdy = -1;
+  else if (s === 'blink') blink = true;
+  return { pdx, pdy, blink };
+}
+
+/* ---------------- audio: bleeps + chiptune ---------------------------- */
+
+const Sfx = {
+  ctx: null, muted: false, musicTimer: null, musicStep: 0, nextNoteTime: 0,
+  ensure() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      this.ctx = new AC();
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    return true;
+  },
+  tone(freq, dur, type, vol, slideTo, when) {
+    if (this.muted || !this.ctx) return;
+    const t = when || this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type || 'square';
+    o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(vol || 0.12, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  },
+  jump()   { this.tone(300, 0.16, 'square', 0.10, 620); },
+  djump()  { this.tone(420, 0.20, 'square', 0.10, 900); },
+  duck()   { this.tone(220, 0.08, 'sawtooth', 0.06, 120); },
+  coin()   { this.tone(1046, 0.07, 'square', 0.09); setTimeout(() => this.tone(1568, 0.14, 'square', 0.09), 60); },
+  power()  { [523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>this.tone(f,0.14,'triangle',0.12),i*70)); },
+  smash()  { this.tone(180, 0.2, 'sawtooth', 0.14, 60); this.tone(90, 0.25, 'square', 0.1, 40); },
+  crash()  { [392,370,349,330].forEach((f,i)=>setTimeout(()=>this.tone(f,0.32,'sawtooth',0.14),i*180)); },
+  coffee() { [660,880,1175,1568].forEach((f,i)=>setTimeout(()=>this.tone(f,0.09,'square',0.10),i*55)); },
+  save()   { this.tone(523,0.12,'triangle',0.12); setTimeout(()=>this.tone(784,0.28,'triangle',0.12),110); },
+  recover(){ [392,523,659,784].forEach((f,i)=>setTimeout(()=>this.tone(f,0.22,'triangle',0.11),i*90)); },
+  modem()  {
+    [1200,2100,1200,2100,1650].forEach((f,i)=>setTimeout(()=>this.tone(f,0.08,'square',0.06),i*85));
+    setTimeout(()=>this.tone(900,0.45,'sawtooth',0.045,250), 440);
+  },
+  card()   { for (let i=0;i<5;i++) setTimeout(()=>this.tone(950-i*130,0.035,'square',0.09),i*45); },
+  magnet() { this.tone(220,0.35,'sawtooth',0.08,880); setTimeout(()=>this.tone(1320,0.1,'square',0.08),320); },
+  glide()  { this.tone(520,0.35,'triangle',0.09,940); setTimeout(()=>this.tone(940,0.25,'triangle',0.07,700),300); },
+  zoom()   { this.tone(980,0.3,'square',0.09,320); },
+  alarm()  { for (let i=0;i<3;i++) { setTimeout(()=>this.tone(620,0.14,'sawtooth',0.11),i*300); setTimeout(()=>this.tone(430,0.14,'sawtooth',0.11),i*300+150); } },
+  throwSfx(){ this.tone(820,0.09,'square',0.08,300); },
+  bossHit(){ this.tone(160,0.16,'sawtooth',0.14,70); this.tone(1100,0.06,'square',0.1); },
+  bossDie(){ this.tone(700,0.5,'sawtooth',0.12,60); [523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>this.tone(f,0.2,'triangle',0.11),350+i*90)); },
+  slam()   { this.tone(95,0.35,'sine',0.2,38); this.tone(60,0.3,'sawtooth',0.12,30); },
+  menuPop(){ this.tone(480,0.07,'square',0.08,760); },
+  teaSip() { this.tone(990,0.06,'triangle',0.1); setTimeout(()=>this.tone(1320,0.1,'triangle',0.1),70); },
+  hrDing() { this.tone(660,0.25,'triangle',0.13); setTimeout(()=>this.tone(880,0.4,'triangle',0.13),240); },
+  spill()  { [520,430,340,260].forEach((f,i)=>setTimeout(()=>this.tone(f,0.12,'sawtooth',0.09),i*70)); this.tone(85,0.5,'sine',0.1,45); },
+  gossip() { this.tone(1500,0.05,'square',0.06,1800); },
+  chime()  { [330,415,494,659].forEach((f,i)=>setTimeout(()=>this.tone(f,0.9,'triangle',0.10),i*120)); },
+  // ------ music ------
+  mode: 'normal',
+  LEAD: [523.25,659.25,783.99,659.25, 440,523.25,659.25,523.25, 349.23,440,523.25,440, 392,493.88,587.33,783.99],
+  BASS: [130.81,0,130.81,0, 110,0,110,0, 87.31,0,87.31,0, 98,0,98,0],
+  BOSS_LEAD: [440,523.25,659.25,523.25, 392,493.88,587.33,493.88, 349.23,440,523.25,440, 329.63,415.30,493.88,415.30],
+  BOSS_BASS: [110,0,110,110, 98,0,98,98, 87.31,0,87.31,87.31, 82.41,0,82.41,82.41],
+  STEP_DUR: 60 / 140 / 2,
+  setMode(m) { this.mode = m; },
+  startMusic() {
+    if (!this.ctx || this.musicTimer) return;
+    this.musicStep = 0;
+    this.nextNoteTime = this.ctx.currentTime + 0.1;
+    this.musicTimer = setInterval(() => {
+      if (this.muted) {
+        // keep the cursor pinned to now so unmuting doesn't replay the backlog
+        this.nextNoteTime = this.ctx.currentTime + 0.1;
+        return;
+      }
+      while (this.nextNoteTime < this.ctx.currentTime + 0.25) {
+        const i = this.musicStep % 16;
+        const boss = this.mode === 'boss';
+        const lead = (boss ? this.BOSS_LEAD : this.LEAD)[i];
+        const bass = (boss ? this.BOSS_BASS : this.BASS)[i];
+        if (lead) this.tone(lead, this.STEP_DUR * 0.9, 'triangle', 0.055, 0, this.nextNoteTime);
+        if (bass) this.tone(bass, this.STEP_DUR * 1.6, 'square', 0.045, 0, this.nextNoteTime);
+        this.musicStep++;
+        this.nextNoteTime += this.STEP_DUR;
+      }
+    }, 100);
+  },
+  stopMusic() {
+    if (this.musicTimer) { clearInterval(this.musicTimer); this.musicTimer = null; }
+  },
+  toggleMute() {
+    this.muted = !this.muted;
+    document.getElementById('trayVol').textContent = this.muted ? '🔇' : '🔊';
+    return this.muted;
+  },
+};
+
+/* ---------------- game state ------------------------------------------ */
+
+const STATE = { BOOT: 0, TITLE: 1, PLAY: 2, CRASH: 3, BSOD: 4 };
+
+function storageGet(key) {
+  try { return Number(localStorage.getItem(key) || 0); } catch (e) { return 0; }
+}
+function storageSet(key, val) {
+  try { localStorage.setItem(key, String(val)); } catch (e) { /* private mode */ }
+}
+
+const ZONES = [
+  'The Teal Desktop', 'Spreadsheet Canyon', 'Mail Merge Marshes',
+  'Dial-Up Dunes', 'Comic Sans Grove', 'The Blue Screen Badlands',
+  'Recycle Bin Abyss', 'System32 Catacombs', 'The Registry (Do Not Edit)',
+];
+
+/* Each land gets its own sky and architecture. Colors crossfade at borders. */
+const ZONE_THEMES = [
+  { sky:'#008080', cloud:'#ffffff', cloudShade:'#d8e8e8', sun:'#ffe66e',
+    wall:'#9a9aa2', wallLight:'#b8b8c0', wallDark:'#5a5a62', accent:'#31318c', pane:'#83839a', style:'windows' },
+  { sky:'#1e8a5e', cloud:'#eafaf0', cloudShade:'#c0e0cc', sun:'#ffe66e',
+    wall:'#f2f4ee', wallLight:'#ffffff', wallDark:'#8aa890', accent:'#1a7a44', pane:'#b8d0b8', style:'sheet' },
+  { sky:'#5a7862', cloud:'#d8e0c8', cloudShade:'#b0bca0', sun:'#f0d890',
+    wall:'#d8c49a', wallLight:'#ecdcb8', wallDark:'#907c50', accent:'#8a5a2a', pane:'#b8a478', style:'mail' },
+  { sky:'#d09048', cloud:'#f8e8c8', cloudShade:'#d8c098', sun:'#ff6830',
+    wall:'#e0bc80', wallLight:'#f0d8a8', wallDark:'#a07840', accent:'#c05818', pane:'#c8a060', style:'dune' },
+  { sky:'#e070c0', cloud:'#fff0f8', cloudShade:'#f0c8e0', sun:'#ffe66e',
+    wall:'#88c8f0', wallLight:'#c0e8ff', wallDark:'#4880b0', accent:'#ff5090', pane:'#ffffff', style:'comic' },
+  { sky:'#0000aa', cloud:'#8890e0', cloudShade:'#5860b8', sun:'#c8c8e8',
+    wall:'#2830c0', wallLight:'#4850d8', wallDark:'#101880', accent:'#a8a8c0', pane:'#d0d0ff', style:'bsod' },
+  { sky:'#34343c', cloud:'#585860', cloudShade:'#404048', sun:'#b8b8c8',
+    wall:'#6a6e78', wallLight:'#8a8e98', wallDark:'#3a3e46', accent:'#2a8a3a', pane:'#9aa0ac', style:'bin' },
+  { sky:'#0a140a', cloud:'#1e2e1e', cloudShade:'#142014', sun:'#c0d0c0',
+    wall:'#101c10', wallLight:'#1c2c1c', wallDark:'#060c06', accent:'#20c040', pane:'#40ff70', style:'terminal' },
+  { sky:'#38102c', cloud:'#583050', cloudShade:'#402038', sun:'#e8c0d8',
+    wall:'#4a1c3c', wallLight:'#66305a', wallDark:'#2a0e20', accent:'#ff4060', pane:'#e0a0c0', style:'registry' },
+];
+
+const THEME_COLOR_KEYS = ['sky', 'cloud', 'cloudShade', 'sun', 'wall', 'wallLight', 'wallDark', 'accent', 'pane'];
+
+function hexRgb(h) {
+  return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+}
+function rgbStr(a) {
+  return 'rgb(' + Math.round(a[0]) + ',' + Math.round(a[1]) + ',' + Math.round(a[2]) + ')';
+}
+// pre-parse hex to rgb arrays once
+for (const t of ZONE_THEMES) {
+  for (const k of THEME_COLOR_KEYS) t[k] = hexRgb(t[k]);
+}
+
+const theme = { style: 'windows' };   // live, blended copy
+
+function applyThemeInstant(zi) {
+  const t = ZONE_THEMES[Math.min(zi, ZONE_THEMES.length - 1)];
+  for (const k of THEME_COLOR_KEYS) theme[k] = t[k].slice();
+  theme.style = t.style;
+}
+applyThemeInstant(0);
+
+function updateTheme(zi) {
+  const t = ZONE_THEMES[Math.min(zi, ZONE_THEMES.length - 1)];
+  for (const k of THEME_COLOR_KEYS) {
+    for (let i = 0; i < 3; i++) theme[k][i] += (t[k][i] - theme[k][i]) * 0.04;
+  }
+  theme.style = t.style;
+}
+
+const QUIPS = {
+  start:    "It looks like you're trying to survive. Would you like help with that?",
+  jump:     "Nice jump! I'm 78% sure that was intentional.",
+  duck:     "Ducking! A classic move since Windows 3.1.",
+  near:     ["That was close! Have you tried saving your work?",
+             "Whew! I felt that in my wire.",
+             "Careful! You only get one paperclip body."],
+  power:    "UNREGISTERED HYPERCLIP MODE!! (30-day trial)",
+  coffee:   "COFFEE!! I can feel my wire vibrating! 2X points!",
+  save:     "Autosaved! Everyone gets one free mistake.",
+  saveUsed: "Document recovered from autosave. Phew!",
+  modem:    "Dial-up engaged! The world now loads at 56k.",
+  card:     "It looks like you're trying to win Solitaire. Deal 'em!",
+  magnet:   "Defragmenting! All your floppies are belong to me.",
+  glide:    "It looks like you're writing a letter... TO THE SKY! Hold JUMP to glide!",
+  zoom:     "View > Zoom > 50%. Suddenly the world is huge.",
+  bossIntro:"My evil twin! He stopped responding in 1997 and never forgave me. STOMP HIM!",
+  bossHit:  "Direct hit! Have you tried turning him off?",
+  bossDead: "Task terminated successfully. He won't be sending a crash report.",
+  startIntro:"The Start button finished defragmenting... and it is DONE waiting. Dodge the menus, stomp it when it slams!",
+  startHit: "Right on the flag! Where do you want to go today? DOWN.",
+  startDead:"Start has been shut down. It is now safe to turn off your paperclip.",
+  tea:      "Ooh, tea! ☕ Tell me EVERYTHING.",
+  teaSpill: "TOO MUCH TEA!! HR has been notified. RUN.",
+  hrGone:   "HR gave up. The tea stays between us.",
+  teaIntro: "The Internal Tea! Every big company brews one. DO NOT let it spill on you.",
+  teaHit:   "Steeped! Per my last stomp.",
+  teaDead:  "Tea contained. Nothing leaked. (Everything leaked.)",
+  smash:    "It looks like that window stopped responding.",
+  floppy5:  "You've got floppy! That's 1.44 MB of pure skill.",
+  zone:     "Now entering: ",
+  milestone:"Achievement unlocked: WordArt privileges!",
+};
+
+const game = {
+  state: STATE.BOOT,
+  frame: 0,
+  bootT: 0,
+  crashT: 0,
+  speed: 4.2,
+  dist: 0,
+  score: 0,
+  floppies: 0,
+  hi: storageGet('clippy_hiscore'),
+  hiFloppy: storageGet('clippy_hifloppy'),
+  newHi: false,
+  zoneIdx: 0,
+  shake: 0,
+  paused: false,
+  obstacles: [],
+  coins: [],
+  particles: [],
+  nextSpawnX: 0,
+  multT: 0,          // coffee: 2x score frames remaining
+  slowmoT: 0,        // modem: slow-motion frames remaining
+  magnetT: 0,        // defrag: floppy attraction frames remaining
+  lastPowerDist: 0,
+  boss: null,
+  projectiles: [],
+  bossesKilled: 0,
+  nextBossScore: 2000,
+  forceBossKind: null,
+  teaStreak: 0,       // consecutive cups of tea: gossip pays, until it spills
+  teaStreakT: 0,
+  bubbleText: '',
+  bubbleT: 0,
+  quipCooldown: 0,
+  flags: {},   // one-shot quip flags
+};
+
+const PXC = 2;                       // clippy pixel scale
+const clippyDraw = createClippyDrawer(ctx, PXC);   // eyes are animated: drawn live
+
+// the evil twin: hung-process gray, bloodshot pupils
+const PXB = 3;                       // boss pixel scale (1.5x Clippy)
+const EVIL_PAL = {
+  DK: '#26262c', MD: '#3e3e46', LT: '#585862', HI: '#70707c',
+  GL: '#8a8a96', PU: '#cc1010', EB: '#5a2020', EG: '#ff9090',
+};
+const evilDraw = createClippyDrawer(ctx, PXB, EVIL_PAL);
+
+// bodies never change per palette: render once, blit one image per frame
+function prerenderBody(PX, pal) {
+  const c = document.createElement('canvas');
+  c.width = 26 * PX; c.height = 38 * PX;
+  createClippyDrawer(c.getContext('2d'), PX, pal).drawBody();
+  return c;
+}
+const clippyBody = prerenderBody(PXC);
+const evilBody = prerenderBody(PXB, EVIL_PAL);
+const CLIP_W = 26 * PXC, CLIP_GRID_H = 38 * PXC;
+const CLIP_BODY_H = 64;              // visible rows 3..34 at PXC=2
+const CLIP_HIT_W = 26;               // forgiving hitbox
+
+const player = {
+  cx: 118,                 // bottom-center anchor x
+  bottomY: GROUND_Y,
+  vy: 0,
+  grounded: true,
+  jumps: 0,
+  ducking: false,
+  rot: 0,
+  spinning: false,
+  squashT: 0,
+  inv: 0,                  // invincibility frames remaining
+  autosave: false,         // one free crash
+  glideT: 0,               // airmail: glide charge frames remaining
+  tinyT: 0,                // zoom 50%: shrink frames remaining
+  gliding: false,          // actively holding a glide this frame
+  graceT: 0,               // post-stomp mercy frames vs boss & projectiles
+  trail: [],
+  // running-hop (his walk cycle IS the hop, straight from Clippy.tsx)
+  hopStep: 0, hopFrame: 0, hopWait: 0,
+  // eyes
+  seq: IDLE_SEQUENCES[0], seqIdx: 0, seqT: 0,
+};
+
+function resetRun() {
+  game.speed = 4.2; game.dist = 0; game.score = 0; game.floppies = 0;
+  game.zoneIdx = 0; game.newHi = false; game.shake = 0; game.paused = false;
+  applyThemeInstant(0);
+  game.obstacles = []; game.coins = []; game.particles = [];
+  game.nextSpawnX = W + 220;
+  game.multT = 0; game.slowmoT = 0; game.magnetT = 0; game.lastPowerDist = 0;
+  game.boss = null; game.projectiles = []; game.bossesKilled = 0; game.nextBossScore = 2000;
+  game.forceBossKind = null; game.teaStreak = 0; game.teaStreakT = 0;
+  Sfx.setMode('normal');
+  game.bubbleT = 0; game.quipCooldown = 0; game.flags = {};
+  player.bottomY = GROUND_Y; player.vy = 0; player.grounded = true;
+  player.jumps = 0; player.ducking = false; player.rot = 0;
+  player.spinning = false; player.inv = 0; player.autosave = false; player.trail = [];
+  player.glideT = 0; player.tinyT = 0; player.gliding = false; player.graceT = 0;
+  player.squashT = 0;
+  player.hopStep = 0; player.hopFrame = 0; player.hopWait = 0;
+  say(QUIPS.start, 200);
+  setStatus('Running… don’t let the paperclip down.');
+}
+
+function say(text, frames) {
+  game.bubbleText = text;
+  game.bubbleT = frames || 160;
+}
+function quip(text) {
+  if (game.quipCooldown > 0) return;
+  game.quipCooldown = 320;
+  say(text, 150);
+}
+function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }
+
+/* ---------------- parallax scenery ------------------------------------ */
+
+const clouds = [];
+for (let i = 0; i < 7; i++) {
+  clouds.push({ x: (i * 137 + 40) % 760, y: 34 + (i * 53) % 90, s: 0.7 + ((i * 37) % 10) / 12 });
+}
+
+// horizon "buildings" made of literal windows
+const buildings = [];
+{
+  let bx = 0;
+  while (bx < 900) {
+    const bw = 58 + (bx * 7) % 46;
+    const bh = 55 + (bx * 13) % 85;
+    buildings.push({ x: bx, w: bw, h: bh });
+    bx += bw + 14 + (bx * 11) % 30;
+  }
+}
+const BUILD_SPAN = 960;
+
+// scanline overlay, pre-rendered once
+const scanCanvas = document.createElement('canvas');
+scanCanvas.width = W; scanCanvas.height = H;
+{
+  const sc = scanCanvas.getContext('2d');
+  sc.fillStyle = 'rgba(0,0,0,0.05)';
+  for (let y = 0; y < H; y += 3) sc.fillRect(0, y, W, 1);
+}
+
+function drawCloud(x, y, s) {
+  ctx.fillStyle = rgbStr(theme.cloud);
+  ctx.fillRect(x, y + 6*s, 46*s, 10*s);
+  ctx.fillRect(x + 8*s, y, 22*s, 10*s);
+  ctx.fillRect(x + 26*s, y + 3*s, 16*s, 8*s);
+  ctx.fillStyle = rgbStr(theme.cloudShade);
+  ctx.fillRect(x, y + 13*s, 46*s, 3*s);
+}
+
+function drawBuilding(b, x) {
+  const top = GROUND_Y - b.h;
+  const wall = rgbStr(theme.wall), light = rgbStr(theme.wallLight);
+  const dark = rgbStr(theme.wallDark), accent = rgbStr(theme.accent), pane = rgbStr(theme.pane);
+
+  ctx.fillStyle = wall; ctx.fillRect(x, top, b.w, b.h);
+  ctx.fillStyle = light; ctx.fillRect(x, top, b.w, 2); ctx.fillRect(x, top, 2, b.h);
+  ctx.fillStyle = dark; ctx.fillRect(x, top + b.h - 2, b.w, 2);
+
+  const style = theme.style;
+  if (style === 'windows') {
+    ctx.fillStyle = accent; ctx.fillRect(x + 3, top + 3, b.w - 6, 7);
+    ctx.fillStyle = pane;
+    for (let wy = top + 14; wy < GROUND_Y - 8; wy += 12)
+      for (let wx = x + 5; wx < x + b.w - 8; wx += 12) ctx.fillRect(wx, wy, 7, 7);
+  } else if (style === 'sheet') {
+    // a tower of spreadsheet: green header row, gridlines, a few filled cells
+    ctx.fillStyle = accent; ctx.fillRect(x + 2, top + 2, b.w - 4, 8);
+    ctx.fillStyle = pane;
+    for (let wy = top + 10; wy < GROUND_Y - 4; wy += 9) ctx.fillRect(x + 2, wy, b.w - 4, 1);
+    for (let wx = x + 12; wx < x + b.w - 4; wx += 14) ctx.fillRect(wx, top + 10, 1, b.h - 12);
+    ctx.fillStyle = accent;
+    for (let wy = top + 12; wy < GROUND_Y - 10; wy += 9)
+      for (let wx = x + 3; wx < x + b.w - 14; wx += 14)
+        if ((wx * 7 + wy * 13) % 47 < 6) ctx.fillRect(wx, wy, 9, 6);
+  } else if (style === 'mail') {
+    // manila envelope block with a flap and a wax seal
+    ctx.fillStyle = light; ctx.fillRect(x + 4, top + 6, b.w - 8, b.h - 14);
+    ctx.fillStyle = dark;
+    ctx.beginPath();
+    ctx.moveTo(x + 4, top + 6); ctx.lineTo(x + b.w / 2, top + 6 + b.h * 0.32); ctx.lineTo(x + b.w - 4, top + 6);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = accent;
+    ctx.fillRect(x + b.w / 2 - 3, top + 2 + b.h * 0.32, 6, 6);
+  } else if (style === 'dune') {
+    // sandstone strata with a couple of dusty windows
+    ctx.fillStyle = dark;
+    for (let wy = top + 8; wy < GROUND_Y - 6; wy += 11) ctx.fillRect(x + 2, wy, b.w - 4, 2);
+    ctx.fillStyle = accent;
+    ctx.fillRect(x + 6, top + 14, 7, 7);
+    if (b.w > 60) ctx.fillRect(x + b.w - 14, top + 25, 7, 7);
+  } else if (style === 'comic') {
+    // toy letter blocks
+    ctx.fillStyle = accent; ctx.fillRect(x + 2, top + 2, b.w - 4, 6);
+    ctx.fillStyle = pane;
+    const chars = 'AbCdEfG';
+    ctx.font = 'bold ' + Math.min(30, b.w * 0.42) + 'px "Comic Sans MS", "Comic Sans", cursive';
+    ctx.fillText(chars[Math.floor(b.x / 37) % chars.length], x + b.w * 0.3, top + b.h * 0.55);
+    ctx.fillStyle = dark;
+    for (let wx = x + 6; wx < x + b.w - 8; wx += 16) ctx.fillRect(wx, GROUND_Y - 10, 8, 4);
+  } else if (style === 'bsod') {
+    // blue monoliths full of white gibberish
+    ctx.fillStyle = accent; ctx.fillRect(x + 5, top + 5, b.w - 10, 7);
+    ctx.fillStyle = pane;
+    for (let wy = top + 17; wy < GROUND_Y - 8; wy += 7)
+      ctx.fillRect(x + 4, wy, (b.w - 8) * (0.45 + ((wy * 7) % 6) / 11), 2);
+  } else if (style === 'bin') {
+    // sad silhouette bins: rim, ribs, recycle mark
+    ctx.fillStyle = light; ctx.fillRect(x + 1, top + 3, b.w - 2, 5);
+    ctx.fillStyle = dark;
+    for (let wx = x + 7; wx < x + b.w - 6; wx += 8) ctx.fillRect(wx, top + 10, 2, b.h - 14);
+    ctx.fillStyle = accent;
+    ctx.font = 'bold ' + Math.min(18, b.w * 0.3) + 'px monospace';
+    ctx.fillText('♻', x + b.w / 2 - 6, top + b.h / 2 + 5);
+  } else if (style === 'terminal') {
+    // dark towers running DOS
+    ctx.fillStyle = accent;
+    ctx.font = 'bold 7px monospace';
+    ctx.fillText('C:\\>', x + 4, top + 12);
+    ctx.fillStyle = pane;
+    for (let wy = top + 18; wy < GROUND_Y - 8; wy += 8)
+      ctx.fillRect(x + 4, wy, (b.w - 8) * (0.3 + ((wy * 11) % 7) / 10), 1);
+    if ((Math.floor(game.frame / 30) + b.x) % 4 === 0) ctx.fillRect(x + 4, GROUND_Y - 12, 4, 5);  // blinking cursor
+  } else if (style === 'registry') {
+    // registry tree spires: trunk, branches, little key-folders
+    ctx.fillStyle = pane;
+    ctx.fillRect(x + 8, top + 6, 1, b.h - 12);
+    for (let wy = top + 12; wy < GROUND_Y - 10; wy += 13) {
+      ctx.fillRect(x + 8, wy, 10, 1);
+      ctx.fillStyle = accent; ctx.fillRect(x + 18, wy - 3, 7, 6); ctx.fillStyle = pane;
+    }
+    ctx.font = 'bold 6px monospace';
+    ctx.fillStyle = accent;
+    ctx.fillText('HKEY', x + 4, top + 5);
+  }
+}
+
+function drawScenery() {
+  // themed sky
+  ctx.fillStyle = rgbStr(theme.sky);
+  ctx.fillRect(0, 0, W, H);
+  // sun (or moon, in the dark lands): a beveled gray "button", because
+  // everything is a widget in 1997
+  ctx.fillStyle = '#c0c0c0'; ctx.fillRect(540, 40, 44, 44);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(540, 40, 44, 2); ctx.fillRect(540, 40, 2, 44);
+  ctx.fillStyle = '#808080'; ctx.fillRect(540, 82, 44, 2); ctx.fillRect(582, 40, 2, 44);
+  ctx.fillStyle = rgbStr(theme.sun); ctx.fillRect(548, 48, 28, 28);
+
+  // clouds
+  const cOff = (game.dist * 0.15) % 760;
+  for (const cl of clouds) {
+    let x = cl.x - cOff;
+    if (x < -80) x += 760;
+    drawCloud(x, cl.y, cl.s);
+  }
+
+  // themed buildings on the horizon
+  const bOff = (game.dist * 0.4) % BUILD_SPAN;
+  for (let rep = 0; rep < 2; rep++) {
+    for (const b of buildings) {
+      const x = b.x - bOff + rep * BUILD_SPAN;
+      if (x > W || x + b.w < 0) continue;
+      drawBuilding(b, x);
+    }
+  }
+
+  // the ground is an endless taskbar
+  ctx.fillStyle = '#c0c0c0'; ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, GROUND_Y, W, 2);
+  ctx.fillStyle = '#dfdfdf'; ctx.fillRect(0, GROUND_Y + 2, W, 1);
+  // scrolling "task buttons" embedded in the ground
+  const labels = ['Document1 - Word', 'Untitled - Paint', 'Solitaire', 'FreeCell', 'A:\\ not ready', 'Inbox - Outlook', 'DOOM.EXE', 'winmine.exe'];
+  const gOff = game.dist % 1200;
+  ctx.font = 'bold 9px monospace';
+  for (let i = 0; i < 8; i++) {
+    let x = i * 150 - gOff;
+    if (x < -140) x += 1200;
+    if (x > W) continue;
+    ctx.fillStyle = '#b0b0b0'; ctx.fillRect(x, GROUND_Y + 8, 120, 18);
+    ctx.fillStyle = '#808080'; ctx.fillRect(x, GROUND_Y + 8, 120, 1); ctx.fillRect(x, GROUND_Y + 8, 1, 18);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(x, GROUND_Y + 25, 120, 1); ctx.fillRect(x + 119, GROUND_Y + 8, 1, 18);
+    ctx.fillStyle = '#404040';
+    ctx.fillText(labels[i], x + 6, GROUND_Y + 20);
+  }
+}
+
+/* ---------------- obstacle + pickup drawing ---------------------------- */
+
+function bevelRect(x, y, w, h, raised) {
+  ctx.fillStyle = '#c0c0c0'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = raised ? '#ffffff' : '#404040';
+  ctx.fillRect(x, y, w, 2); ctx.fillRect(x, y, 2, h);
+  ctx.fillStyle = raised ? '#404040' : '#ffffff';
+  ctx.fillRect(x, y + h - 2, w, 2); ctx.fillRect(x + w - 2, y, 2, h);
+}
+
+function drawDialog(o) {
+  const { x, y, w, h } = o;
+  bevelRect(x, y, w, h, true);
+  // title bar
+  ctx.fillStyle = '#000080'; ctx.fillRect(x + 3, y + 3, w - 6, 13);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 9px monospace';
+  ctx.fillText(o.title || 'Error', x + 6, y + 13);
+  // close button
+  ctx.fillStyle = '#c0c0c0'; ctx.fillRect(x + w - 15, y + 5, 10, 9);
+  ctx.fillStyle = '#000000'; ctx.font = 'bold 8px monospace';
+  ctx.fillText('x', x + w - 12, y + 12);
+  // red error icon
+  ctx.fillStyle = '#cc0000';
+  ctx.beginPath(); ctx.arc(x + 15, y + 27, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px monospace';
+  ctx.fillText('X', x + 12, y + 31);
+  // fake text lines
+  ctx.fillStyle = '#707070';
+  for (let ly = 0; ly < 2; ly++) ctx.fillRect(x + 27, y + 23 + ly * 6, w - 40, 3);
+  // OK button
+  if (h >= 46) {
+    const bw = 34;
+    bevelRect(x + (w - bw) / 2, y + h - 18, bw, 13, true);
+    ctx.fillStyle = '#000000'; ctx.font = 'bold 8px monospace';
+    ctx.fillText('OK', x + w / 2 - 6, y + h - 8);
+  }
+}
+
+function drawBin(o) {
+  const { x, y, w, h } = o;
+  // silver recycle bin
+  ctx.fillStyle = '#c8ccd4';
+  ctx.beginPath();
+  ctx.moveTo(x + 3, y + 6); ctx.lineTo(x + w - 3, y + 6);
+  ctx.lineTo(x + w - 7, y + h); ctx.lineTo(x + 7, y + h);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#9aa0ac';
+  for (let sx = x + 9; sx < x + w - 8; sx += 6) ctx.fillRect(sx, y + 9, 2, h - 12);
+  // rim
+  ctx.fillStyle = '#e4e8ee'; ctx.fillRect(x, y + 2, w, 6);
+  ctx.fillStyle = '#7a8090'; ctx.fillRect(x, y + 7, w, 2);
+  // recycle arrows
+  ctx.fillStyle = '#1a7a2a'; ctx.font = 'bold 14px monospace';
+  ctx.fillText('♻', x + w / 2 - 7, y + h / 2 + 7);
+  // crumpled paper sticking out
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(x + 6, y - 3, 7, 6); ctx.fillRect(x + w - 14, y - 4, 8, 7);
+}
+
+function drawBsodWall(o) {
+  const { x, y, w, h } = o;
+  ctx.fillStyle = '#0000aa'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, 1); ctx.fillRect(x, y, 1, h);
+  ctx.fillRect(x + w - 1, y, 1, h); ctx.fillRect(x, y + h - 1, w, 1);
+  // inverted "Windows" strip
+  ctx.fillStyle = '#aaaaaa'; ctx.fillRect(x + 5, y + 6, w - 10, 8);
+  ctx.fillStyle = '#0000aa'; ctx.font = 'bold 7px monospace'; ctx.fillText(':(', x + w/2 - 4, y + 13);
+  // gibberish
+  ctx.fillStyle = '#ccccff';
+  for (let ly = y + 20; ly < y + h - 8; ly += 7) {
+    ctx.fillRect(x + 5, ly, (w - 10) * (0.5 + ((ly * 7) % 5) / 10), 2);
+  }
+}
+
+function drawBanner(o) {
+  const { x, w, h } = o;
+  const y = o.hitY;   // computed in updateWorld; draw exactly the hitbox
+  const flash = Math.floor(game.frame / 12) % 2 === 0;
+  ctx.fillStyle = flash ? '#ffff00' : '#ff40ff';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = flash ? '#ff0000' : '#0000ff';
+  ctx.lineWidth = 2; ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+  ctx.fillStyle = flash ? '#ff0000' : '#000080';
+  ctx.font = 'bold 10px monospace';
+  ctx.fillText(o.adText, x + 8, y + 12);
+  ctx.font = 'bold 7px monospace';
+  ctx.fillText('>> CLICK HERE <<', x + w/2 - 32, y + h - 5);
+}
+
+function drawHourglass(o) {
+  const x = o.x, y = o.hitY;
+  const flap = Math.floor(game.frame / 6) % 2 === 0;
+  // wings
+  ctx.fillStyle = '#f4f4ff';
+  if (flap) { ctx.fillRect(x - 9, y + 2, 9, 5); ctx.fillRect(x + 18, y + 2, 9, 5); }
+  else      { ctx.fillRect(x - 9, y + 7, 9, 5); ctx.fillRect(x + 18, y + 7, 9, 5); }
+  // frame
+  ctx.fillStyle = '#8a5a20'; ctx.fillRect(x, y, 18, 3); ctx.fillRect(x, y + 19, 18, 3);
+  // glass
+  ctx.fillStyle = '#d8ecff';
+  ctx.beginPath(); ctx.moveTo(x + 2, y + 3); ctx.lineTo(x + 16, y + 3); ctx.lineTo(x + 9, y + 11); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x + 9, y + 11); ctx.lineTo(x + 16, y + 19); ctx.lineTo(x + 2, y + 19); ctx.closePath(); ctx.fill();
+  // sand
+  ctx.fillStyle = '#ffd24a';
+  ctx.fillRect(x + 6, y + 4, 6, 3);
+  ctx.fillRect(x + 5, y + 15, 8, 4);
+  ctx.fillRect(x + 8, y + 10, 2, 6);
+}
+
+function drawFloppy(cn) {
+  const bob = Math.sin(game.frame * 0.1 + cn.x * 0.05) * 3;
+  const x = cn.x, y = cn.y + bob;
+  ctx.fillStyle = '#2c3ea8'; ctx.fillRect(x, y, 14, 15);
+  ctx.fillStyle = '#4a5cc8'; ctx.fillRect(x, y, 14, 2);
+  ctx.fillStyle = '#c8c8d4'; ctx.fillRect(x + 4, y, 8, 6);      // shutter
+  ctx.fillStyle = '#404050'; ctx.fillRect(x + 9, y + 1, 2, 4);  // slot
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 2, y + 8, 10, 6); // label
+  ctx.fillStyle = '#9090a0'; ctx.fillRect(x + 3, y + 10, 8, 1); ctx.fillRect(x + 3, y + 12, 6, 1);
+}
+
+function drawCD(cn) {
+  const bob = Math.sin(game.frame * 0.09) * 4;
+  const cx = cn.x + 11, cy = cn.y + 11 + bob;
+  ctx.fillStyle = '#e0e0ea';
+  ctx.beginPath(); ctx.arc(cx, cy, 11, 0, Math.PI * 2); ctx.fill();
+  for (let i = 0; i < 6; i++) {
+    ctx.strokeStyle = 'hsla(' + ((game.frame * 3 + i * 60) % 360) + ',90%,60%,0.75)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, 8, i * 1.05 + game.frame * 0.05, i * 1.05 + 0.7 + game.frame * 0.05); ctx.stroke();
+  }
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#a0a0b0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.stroke();
+}
+
+/* ---------------- spawning -------------------------------------------- */
+
+function rnd(a, b) { return a + Math.random() * (b - a); }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+const AD_TEXTS = ['FREE RAM!!!', 'HOT SINGLES BSODs', 'WIN A 56K MODEM', 'Y2K INSURANCE', 'PUNCH THE MOUSE'];
+const DLG_TITLES = ['Error', 'Fatal Error', 'Warning!', 'Illegal Op.', 'Abort/Retry', 'General Fail'];
+
+function spawnObstacle(x) {
+  const d = game.dist;
+  const pool = [];
+  pool.push('dialog', 'dialog', 'bin');
+  if (d > 500)  pool.push('banner');
+  if (d > 900)  pool.push('hourglass', 'hourglass');
+  if (d > 1400) pool.push('bsod', 'stack');
+  const type = pick(pool);
+
+  if (type === 'dialog') {
+    const w = rnd(62, 92), h = rnd(42, 62);
+    game.obstacles.push({ type, x, y: GROUND_Y - h, w, h, title: pick(DLG_TITLES), smashable: true });
+  } else if (type === 'stack') {
+    const w = rnd(66, 80), h1 = rnd(38, 46), h2 = rnd(30, 40);
+    game.obstacles.push({ type: 'dialog', x, y: GROUND_Y - h1, w, h: h1, title: pick(DLG_TITLES), smashable: true });
+    game.obstacles.push({ type: 'dialog', x: x + 8, y: GROUND_Y - h1 - h2, w: w - 16, h: h2, title: 'Error', smashable: true });
+  } else if (type === 'bin') {
+    const w = 34, h = 42;
+    game.obstacles.push({ type, x, y: GROUND_Y - h, w, h, smashable: true });
+  } else if (type === 'bsod') {
+    const w = 30, h = 80;
+    game.obstacles.push({ type, x, y: GROUND_Y - h, w, h, smashable: true });
+  } else if (type === 'banner') {
+    const w = rnd(110, 150), h = 26;
+    game.obstacles.push({ type, x, y: GROUND_Y - 72, hitY: GROUND_Y - 72, w, h, adText: pick(AD_TEXTS), smashable: true });
+  } else if (type === 'hourglass') {
+    const baseY = GROUND_Y - rnd(100, 155);
+    game.obstacles.push({ type, x, y: baseY, hitY: baseY, w: 18, h: 22, baseY, amp: rnd(8, 16), ph: Math.random() * 6, smashable: true });
+  }
+}
+
+function spawnCoins(x) {
+  const style = Math.random();
+  if (style < 0.5) {
+    // straight row
+    const y = GROUND_Y - pick([44, 100, 150]);
+    const n = 4 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < n; i++) game.coins.push({ kind: 'floppy', x: x + i * 24, y, w: 14, h: 15 });
+  } else {
+    // arc
+    const n = 6;
+    for (let i = 0; i < n; i++) {
+      const t = i / (n - 1);
+      const y = GROUND_Y - 50 - Math.sin(t * Math.PI) * 95;
+      game.coins.push({ kind: 'floppy', x: x + i * 26, y, w: 14, h: 15 });
+    }
+  }
+  // power-ups appear on coin slots, rate-limited by distance
+  const POWERS = [
+    { kind: 'tea', min: 400 }, { kind: 'coffee', min: 500 }, { kind: 'magnet', min: 600 },
+    { kind: 'cd', min: 700 }, { kind: 'save', min: 800 }, { kind: 'glide', min: 900 },
+    { kind: 'tea', min: 950 }, { kind: 'modem', min: 1000 },
+    { kind: 'zoom', min: 1200 }, { kind: 'card', min: 1300 },
+  ];
+  if (game.dist - game.lastPowerDist > 900 && Math.random() < 0.55) {
+    const avail = POWERS.filter(p => game.dist > p.min);
+    if (avail.length) {
+      game.lastPowerDist = game.dist;
+      const p = pick(avail);
+      game.coins.push({ kind: p.kind, x: x + 100, y: GROUND_Y - pick([80, 140, 168]), w: 22, h: 22 });
+    }
+  }
+}
+
+function updateSpawner() {
+  if (game.boss) return;   // the arena clears for a boss
+  if (game.dist < game.nextSpawnX) return;
+  const sx = W + 40;
+  if (Math.random() < 0.72) spawnObstacle(sx);
+  else spawnCoins(sx);
+  const speedFactor = Math.pow(game.speed / 4.2, 0.5);
+  game.nextSpawnX = game.dist + rnd(240, 460) * speedFactor;
+}
+
+/* ---------------- particles ------------------------------------------- */
+
+function burst(x, y, colors, n, force) {
+  for (let i = 0; i < n; i++) {
+    game.particles.push({
+      x, y,
+      vx: rnd(-1, 1) * (force || 3), vy: rnd(-1.2, -0.1) * (force || 3) * 1.6,
+      s: rnd(2, 5), life: rnd(24, 50), c: pick(colors),
+    });
+  }
+}
+
+function updateParticles() {
+  for (const p of game.particles) {
+    p.x += p.vx; p.y += p.vy; p.life--;
+    if (p.card) {
+      p.vy += 0.28;
+      // solitaire-win bounce off the taskbar
+      if (p.y > GROUND_Y - 12 && p.vy > 0) { p.y = GROUND_Y - 12; p.vy *= -0.75; p.vx *= 0.92; }
+    } else {
+      p.vy += 0.18;
+    }
+  }
+  game.particles = game.particles.filter(p => p.life > 0 && p.y < H + 10 && p.x > -20);
+}
+
+function drawParticles() {
+  for (const p of game.particles) {
+    ctx.globalAlpha = Math.min(1, p.life / 20);
+    if (p.card) {
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(p.x, p.y, 9, 12);
+      ctx.fillStyle = '#404040'; ctx.fillRect(p.x, p.y, 9, 1); ctx.fillRect(p.x, p.y + 11, 9, 1);
+      ctx.fillRect(p.x, p.y, 1, 12); ctx.fillRect(p.x + 8, p.y, 1, 12);
+      ctx.fillStyle = p.red ? '#cc0000' : '#000000';
+      ctx.fillRect(p.x + 3, p.y + 4, 3, 3); ctx.fillRect(p.x + 2, p.y + 4, 1, 2); ctx.fillRect(p.x + 6, p.y + 4, 1, 2);
+    } else {
+      ctx.fillStyle = p.c;
+      ctx.fillRect(p.x, p.y, p.s, p.s);
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ---------------- player ---------------------------------------------- */
+
+const input = { jumpHeld: false };
+
+function tryJump() {
+  if (game.state === STATE.TITLE) { startRun(); return; }
+  if (game.state === STATE.BSOD && game.crashT > 90) { startRun(); return; }
+  if (game.state !== STATE.PLAY || game.paused) return;
+  if (player.ducking) return;
+  if (player.grounded) {
+    player.vy = -10.6; player.grounded = false; player.jumps = 1;
+    Sfx.jump();
+    if (!game.flags.jump) { game.flags.jump = true; quip(QUIPS.jump); }
+  } else if (player.jumps === 1) {
+    player.vy = -9.4; player.jumps = 2;
+    player.spinning = true; player.rot = 0;
+    Sfx.djump();
+  }
+}
+
+function setDuck(on) {
+  if (!on) { player.ducking = false; return; }   // releasing always allowed
+  if (game.state !== STATE.PLAY || game.paused) return;
+  if (!player.ducking) {
+    player.ducking = true;
+    if (!player.grounded) player.vy = Math.max(player.vy, 7); // fast-fall
+    Sfx.duck();
+    if (!game.flags.duck) { game.flags.duck = true; quip(QUIPS.duck); }
+  }
+}
+
+function pauseGame(msg) {
+  if (game.state !== STATE.PLAY || game.paused) return;
+  game.paused = true;
+  Sfx.stopMusic();
+  setStatus(msg || 'Paused.');
+}
+
+function resumeGame() {
+  if (game.state !== STATE.PLAY || !game.paused) return;
+  game.paused = false;
+  Sfx.startMusic();
+  setStatus('Running…');
+}
+
+function playerBox() {
+  const tiny = player.tinyT > 0 ? 0.6 : 1;
+  const sy = (player.ducking ? 0.55 : 1) * tiny;
+  const h = CLIP_BODY_H * sy - 6;
+  const w = CLIP_HIT_W * tiny;
+  return { x: player.cx - w / 2, y: player.bottomY - h, w, h };
+}
+
+function updatePlayer() {
+  // physics
+  player.gliding = false;
+  if (!player.grounded) {
+    player.vy += 0.55;
+    if (!input.jumpHeld && player.vy < -4) player.vy = -4;  // jump cut
+    // airmail glide: hold jump while falling to ride the letter down
+    if (player.glideT > 0 && input.jumpHeld && !player.ducking && player.vy > 1.3) {
+      player.vy = 1.3;
+      player.gliding = true;
+      player.spinning = false; player.rot = 0;
+    }
+    player.bottomY += player.vy;
+    if (player.bottomY >= GROUND_Y) {
+      player.bottomY = GROUND_Y;
+      player.grounded = true; player.jumps = 0;
+      player.spinning = false; player.rot = 0;
+      player.squashT = 8;
+      player.hopStep = 0; player.hopFrame = 0; player.hopWait = 0;
+    }
+    if (player.spinning) {
+      player.rot += 0.22;
+      if (player.rot >= Math.PI * 2) { player.rot = 0; player.spinning = false; }
+    }
+  } else {
+    // signature run: cycle the original HOP_PATTERN
+    if (player.hopWait > 0) player.hopWait--;
+    else {
+      player.hopFrame++;
+      if (player.hopFrame >= 2) {
+        player.hopFrame = 0;
+        player.hopStep++;
+        if (player.hopStep >= HOP_PATTERN.length) { player.hopStep = 0; player.hopWait = 6; }
+      }
+    }
+  }
+  if (player.squashT > 0) player.squashT--;
+  if (player.glideT > 0) player.glideT--;
+  if (player.tinyT > 0) player.tinyT--;
+  if (player.graceT > 0) player.graceT--;
+  if (player.inv > 0) {
+    player.inv--;
+    player.trail.push({ x: player.cx, y: player.bottomY, t: 16 });
+  }
+  for (const tr of player.trail) tr.t--;
+  player.trail = player.trail.filter(t => t.t > 0);
+
+  advanceEyes();
+}
+
+// shared eye-sequence stepper (in-game and title screen)
+function advanceEyes() {
+  player.seqT++;
+  if (player.seqT >= player.seq[player.seqIdx].d) {
+    player.seqT = 0;
+    player.seqIdx++;
+    if (player.seqIdx >= player.seq.length) {
+      player.seqIdx = 0;
+      player.seq = IDLE_SEQUENCES[Math.floor(Math.random() * IDLE_SEQUENCES.length)];
+    }
+  }
+}
+
+function currentEyes() {
+  // context-aware overrides on top of the idle sequences
+  if (game.state === STATE.PLAY) {
+    if (!player.grounded && player.vy < -1) return { pdx: 0, pdy: -1, blink: false };
+    const near = game.obstacles.some(o => o.x > player.cx && o.x < player.cx + 130);
+    const base = resolveEyeState(player.seq[player.seqIdx].s);
+    if (near && !base.blink) return { pdx: 1, pdy: 0, blink: false };
+    return base;
+  }
+  return resolveEyeState(player.seq[player.seqIdx].s);
+}
+
+function drawPlayer() {
+  // rainbow ghost trail while invincible
+  for (const tr of player.trail) {
+    ctx.globalAlpha = tr.t / 40;
+    ctx.fillStyle = 'hsl(' + ((tr.t * 40 + game.frame * 9) % 360) + ',95%,60%)';
+    ctx.fillRect(tr.x - 12, tr.y - 50, 24, 46);
+  }
+  ctx.globalAlpha = 1;
+
+  const hop = player.grounded && game.state === STATE.PLAY ? HOP_PATTERN[player.hopStep] * 2 : 0;
+  let sx = 1, sy = 1;
+  if (player.ducking) { sx = 1.25; sy = 0.55; }
+  else if (player.squashT > 0) { sx = 1 + player.squashT * 0.02; sy = 1 - player.squashT * 0.02; }
+  if (player.tinyT > 0) { sx *= 0.6; sy *= 0.6; }   // zoom 50%
+
+  if (player.inv > 0 && player.inv < 90 && Math.floor(game.frame / 5) % 2 === 0) {
+    // blink warning as the power-up runs out: skip a frame
+  }
+
+  ctx.save();
+  const jitter = game.multT > 0 ? rnd(-1.2, 1.2) : 0;   // caffeine shakes
+  ctx.translate(player.cx + jitter, player.bottomY + hop + jitter * 0.5);
+  ctx.rotate(player.rot);
+  ctx.scale(sx, sy);
+  if (player.gliding) {
+    // the letter he's riding
+    const flut = Math.sin(game.frame * 0.3) * 2;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(-32, 2); ctx.lineTo(30, 2 + flut); ctx.lineTo(36, 8 + flut); ctx.lineTo(-26, 8);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#c8d0dc'; ctx.fillRect(-26, 7, 62, 2);
+    ctx.fillStyle = '#a0a8b8';                       // faint ruled lines
+    ctx.fillRect(-24, 4, 20, 1); ctx.fillRect(4, 4, 22, 1);
+  }
+  ctx.translate(-13 * PXC, -35 * PXC);
+  if (player.inv > 0) {
+    ctx.shadowColor = 'hsl(' + ((game.frame * 12) % 360) + ',100%,60%)';
+    ctx.shadowBlur = 10;
+  }
+  const eyes = currentEyes();
+  ctx.drawImage(clippyBody, 0, 0);
+  clippyDraw.drawEyes(eyes.pdx, eyes.pdy, eyes.blink);
+  ctx.restore();
+  ctx.shadowBlur = 0;
+}
+
+/* ---------------- collisions ------------------------------------------ */
+
+function overlap(a, b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function obstacleBox(o) {
+  const y = (o.type === 'banner' || o.type === 'hourglass') ? o.hitY : o.y;
+  return { x: o.x + 3, y: y + 3, w: o.w - 6, h: o.h - 5 };
+}
+
+function addScore(n) {
+  game.score += n * (game.multT > 0 ? 2 : 1);
+}
+
+// one shared apply path for every power-up; sfx/quip default to the kind name
+const PICKUP_FX = {
+  cd:     { apply: () => { player.inv = 60 * 6; }, score: 100, sfx: 'power', quip: 'power',
+            burst: [['#ff4040', '#ffe66e', '#40ff70', '#40a0ff', '#e040ff'], 22, 3] },
+  coffee: { apply: () => { game.multT = 60 * 9; },      burst: [['#6b4226', '#a67447', '#ffffff'], 10, 2.5] },
+  save:   { apply: () => { player.autosave = true; },   burst: [['#ffd24a', '#ffe66e', '#ffffff'], 12, 2.5] },
+  modem:  { apply: () => { game.slowmoT = 60 * 6; },    burst: [['#40ff70', '#ff4040', '#c0c0c0'], 10, 2.5] },
+  card:   { apply: () => cardBomb() },   // cardBomb does its own fireworks
+  magnet: { apply: () => { game.magnetT = 60 * 8; },    burst: [['#cc2020', '#c8c8d4', '#4a5cc8'], 10, 2.5] },
+  glide:  { apply: () => { player.glideT = 60 * 7; }, quipDur: 180,
+            burst: [['#ffffff', '#e8e8f0', '#c0d8ff'], 10, 2.5] },
+  zoom:   { apply: () => { player.tinyT = 60 * 8; },    burst: [['#8098c0', '#ffffff', '#404040'], 10, 2.5] },
+  tea:    { apply: () => {
+              game.teaStreak++;
+              game.teaStreakT = 60 * 12;
+              if (game.teaStreak >= 4) {
+                // word got around
+                game.teaStreak = 0;
+                spawnHR();
+                Sfx.hrDing();
+                return 'teaSpill';
+              }
+              addScore(50 * game.teaStreak);   // gossip compounds: +50/+100/+150
+              return null;
+            }, score: 0, sfx: 'teaSip',
+            burst: [['#b97a2a', '#f0f0f4', '#ffe66e'], 8, 2] },
+};
+
+function spawnHR() {
+  game.projectiles.push({
+    type: 'hr', x: W + 20, y: 110, w: 58, h: 32,
+    vx: -2.5, vy: 0.4, t: 0,
+  });
+}
+
+function updateWorld() {
+  const ts = game.slowmoT > 0 ? 0.45 : 1;   // 56k slow-mo
+  const sp = game.speed * ts;
+  game.dist += sp;
+  addScore(sp * 0.12);
+  game.speed = Math.min(9.5, game.speed + 0.0001 * game.speed);
+  if (game.quipCooldown > 0) game.quipCooldown--;
+  if (game.bubbleT > 0) game.bubbleT--;
+  if (game.multT > 0) game.multT--;
+  if (game.slowmoT > 0) game.slowmoT--;
+  if (game.magnetT > 0) game.magnetT--;
+  if (game.teaStreakT > 0) {
+    game.teaStreakT--;
+    if (game.teaStreakT === 0) game.teaStreak = 0;   // the gossip goes cold
+  }
+
+  // zone announcements
+  const zi = Math.min(ZONES.length - 1, Math.floor(game.score / 1500));
+  if (zi > game.zoneIdx) {
+    game.zoneIdx = zi;
+    say(QUIPS.zone + ZONES[zi] + '!', 150);
+    Sfx.power();
+  }
+  updateTheme(game.zoneIdx);   // crossfade sky & architecture toward this land
+
+  // summon the boss at score milestones
+  if (!game.boss && game.score >= game.nextBossScore) startBoss();
+  if (game.boss) {
+    updateBoss(ts);
+    if (game.state !== STATE.PLAY) return;   // boss body hit may have crashed us
+  }
+  updateProjectiles(ts);
+  if (game.state !== STATE.PLAY) return;
+
+  updateSpawner();
+
+  const pbox = playerBox();
+
+  // obstacles
+  for (const o of game.obstacles) {
+    o.x -= sp;
+    if (o.type === 'hourglass') {
+      o.hitY = o.baseY + Math.sin(game.frame * 0.06 + o.ph) * o.amp;
+    } else if (o.type === 'banner') {
+      // wobble lives in the update phase so hitbox and pixels agree
+      o.hitY = o.y + Math.sin(game.frame * 0.08 + o.x * 0.01) * 3;
+    }
+    const box = obstacleBox(o);
+    if (!o.dead && overlap(pbox, box)) {
+      if (player.inv > 0) {
+        o.dead = true;
+        addScore(50);
+        burst(o.x + o.w / 2, box.y + box.h / 2, ['#c0c0c0', '#ffffff', '#000080', '#0000aa'], 16, 4);
+        game.shake = 8;
+        Sfx.smash();
+        quip(QUIPS.smash);
+      } else {
+        crash();
+        return;
+      }
+    }
+    // near-miss tracking
+    if (!o.dead && !o.passed && o.x + o.w < pbox.x) {
+      o.passed = true;
+      const vGap = Math.min(Math.abs(pbox.y - (box.y + box.h)), Math.abs(box.y - (pbox.y + pbox.h)));
+      if (o.grazed || vGap < 16) quip(pick(QUIPS.near));
+    }
+    if (!o.dead && !o.passed && box.x < pbox.x + pbox.w && box.x + box.w > pbox.x) {
+      const vGap = Math.min(Math.abs(pbox.y - (box.y + box.h)), Math.abs(box.y - (pbox.y + pbox.h)));
+      if (vGap < 14) o.grazed = true;
+    }
+  }
+  game.obstacles = game.obstacles.filter(o => !o.dead && o.x + o.w > -60);
+
+  // coins + power-ups
+  for (const cn of game.coins) {
+    cn.x -= sp;
+    // defrag magnet pulls floppies in
+    if (game.magnetT > 0 && cn.kind === 'floppy' && !cn.taken) {
+      const dx = player.cx - (cn.x + 7), dy = (player.bottomY - 32) - (cn.y + 7);
+      if (dx * dx + dy * dy < 140 * 140) { cn.x += dx * 0.11; cn.y += dy * 0.11; }
+    }
+    if (!cn.taken && overlap(pbox, cn)) {
+      cn.taken = true;
+      if (cn.kind === 'floppy') {
+        game.floppies++;
+        addScore(25);
+        burst(cn.x + 7, cn.y + 7, ['#ffe66e', '#ffffff', '#4a5cc8'], 6, 2);
+        Sfx.coin();
+        if (game.floppies === 5) quip(QUIPS.floppy5);
+      } else {
+        const fx = PICKUP_FX[cn.kind];
+        const quipOverride = fx.apply();
+        addScore(fx.score !== undefined ? fx.score : 50);
+        if (fx.burst) burst(cn.x + 11, cn.y + 11, fx.burst[0], fx.burst[1], fx.burst[2]);
+        Sfx[fx.sfx || cn.kind]();
+        say(QUIPS[quipOverride || fx.quip || cn.kind], fx.quipDur || 160);
+      }
+    }
+  }
+  game.coins = game.coins.filter(c => !c.taken && c.x + c.w > -40);
+
+  updateParticles();
+  if (game.shake > 0) game.shake--;
+}
+
+/* ---------------- boss: clippy.exe (Not Responding) -------------------- */
+
+const BOSS_X = 508;
+const BOSS_BODY_W = 42, BOSS_BODY_H = 93;   // twin: visible rows 3..34 at PXB=3
+const SBTN_W = 118, SBTN_H = 46;            // START.EXE button dimensions
+const SBTN_HOVER = GROUND_Y - 168;          // bottomY while hovering
+
+const TEA_W = 88, TEA_H = 62;               // TEA.EXE cup dimensions
+const TEA_HOVER = GROUND_Y - 150;
+
+function startBoss() {
+  const lvl = game.bossesKilled;
+  const hp = 3 + Math.min(2, lvl);
+  // boss rotation: evil twin -> START.EXE -> TEA.EXE -> repeat
+  const ROTATION = ['twin', 'start', 'tea'];
+  const kind = game.forceBossKind || ROTATION[game.bossesKilled % ROTATION.length];
+  game.forceBossKind = null;
+  const baseY = kind === 'start' ? SBTN_HOVER : kind === 'tea' ? TEA_HOVER : GROUND_Y - 132;
+  game.boss = {
+    kind, lvl, hp, maxHp: hp,
+    x: W + 90,
+    bottomY: baseY, baseY,
+    phase: 'enter', t: 0, throws: 0, hitCd: 0, targetX: 0,
+  };
+  game.projectiles = [];
+  Sfx.alarm();
+  Sfx.setMode('boss');
+  const intro = { twin: QUIPS.bossIntro, start: QUIPS.startIntro, tea: QUIPS.teaIntro };
+  say(intro[kind], 220);
+  const status = {
+    twin: 'WARNING: clippy.exe (Not Responding). End task by stomping.',
+    start: 'WARNING: START.EXE is awake. Mind the menus.',
+    tea: 'WARNING: TEA.EXE is brewing. Do not forward.',
+  };
+  setStatus(status[kind]);
+}
+
+function bossBox(b) {
+  if (b.kind === 'start') {
+    return { x: b.x - SBTN_W / 2, y: b.bottomY - SBTN_H, w: SBTN_W, h: SBTN_H };
+  }
+  if (b.kind === 'tea') {
+    return { x: b.x - TEA_W / 2, y: b.bottomY - TEA_H, w: TEA_W, h: TEA_H };
+  }
+  return { x: b.x - BOSS_BODY_W / 2, y: b.bottomY - BOSS_BODY_H, w: BOSS_BODY_W, h: BOSS_BODY_H };
+}
+
+const GOSSIP_TEXTS = ['fwd: fwd: fwd:', 'did u hear??', 're: re: re:', 'per my last', 'CONFIDENTIAL', 'reply-all 😱'];
+
+function spawnGossip(b) {
+  const txt = pick(GOSSIP_TEXTS);
+  game.projectiles.push({
+    // bubble sized to its gossip (7px monospace ≈ 4.3px/char)
+    type: 'gossip', x: b.x - 50, y: b.bottomY - 44, w: 14 + Math.ceil(txt.length * 4.3), h: 24,
+    vx: -(2.4 + b.lvl * 0.3), t: 0, txt,
+  });
+  Sfx.gossip();
+}
+
+function spawnTide(x, lvl) {
+  game.projectiles.push({
+    type: 'tide', x, y: GROUND_Y - 20, w: 36, h: 20,
+    vx: -(3.2 + lvl * 0.4), t: 0,
+  });
+}
+
+function spawnPuddle(x) {
+  game.projectiles.push({
+    type: 'puddle', x: x - 36, y: GROUND_Y - 8, w: 72, h: 8, t: 0,
+  });
+}
+
+function spawnPillar(x) {
+  game.projectiles.push({
+    type: 'pillar', x: x - 32, y: GROUND_Y, w: 64, h: 0,
+    maxH: rnd(85, 150), t: 0,
+  });
+  Sfx.menuPop();
+}
+
+function spawnWave(x, dir, lvl) {
+  game.projectiles.push({
+    type: 'wave', x, y: GROUND_Y - 14, w: 24, h: 14,
+    vx: dir * (3 + lvl * 0.4), t: 0,
+  });
+}
+
+function damageBoss(b) {
+  b.hp--;
+  b.hitCd = 45;
+  game.shake = 8;
+  const bb = bossBox(b);
+  const shards = b.kind === 'tea'
+    ? ['#f0f0f4', '#b97a2a', '#7a4a18', '#ffffff']
+    : ['#3e3e46', '#8a8a96', '#cc1010', '#ffffff'];
+  burst(b.x, bb.y + 20, shards, 14, 4);
+  if (b.hp <= 0) {
+    b.phase = 'dying'; b.t = 0;
+    game.projectiles = [];
+    Sfx.bossDie();
+  } else {
+    b.phase = 'stagger'; b.t = 0;
+    Sfx.bossHit();
+    quip(QUIPS[b.kind === 'start' ? 'startHit' : b.kind === 'tea' ? 'teaHit' : 'bossHit']);
+  }
+}
+
+function throwProjectile(b) {
+  const px0 = b.x - 26, py0 = b.bottomY - 66;
+  game.projectiles.push({
+    x: px0, y: py0,
+    vx: -(4.2 + game.speed * 0.35 + b.lvl * 0.5),
+    vy: Math.max(-1.6, Math.min(1.8, ((player.bottomY - 40) - py0) * 0.012)),
+    rot: Math.random() * 6, w: 30, h: 22,
+  });
+  Sfx.throwSfx();
+}
+
+// shared death animation + payout; returns true when the boss is gone
+function bossDeathTick(b) {
+  game.shake = Math.max(game.shake, 3);
+  if (b.t % 7 === 0) {
+    burst(b.x + rnd(-20, 20), b.bottomY - rnd(10, 85),
+      ['#3e3e46', '#8a8a96', '#cc1010', '#ffffff', '#0000aa'], 8, 3.5);
+    burstCards(b.x, b.bottomY - 46);
+  }
+  if (b.t >= 64) {
+    for (let i = 0; i < 8; i++) {
+      game.coins.push({ kind: 'floppy', x: b.x - 90 + i * 26, y: GROUND_Y - 60 - Math.sin(i / 7 * Math.PI) * 80, w: 14, h: 15 });
+    }
+    addScore(500);
+    game.bossesKilled++;
+    game.nextBossScore = game.score + 2500;
+    game.boss = null;
+    game.nextSpawnX = game.dist + 380;
+    Sfx.setMode('normal');
+    const deadQuip = { twin: QUIPS.bossDead, start: QUIPS.startDead, tea: QUIPS.teaDead };
+    say(deadQuip[b.kind], 180);
+    const deadStatus = {
+      twin: 'Evil twin terminated. It is once again safe to run.',
+      start: 'START.EXE shut down. It is now safe to keep running.',
+      tea: 'TEA.EXE contained. This thread has been archived.',
+    };
+    setStatus(deadStatus[b.kind]);
+    return true;
+  }
+  return false;
+}
+
+// shared stomp / HYPER-ram / body-contact rules
+function bossPlayerContact(b) {
+  const bb = bossBox(b), pb = playerBox();
+  if (!overlap(pb, bb)) return;
+  const stomp = player.vy > 1.2 && (pb.y + pb.h) < bb.y + 28;
+  if (stomp) {
+    damageBoss(b);
+    addScore(150);
+    player.vy = -9.6; player.grounded = false; player.jumps = 1;
+    player.spinning = false; player.rot = 0;
+    player.graceT = 50;
+    Sfx.djump();
+  } else if (player.inv > 0) {
+    if (b.hitCd === 0) damageBoss(b);
+  } else if (player.graceT === 0) {
+    crash();
+  }
+}
+
+function updateStartBoss(b, ts) {
+  if (b.phase === 'enter') {
+    b.x -= 3.2 * ts;
+    b.bottomY += (b.baseY - b.bottomY) * 0.08;
+    if (b.x <= 430) { b.x = 430; b.phase = 'menus'; b.t = 0; }
+  } else if (b.phase === 'menus') {
+    b.bottomY = b.baseY + Math.sin(b.t * 0.05) * 10;
+    // erupting Start menus: two random, one leading the player
+    if (b.t === 24) spawnPillar(rnd(220, 560));
+    if (b.t === 86) spawnPillar(rnd(220, 560));
+    if (b.t === 148) spawnPillar(Math.min(600, player.cx + rnd(40, 90)));
+    if (b.t > 148 + 40) { b.phase = 'aim'; b.t = 0; }
+  } else if (b.phase === 'aim') {
+    // slide over the player's column, telegraphing the slam
+    b.x += (Math.max(150, player.cx) - b.x) * 0.12;
+    b.bottomY = b.baseY + rnd(-2, 2);
+    if (b.t > 55) { b.phase = 'slam'; b.t = 0; }
+  } else if (b.phase === 'slam') {
+    b.bottomY += 15 * ts;
+    if (b.bottomY >= GROUND_Y) {
+      b.bottomY = GROUND_Y;
+      b.phase = 'stunned'; b.t = 0;
+      game.shake = 12;
+      burst(b.x, GROUND_Y - 6, ['#c0c0c0', '#808080', '#ffffff'], 14, 4);
+      spawnWave(b.x - SBTN_W / 2 - 10, -1, b.lvl);
+      spawnWave(b.x + SBTN_W / 2 - 14, 1, b.lvl);
+      Sfx.slam();
+    }
+  } else if (b.phase === 'stunned') {
+    // pressed into the taskbar: this is the stomp window
+    if (b.t > 95) { b.phase = 'rise'; b.t = 0; }
+  } else if (b.phase === 'rise' || b.phase === 'stagger') {
+    b.bottomY += (b.baseY - b.bottomY) * 0.12;
+    b.x += (430 - b.x) * 0.06;
+    if (b.t > 42) { b.phase = 'menus'; b.t = 0; }
+  }
+}
+
+function updateTeaBoss(b, ts) {
+  if (b.phase === 'enter') {
+    b.x -= 3.2 * ts;
+    b.bottomY += (b.baseY - b.bottomY) * 0.08;
+    if (b.x <= 470) { b.x = 470; b.phase = 'gossip'; b.t = 0; b.throws = 0; }
+  } else if (b.phase === 'gossip') {
+    b.bottomY = b.baseY + Math.sin(b.t * 0.045) * 12;
+    b.x = 470 + Math.sin(b.t * 0.02) * 40;   // drifts around while it gossips
+    const cadence = Math.max(56, 84 - b.lvl * 8);
+    if (b.t > 0 && b.t % cadence === 0) { spawnGossip(b); b.throws++; }
+    if (b.throws >= 3 + Math.min(2, b.lvl)) { b.phase = 'tilt'; b.t = 0; }
+  } else if (b.phase === 'tilt') {
+    // leaning over: the tea is about to spill
+    b.bottomY = b.baseY + rnd(-2, 2);
+    if (b.t > 48) {
+      b.phase = 'spill'; b.t = 0;
+      spawnTide(b.x - TEA_W / 2, b.lvl);
+      spawnPuddle(rnd(200, 560));
+      spawnPuddle(rnd(200, 560));
+      Sfx.spill();
+      game.shake = 8;
+    }
+  } else if (b.phase === 'spill') {
+    if (b.t === 16) spawnTide(b.x - TEA_W / 2, b.lvl);   // second slosh
+    if (b.t > 34) { b.phase = 'refill'; b.t = 0; }
+  } else if (b.phase === 'refill') {
+    // empty and heavy: sinks to the taskbar to re-steep, so stomp it!
+    b.bottomY = Math.min(GROUND_Y, b.bottomY + 9 * ts);
+    if (b.bottomY >= GROUND_Y && b.t > 95) { b.phase = 'rise'; b.t = 0; }
+  } else if (b.phase === 'rise' || b.phase === 'stagger') {
+    b.bottomY += (b.baseY - b.bottomY) * 0.12;
+    b.x += (470 - b.x) * 0.06;
+    if (b.t > 42) { b.phase = 'gossip'; b.t = 0; b.throws = 0; }
+  }
+}
+
+function updateTwinBoss(b, ts) {
+  if (b.phase === 'enter') {
+    b.x -= 3.2 * ts;
+    b.bottomY += (b.baseY - b.bottomY) * 0.08;
+    if (b.x <= BOSS_X) { b.x = BOSS_X; b.phase = 'hover'; b.t = 0; b.throws = 0; }
+  } else if (b.phase === 'hover') {
+    b.bottomY = b.baseY + Math.sin(b.t * 0.05) * 14;
+    const cadence = Math.max(52, 88 - b.lvl * 10);
+    if (b.t > 0 && b.t % cadence === 0) { throwProjectile(b); b.throws++; }
+    if (b.throws >= 3 + Math.min(2, b.lvl)) { b.phase = 'telegraph'; b.t = 0; }
+  } else if (b.phase === 'telegraph') {
+    b.x = BOSS_X + rnd(-2, 2);
+    b.bottomY += (GROUND_Y - b.bottomY) * 0.14;
+    if (b.t > 52) { b.phase = 'charge'; b.t = 0; b.bottomY = GROUND_Y; }
+  } else if (b.phase === 'charge') {
+    b.bottomY = GROUND_Y;
+    b.x -= (6.2 + b.lvl * 0.7 + game.speed * 0.25) * ts;
+    if (b.x < -70) { b.x = W + 90; b.phase = 'enter'; b.t = 0; }
+  } else if (b.phase === 'stagger') {
+    // knocked silly: retreat fast so he isn't camping the landing zone
+    b.x = Math.min(BOSS_X + 36, b.x + 6.5);
+    b.bottomY += (b.baseY - b.bottomY) * 0.15;
+    if (b.t > 46) { b.phase = 'hover'; b.t = 0; b.throws = 0; }
+  }
+}
+
+function updateBoss(ts) {
+  const b = game.boss;
+  b.t++;
+  if (b.hitCd > 0) b.hitCd--;
+
+  if (b.phase === 'dying') {
+    bossDeathTick(b);
+    return;
+  }
+
+  if (b.kind === 'start') updateStartBoss(b, ts);
+  else if (b.kind === 'tea') updateTeaBoss(b, ts);
+  else updateTwinBoss(b, ts);
+
+  // stomp + body collision (no body while exploding or knocked back)
+  if (game.boss && b.phase !== 'dying' && b.phase !== 'stagger') {
+    bossPlayerContact(b);
+  }
+}
+
+function updateProjectiles(ts) {
+  const pb = playerBox();
+  for (const p of game.projectiles) {
+    let hitActive = true;
+    if (p.type === 'pillar') {
+      // erupting Start menu: warn, rise, hold, retract
+      p.t++;
+      const RISE_AT = 30, RISE_LEN = 12, HOLD = 78;
+      if (p.t < RISE_AT) { hitActive = false; }
+      else if (p.t < RISE_AT + RISE_LEN) { p.h = p.maxH * (p.t - RISE_AT) / RISE_LEN; }
+      else if (p.t < RISE_AT + RISE_LEN + HOLD) { p.h = p.maxH; }
+      else { p.h -= p.maxH / 14; if (p.h <= 3) { p.dead = true; continue; } }
+      p.y = GROUND_Y - p.h;
+    } else if (p.type === 'wave' || p.type === 'tide') {
+      p.t++;
+      p.x += p.vx * ts;
+      if (p.t > 200 || p.x < -40 || p.x > W + 40) { p.dead = true; continue; }
+    } else if (p.type === 'gossip') {
+      p.t++;
+      p.x += p.vx * ts;
+      p.y += Math.sin(p.t * 0.08) * 0.9 + ((player.bottomY - 44) - p.y) * 0.006;
+      if (p.x < -70) { p.dead = true; continue; }
+    } else if (p.type === 'puddle') {
+      p.t++;
+      if (p.t > 300) { p.dead = true; continue; }
+    } else if (p.type === 'hr') {
+      // the meeting request hunts you, escapable but only just
+      p.t++;
+      p.vx += (player.cx - p.w / 2 > p.x ? 0.08 : -0.08);
+      p.vy += (player.bottomY - 44 - p.h / 2 > p.y ? 0.05 : -0.05);
+      p.vx = Math.max(-3.0, Math.min(3.0, p.vx));
+      p.vy = Math.max(-1.8, Math.min(1.8, p.vy));
+      p.x += p.vx * ts; p.y += p.vy * ts;
+      if (p.y > GROUND_Y - p.h) p.y = GROUND_Y - p.h;
+      if (p.t > 300) { p.dead = true; quip(QUIPS.hrGone); continue; }
+    } else {
+      p.x += p.vx * ts; p.y += p.vy * ts; p.rot += 0.13;
+      if (p.y > GROUND_Y - 12) {   // shatters on the taskbar
+        p.dead = true;
+        burst(p.x + 15, GROUND_Y - 6, ['#c0c0c0', '#ffffff', '#cc0000'], 6, 2);
+      }
+    }
+    if (!p.dead && hitActive && overlap(pb, { x: p.x + 3, y: p.y + 3, w: p.w - 6, h: Math.max(2, p.h - 6) })) {
+      if (player.inv > 0) {
+        p.dead = true;
+        addScore(25);
+        burst(p.x + 15, p.y + 11, ['#c0c0c0', '#ffffff', '#000080'], 8, 3);
+        Sfx.smash();
+      } else if (player.graceT === 0) {
+        p.dead = true;
+        crash();
+        if (game.state !== STATE.PLAY) return;   // dead: one crash is plenty
+      }
+    }
+  }
+  game.projectiles = game.projectiles.filter(p => !p.dead && p.x > -50 && p.y < H + 30);
+}
+
+function cardBomb() {
+  game.shake = 10;
+  for (const o of game.obstacles) {
+    if (o.dead || o.x > W + 20 || o.x + o.w < -20) continue;
+    o.dead = true;
+    addScore(50);
+    burstCards(o.x + o.w / 2, o.y + o.h / 2);
+  }
+  for (const p of game.projectiles) {
+    p.dead = true;
+    addScore(25);
+    burstCards(p.x + 15, p.y + 11);
+  }
+}
+
+function burstCards(x, y) {
+  for (let i = 0; i < 6; i++) {
+    game.particles.push({
+      x, y,
+      vx: rnd(-3.5, 1.5), vy: rnd(-6, -2),
+      s: 9, life: rnd(90, 150), c: '#ffffff',
+      card: true, red: Math.random() < 0.5,
+    });
+  }
+}
+
+function crash() {
+  if (player.autosave) {
+    // one free mistake: restore from autosave
+    player.autosave = false;
+    player.inv = Math.max(player.inv, 100);
+    game.shake = 8;
+    for (const o of game.obstacles) {
+      if (o.dead || o.x > W + 20 || o.x + o.w < -20) continue;
+      o.dead = true;
+      burst(o.x + o.w / 2, o.y + o.h / 2, ['#ffd24a', '#ffffff', '#c0c0c0'], 10, 3);
+    }
+    game.projectiles = [];
+    // shove the boss back so he can't immediately re-clip you
+    if (game.boss && game.boss.phase !== 'dying') {
+      game.boss.phase = 'stagger'; game.boss.t = 0;
+      game.boss.x = Math.max(game.boss.x, BOSS_X);
+    }
+    Sfx.recover();
+    say(QUIPS.saveUsed, 160);
+    setStatus('Document recovered from autosave.');
+    return;
+  }
+  game.state = STATE.CRASH;
+  game.crashT = 0;
+  game.shake = 14;
+  burst(player.cx, player.bottomY - 30, ['#c0c0c0', '#dcdce4', '#78787f', '#ffffff'], 26, 4);
+  Sfx.stopMusic();
+  Sfx.crash();
+  if (game.score > game.hi) {
+    game.hi = Math.floor(game.score);
+    game.newHi = true;
+    storageSet('clippy_hiscore', game.hi);
+  }
+  if (game.floppies > game.hiFloppy) {
+    game.hiFloppy = game.floppies;
+    storageSet('clippy_hifloppy', game.hiFloppy);
+  }
+  setStatus('CLIPPY.EXE has performed an illegal operation.');
+}
+
+/* ---------------- HUD / bubble ----------------------------------------- */
+
+function pad(n, len) { return String(Math.floor(n)).padStart(len, '0'); }
+
+function drawHUD() {
+  ctx.fillStyle = '#c0c0c0'; ctx.fillRect(0, 0, W, HUD_H);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, 1);
+  ctx.fillStyle = '#808080'; ctx.fillRect(0, HUD_H - 2, W, 1);
+  ctx.fillStyle = '#404040'; ctx.fillRect(0, HUD_H - 1, W, 1);
+
+  const panel = (x, w, text, color) => {
+    ctx.fillStyle = '#808080'; ctx.fillRect(x, 3, w, 1); ctx.fillRect(x, 3, 1, 16);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(x, 18, w, 1); ctx.fillRect(x + w - 1, 3, 1, 16);
+    ctx.fillStyle = '#d4d4d4'; ctx.fillRect(x + 1, 4, w - 2, 14);
+    ctx.fillStyle = color || '#000000';
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText(text, x + 6, 14);
+  };
+  panel(6, 130, 'SCORE ' + pad(game.score, 6));
+  panel(142, 116, 'HI ' + pad(game.hi, 6), '#000080');
+  panel(264, 76, '💾 x ' + game.floppies);
+  panel(346, 168, ZONES[Math.min(game.zoneIdx, ZONES.length - 1)], '#404040');
+  if (Sfx.muted) panel(520, 60, 'MUTED', '#a00000');
+}
+
+// active power-up tags, floating just below the HUD bar
+function drawBadges() {
+  const badges = [];
+  if (player.inv > 0)     badges.push(['HYPER!', 'hsl(' + ((game.frame * 12) % 360) + ',90%,40%)', player.inv]);
+  if (game.multT > 0)     badges.push(['2X PTS', '#7a3b00', game.multT]);
+  if (game.slowmoT > 0)   badges.push(['56K SLO-MO', '#004080', game.slowmoT]);
+  if (game.magnetT > 0)   badges.push(['DEFRAG', '#a02020', game.magnetT]);
+  if (game.teaStreak > 0) badges.push(['TEA x' + game.teaStreak,
+                                       game.teaStreak >= 3 ? '#a00000' : '#7a4a18', game.teaStreakT]);
+  if (player.glideT > 0)  badges.push(['AIRMAIL', '#3a5a8a', player.glideT]);
+  if (player.tinyT > 0)   badges.push(['ZOOM 50%', '#5a2a7a', player.tinyT]);
+  if (player.autosave)    badges.push(['AUTOSAVED', '#0a7a2a', -1]);
+  let bx = W - 8;
+  ctx.font = 'bold 9px monospace';
+  for (const [text, color, t] of badges) {
+    const bw = ctx.measureText(text).width + 12;
+    bx -= bw + 5;
+    // flash the tag when a timed effect is about to expire
+    if (t >= 0 && t < 120 && Math.floor(game.frame / 6) % 2 === 0) continue;
+    ctx.fillStyle = '#c0c0c0'; ctx.fillRect(bx, HUD_H + 5, bw, 15);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(bx, HUD_H + 5, bw, 1); ctx.fillRect(bx, HUD_H + 5, 1, 15);
+    ctx.fillStyle = '#404040'; ctx.fillRect(bx, HUD_H + 19, bw, 1); ctx.fillRect(bx + bw - 1, HUD_H + 5, 1, 15);
+    ctx.fillStyle = color;
+    ctx.fillText(text, bx + 6, HUD_H + 16);
+  }
+}
+
+function wrapText(text, maxW) {
+  const words = text.split(' ');
+  const lines = [];
+  let line = '';
+  for (const w2 of words) {
+    const test = line ? line + ' ' + w2 : w2;
+    if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w2; }
+    else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawBubble() {
+  if (game.bubbleT <= 0 || !game.bubbleText) return;
+  ctx.font = '10px monospace';
+  const maxW = 210;
+  const lines = wrapText(game.bubbleText, maxW);
+  const bw = Math.min(maxW, Math.max(...lines.map(l => ctx.measureText(l).width))) + 20;
+  const bh = lines.length * 12 + 14;
+  // anchor to Clippy's head so the bubble rides along with jumps, hops, and ducks
+  const tiny = player.tinyT > 0 ? 0.6 : 1;
+  const headY = player.bottomY - CLIP_BODY_H * (player.ducking ? 0.55 : 1) * tiny
+    + (player.grounded && game.state === STATE.PLAY ? HOP_PATTERN[player.hopStep] * 2 : 0);
+  const bx = player.cx + 30;
+  const by = Math.max(HUD_H + 6, headY - bh - 12);
+  ctx.globalAlpha = Math.min(1, game.bubbleT / 15);
+  ctx.fillStyle = '#ffffcc';
+  ctx.strokeStyle = '#000000'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 6); else ctx.rect(bx, by, bw, bh);
+  ctx.fill(); ctx.stroke();
+  // tail
+  ctx.beginPath();
+  ctx.moveTo(bx + 12, by + bh); ctx.lineTo(bx + 2, by + bh + 12); ctx.lineTo(bx + 26, by + bh);
+  ctx.closePath();
+  ctx.fillStyle = '#ffffcc'; ctx.fill();
+  ctx.strokeStyle = '#000000';
+  ctx.beginPath(); ctx.moveTo(bx + 12, by + bh); ctx.lineTo(bx + 2, by + bh + 12); ctx.lineTo(bx + 26, by + bh); ctx.stroke();
+  ctx.fillStyle = '#ffffcc'; ctx.fillRect(bx + 13, by + bh - 1, 12, 2);
+  ctx.fillStyle = '#000000';
+  lines.forEach((l, i) => ctx.fillText(l, bx + 10, by + 16 + i * 12));
+  ctx.globalAlpha = 1;
+}
+
+/* ---------------- screens ---------------------------------------------- */
+
+const BOOT_LINES = [
+  { t: 0,   s: 'PaperClip BIOS v4.02   (C) 1997 Catterson Design' },
+  { t: 26,  s: 'CPU: Intel 486DX2-66 ... OK' },
+  { t: 46,  s: 'Memory Test: 640K ... OK  (should be enough for anybody)' },
+  { t: 72,  s: 'Detecting drives: A:\\ 3.5" floppy ... C:\\ 528MB ... OK' },
+  { t: 98,  s: 'Mouse detected on COM1. It has a ball. Clean it.' },
+  { t: 124, s: '' },
+  { t: 126, s: 'Starting MS-DOS...' },
+  { t: 152, s: 'C:\\> CLIPPY.EXE /epic' },
+];
+const BOOT_BAR_T = 176, BOOT_DONE_T = 260;
+
+function drawBoot() {
+  ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, W, H);
+  ctx.font = '12px monospace';
+  ctx.fillStyle = '#c0c0c0';
+  let ly = 34;
+  for (const line of BOOT_LINES) {
+    if (game.bootT >= line.t) {
+      const age = game.bootT - line.t;
+      const chars = Math.min(line.s.length, Math.ceil(age * 1.6));
+      ctx.fillText(line.s.slice(0, chars), 26, ly);
+    }
+    ly += 20;
+  }
+  if (game.bootT >= BOOT_BAR_T) {
+    ctx.fillStyle = '#c0c0c0';
+    ctx.fillText('Loading Office Assistant', 26, ly + 14);
+    const prog = Math.min(1, (game.bootT - BOOT_BAR_T) / (BOOT_DONE_T - BOOT_BAR_T - 14));
+    ctx.strokeStyle = '#c0c0c0'; ctx.lineWidth = 1;
+    ctx.strokeRect(26, ly + 24, 300, 14);
+    ctx.fillStyle = '#000080';
+    const blocks = Math.floor(prog * 18);
+    for (let i = 0; i < blocks; i++) ctx.fillRect(29 + i * 16.4, ly + 27, 13, 8);
+  }
+  if (Math.floor(game.bootT / 16) % 2 === 0) {
+    ctx.fillStyle = '#c0c0c0';
+    ctx.fillText('_', 26, ly + 70);
+  }
+  ctx.font = '10px monospace';
+  ctx.fillStyle = '#606060';
+  ctx.fillText('Press any key to skip', W - 150, H - 12);
+
+  game.bootT++;
+  if (game.bootT >= BOOT_DONE_T) enterTitle();
+}
+
+function enterTitle() {
+  game.state = STATE.TITLE;
+  game.dist = 0;
+  Sfx.chime();
+  setStatus('Ready. It looks like you’re trying to play a game.');
+}
+
+function drawTitle() {
+  game.dist += 1.1;   // slow scenic drift
+  drawScenery();
+
+  // Clippy standing on the taskbar, doing his idle thing
+  player.bottomY = GROUND_Y;
+  ctx.save();
+  ctx.translate(player.cx, player.bottomY + (Math.floor(game.frame / 40) % 5 === 0 ? HOP_PATTERN[Math.floor(game.frame / 3) % 10] * 2 : 0));
+  ctx.translate(-13 * PXC, -35 * PXC);
+  const eyes = currentEyes();
+  ctx.drawImage(clippyBody, 0, 0);
+  clippyDraw.drawEyes(eyes.pdx, eyes.pdy, eyes.blink);
+  ctx.restore();
+
+  // big title with hard 3D shadow
+  ctx.font = 'bold 44px monospace';
+  ctx.fillStyle = '#000060'; ctx.fillText('CLIPPY.EXE', 158, 88);
+  ctx.fillStyle = '#ffffff'; ctx.fillText('CLIPPY.EXE', 154, 84);
+  ctx.font = 'bold 12px monospace';
+  ctx.fillStyle = '#ffe66e';
+  ctx.fillText('THE OFFICE ASSISTANT STRIKES BACK', 190, 106);
+
+  // welcome dialog
+  const dx = 200, dy = 130, dw = 320, dh = 118;
+  bevelRect(dx, dy, dw, dh, true);
+  ctx.fillStyle = '#000080'; ctx.fillRect(dx + 3, dy + 3, dw - 6, 14);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px monospace';
+  ctx.fillText('Welcome', dx + 7, dy + 14);
+  ctx.fillStyle = '#000000'; ctx.font = '11px monospace';
+  ctx.fillText('It looks like you’re trying to have', dx + 14, dy + 36);
+  ctx.fillText('fun in 1997.', dx + 14, dy + 50);
+  ctx.fillText('Would you like help with that?', dx + 14, dy + 68);
+  bevelRect(dx + 60, dy + 82, 84, 20, true);
+  bevelRect(dx + 172, dy + 82, 84, 20, true);
+  ctx.fillStyle = '#000000'; ctx.font = 'bold 10px monospace';
+  ctx.fillText('Yes', dx + 91, dy + 96);
+  ctx.fillText('Absolutely', dx + 184, dy + 96);
+
+  ctx.fillStyle = 'rgba(0,0,60,0.55)';
+  ctx.fillRect(70, 264, 500, 54);
+  if (Math.floor(game.frame / 24) % 2 === 0) {
+    ctx.font = 'bold 13px monospace';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('>> PRESS ENTER OR CLICK TO START <<', 176, 280);
+  }
+  ctx.font = '10px monospace';
+  ctx.fillStyle = '#e0f0f0';
+  ctx.fillText(touchMode
+    ? 'TAP jump (tap twice = double)   HOLD bottom of screen = duck   HOLD tap = glide'
+    : 'SPACE/↑ jump (press twice to double-jump)   ↓ duck   P pause   M mute', 82, 298);
+  if (game.hi > 0) {
+    ctx.fillStyle = '#ffe66e';
+    ctx.fillText('HIGH SCORE: ' + pad(game.hi, 6) + '   BEST FLOPPY HAUL: ' + game.hiFloppy, 190, 312);
+  }
+  // build stamp, visible on every device: if this matches, the deploy landed
+  ctx.font = '9px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.fillText(GAME_VERSION, W - ctx.measureText(GAME_VERSION).width - 8, 316);
+}
+
+function startRun() {
+  resetRun();
+  game.state = STATE.PLAY;
+  Sfx.ensure();
+  Sfx.startMusic();
+}
+
+const BSOD_GIBBERISH = 'An exception 0E has occurred at 0028:C0DEBA5E in VxD CLIPPY(01) + 000010E4. The current application, YOUR HOPES AND DREAMS, will be terminated.';
+
+function drawCrashAndBsod() {
+  if (game.crashT < 45) {
+    // frozen world with shards flying
+    drawScenery();
+    for (const o of game.obstacles) drawObstacle(o);
+    for (const cn of game.coins) drawCollectible(cn);
+    drawBoss();
+    drawProjectiles();
+    drawParticles();
+    updateParticles();
+    drawPlayer();
+    drawHUD();
+    // glitch rectangles: window ghosting
+    for (let i = 0; i < 3; i++) {
+      const gx = (game.crashT * 37 + i * 211) % W, gy = (game.crashT * 53 + i * 97) % (H - 60);
+      ctx.fillStyle = 'rgba(192,192,192,0.5)';
+      ctx.fillRect(gx, gy, 90, 60);
+      ctx.fillStyle = 'rgba(0,0,128,0.5)';
+      ctx.fillRect(gx, gy, 90, 8);
+    }
+    game.crashT++;
+    if (game.crashT === 45) game.state = STATE.BSOD;
+    return;
+  }
+}
+
+function drawBsod() {
+  game.crashT++;
+  ctx.fillStyle = '#0000aa'; ctx.fillRect(0, 0, W, H);
+  ctx.font = 'bold 13px monospace';
+  // inverted header
+  const head = ' CLIPPY ';
+  const hw = ctx.measureText(head).width;
+  ctx.fillStyle = '#aaaaaa'; ctx.fillRect((W - hw) / 2, 44, hw, 18);
+  ctx.fillStyle = '#0000aa'; ctx.fillText(head, (W - hw) / 2, 58);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '12px monospace';
+  const lines = wrapText(BSOD_GIBBERISH, 520);
+  let ly = 96;
+  for (const l of lines) { ctx.fillText(l, 60, ly); ly += 16; }
+  ly += 12;
+  ctx.fillText('*  It looks like you crashed. Would you like help?', 60, ly); ly += 24;
+  ctx.font = 'bold 12px monospace';
+  ctx.fillText('*  FINAL SCORE ....... ' + pad(game.score, 6), 60, ly); ly += 18;
+  ctx.fillText('*  FLOPPIES SAVED .... ' + game.floppies + ' (' + (game.floppies * 1.44).toFixed(2) + ' MB)', 60, ly); ly += 18;
+  ctx.fillText('*  ZONE REACHED ...... ' + ZONES[Math.min(game.zoneIdx, ZONES.length - 1)], 60, ly); ly += 18;
+  if (game.newHi) {
+    ctx.fillStyle = '#ffff55';
+    ctx.fillText('*  NEW HIGH SCORE! Saved to A:\\HISCORE.INI', 60, ly); ly += 18;
+    ctx.fillStyle = '#ffffff';
+  }
+  ly += 14;
+  ctx.font = '12px monospace';
+  if (game.crashT > 90 && Math.floor(game.crashT / 22) % 2 === 0) {
+    ctx.fillText('Press ENTER to reboot and try again ...', 60, ly);
+  }
+  if (Math.floor(game.crashT / 16) % 2 === 0) {
+    ctx.fillText('_', 60, ly + 22);
+  }
+}
+
+/* ---------------- boss drawing ----------------------------------------- */
+
+function drawStartBoss(b) {
+  const w = SBTN_W, h = SBTN_H;
+  const pressed = b.phase === 'stunned';
+  const x = b.x - w / 2, y = b.bottomY - h;
+
+  // slam shadow on the taskbar while aiming/falling
+  if (b.phase === 'aim' || b.phase === 'slam') {
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath(); ctx.ellipse(b.x, GROUND_Y - 3, w * 0.45, 5, 0, 0, Math.PI * 2); ctx.fill();
+  }
+
+  ctx.save();
+  if (b.phase === 'dying') {
+    ctx.globalAlpha = Math.max(0.1, 1 - b.t / 64);
+    ctx.translate(rnd(-3, 3), rnd(-3, 3));
+  }
+  // giant Start button, pressed-in while stunned
+  ctx.fillStyle = '#c0c0c0'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = pressed ? '#404040' : '#ffffff';
+  ctx.fillRect(x, y, w, 3); ctx.fillRect(x, y, 3, h);
+  ctx.fillStyle = pressed ? '#ffffff' : '#404040';
+  ctx.fillRect(x, y + h - 3, w, 3); ctx.fillRect(x + w - 3, y, 3, h);
+  const off = pressed ? 2 : 0;
+  // windows flag
+  const cols = ['#e04b34', '#7db700', '#2e8fef', '#ffba08'];
+  for (let i = 0; i < 4; i++) {
+    ctx.fillStyle = cols[i];
+    ctx.fillRect(x + 12 + (i % 2) * 12 + off, y + 13 + Math.floor(i / 2) * 12 + off, 10, 10);
+  }
+  // 'Start' text
+  ctx.fillStyle = '#000000'; ctx.font = 'bold 15px Tahoma, sans-serif';
+  ctx.fillText('Start', x + 39 + off, y + 31 + off);
+  // angry eyes + brows
+  ctx.fillStyle = '#181820';
+  ctx.fillRect(x + w - 40 + off, y + 14 + off, 8, 8); ctx.fillRect(x + w - 24 + off, y + 14 + off, 8, 8);
+  ctx.fillRect(x + w - 42 + off, y + 9 + off, 11, 3); ctx.fillRect(x + w - 26 + off, y + 9 + off, 11, 3);
+  ctx.fillStyle = '#cc1010';
+  ctx.fillRect(x + w - 38 + off, y + 16 + off, 4, 4); ctx.fillRect(x + w - 22 + off, y + 16 + off, 4, 4);
+  ctx.restore();
+
+  // red warning flash while it locks on
+  if (b.phase === 'aim' && Math.floor(b.t / 5) % 2 === 0) {
+    ctx.fillStyle = 'rgba(255,0,0,0.2)';
+    ctx.fillRect(x - 5, y - 5, w + 10, h + 10);
+  }
+
+  // floating tooltip label
+  if (b.phase !== 'dying') {
+    const tw = 132, tx = b.x - tw / 2, ty = y - 26;
+    ctx.fillStyle = '#c0c0c0'; ctx.fillRect(tx - 2, ty - 2, tw + 4, 18);
+    ctx.fillStyle = '#000080'; ctx.fillRect(tx, ty, tw, 14);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 8px monospace';
+    ctx.fillText('START.EXE: 4% defragged', tx + 5, ty + 10);
+  }
+}
+
+function drawTeaBoss(b) {
+  const w = TEA_W, h = TEA_H;
+  const x = b.x - w / 2, y = b.bottomY - h;
+  const tilt = b.phase === 'tilt' ? Math.min(0.5, b.t * 0.012) : (b.phase === 'spill' ? 0.5 : 0);
+
+  ctx.save();
+  if (b.phase === 'dying') {
+    ctx.globalAlpha = Math.max(0.1, 1 - b.t / 64);
+    ctx.translate(rnd(-3, 3), rnd(-3, 3));
+  }
+  ctx.translate(b.x, b.bottomY - h / 2);
+  ctx.rotate(-tilt);
+  ctx.translate(-w / 2, -h / 2);
+
+  // saucer
+  ctx.fillStyle = '#c8c8d0';
+  ctx.beginPath(); ctx.ellipse(w / 2, h - 2, w / 2 + 8, 6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#e8e8ee';
+  ctx.beginPath(); ctx.ellipse(w / 2, h - 4, w / 2 + 4, 4, 0, 0, Math.PI * 2); ctx.fill();
+  // cup body
+  ctx.fillStyle = '#f0f0f4'; ctx.fillRect(4, 8, w - 8, h - 14);
+  ctx.fillStyle = '#c8c8d0'; ctx.fillRect(4, h - 12, w - 8, 6);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(4, 8, w - 8, 4);
+  // handle
+  ctx.strokeStyle = '#e0e0e6'; ctx.lineWidth = 7;
+  ctx.beginPath(); ctx.arc(w + 2, h / 2 + 2, 13, -Math.PI / 2, Math.PI / 2); ctx.stroke();
+  // tea surface (drains as it spills, empty while refilling)
+  const empty = b.phase === 'refill' || b.phase === 'rise';
+  if (!empty) {
+    ctx.fillStyle = '#7a4a18';
+    ctx.beginPath(); ctx.ellipse(w / 2, 10, w / 2 - 7, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#b97a2a';
+    ctx.beginPath(); ctx.ellipse(w / 2 - 5, 9, w / 3 - 4, 3, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  // angry eyes + brows on the cup face
+  ctx.fillStyle = '#181820';
+  ctx.fillRect(w / 2 - 20, 24, 8, 8); ctx.fillRect(w / 2 + 12, 24, 8, 8);
+  ctx.fillRect(w / 2 - 22, 19, 11, 3); ctx.fillRect(w / 2 + 11, 19, 11, 3);
+  ctx.fillStyle = '#cc1010';
+  ctx.fillRect(w / 2 - 18, 26, 4, 4); ctx.fillRect(w / 2 + 14, 26, 4, 4);
+  // teabag tag on a string
+  ctx.strokeStyle = '#a0a0a8'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(10, 10); ctx.lineTo(2, 30); ctx.stroke();
+  ctx.fillStyle = '#ffe66e'; ctx.fillRect(-8, 30, 22, 12);
+  ctx.fillStyle = '#000000'; ctx.font = 'bold 6px monospace';
+  ctx.fillText('HOT', -5, 36); ctx.fillText('GOSS', -6, 41);
+  ctx.restore();
+
+  // steam wisps (double while re-steeping)
+  if (b.phase !== 'dying') {
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    const n = (b.phase === 'refill') ? 5 : 3;
+    for (let i = 0; i < n; i++) {
+      const sx = b.x - 24 + i * 12 + Math.sin(game.frame * 0.1 + i * 2) * 4;
+      const sy = b.bottomY - h - 8 - ((game.frame * 0.8 + i * 13) % 26);
+      ctx.fillRect(sx, sy, 3, 5);
+    }
+  }
+
+  // pouring stream while tilted
+  if (tilt > 0.3) {
+    ctx.fillStyle = '#b97a2a';
+    ctx.fillRect(x - 12, y + 18, 7, GROUND_Y - y - 18);
+    ctx.fillStyle = '#d89a4a';
+    ctx.fillRect(x - 10, y + 18, 3, GROUND_Y - y - 18);
+  }
+
+  // red warning flash during the tilt telegraph
+  if (b.phase === 'tilt' && Math.floor(b.t / 5) % 2 === 0) {
+    ctx.fillStyle = 'rgba(255,0,0,0.18)';
+    ctx.fillRect(x - 8, y - 8, w + 20, h + 16);
+  }
+
+  // floating tooltip
+  if (b.phase !== 'dying') {
+    const tw = 128, tx = b.x - tw / 2, ty = y - 30;
+    ctx.fillStyle = '#c0c0c0'; ctx.fillRect(tx - 2, ty - 2, tw + 4, 18);
+    ctx.fillStyle = '#000080'; ctx.fillRect(tx, ty, tw, 14);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 8px monospace';
+    ctx.fillText('TEA.EXE: do not forward', tx + 5, ty + 10);
+  }
+}
+
+function drawBoss() {
+  const b = game.boss;
+  if (!b) return;
+  if (b.kind === 'start') { drawStartBoss(b); return; }
+  if (b.kind === 'tea') { drawTeaBoss(b); return; }
+  const flicker = b.phase !== 'dying' && (b.t % 44) < 5;
+
+  ctx.save();
+  if (b.phase === 'dying') {
+    ctx.globalAlpha = Math.max(0.1, 1 - b.t / 64);
+    ctx.translate(rnd(-3, 3), rnd(-3, 3));
+  } else if (flicker) {
+    ctx.globalAlpha = 0.5;   // hung-window flicker
+  }
+  ctx.translate(b.x - 13 * PXB, b.bottomY - 35 * PXB);
+  ctx.drawImage(evilBody, 0, 0);
+  const blink = (b.t % 150) < 6;
+  evilDraw.drawEyes(-1, b.phase === 'charge' ? 0 : (player.bottomY < b.bottomY - 60 ? -1 : 0), blink);
+  ctx.restore();
+  ctx.globalAlpha = 1;
+
+  // red warning flash while he winds up a charge
+  if (b.phase === 'telegraph' && Math.floor(b.t / 5) % 2 === 0) {
+    const bb = bossBox(b);
+    ctx.fillStyle = 'rgba(255,0,0,0.2)';
+    ctx.fillRect(bb.x - 5, bb.y - 5, bb.w + 10, bb.h + 10);
+  }
+
+  // floating mini titlebar, like a window that gave up
+  if (b.phase !== 'dying') {
+    const tw = 152, tx = b.x - tw / 2, ty = b.bottomY - BOSS_BODY_H - 30;
+    ctx.fillStyle = '#c0c0c0'; ctx.fillRect(tx - 2, ty - 2, tw + 4, 18);
+    ctx.fillStyle = '#000080'; ctx.fillRect(tx, ty, tw, 14);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 8px monospace';
+    ctx.fillText('clippy.exe (Not Responding)', tx + 5, ty + 10);
+  }
+}
+
+function drawPillar(p) {
+  if (p.t < 30) {
+    // flashing hazard stripes where the menu will erupt
+    if (Math.floor(game.frame / 5) % 2 === 0) {
+      ctx.fillStyle = '#ffdd00'; ctx.fillRect(p.x, GROUND_Y - 5, p.w, 5);
+      ctx.fillStyle = '#202020';
+      for (let sx = p.x + 2; sx < p.x + p.w - 6; sx += 12) ctx.fillRect(sx, GROUND_Y - 5, 6, 5);
+    }
+    return;
+  }
+  const y = p.y, h = p.h;
+  bevelRect(p.x, y, p.w, h + 2, true);
+  ctx.fillStyle = '#000080'; ctx.fillRect(p.x + 3, y + 3, 8, Math.max(0, h - 4));   // sidebar
+  const items = ['Programs', 'Documents', 'Settings', 'Find', 'Run...', 'Shut Down'];
+  ctx.font = 'bold 7px monospace';
+  let iy = y + 13;
+  for (const it of items) {
+    if (iy > y + h - 5) break;
+    ctx.fillStyle = '#808080'; ctx.fillRect(p.x + 14, iy - 6, 6, 6);
+    ctx.fillStyle = '#000000'; ctx.fillText(it, p.x + 23, iy);
+    iy += 13;
+  }
+}
+
+function drawWave(p) {
+  bevelRect(p.x, p.y, p.w, p.h, true);
+  ctx.fillStyle = '#808080'; ctx.fillRect(p.x + 6, p.y + 5, p.w - 12, 2);
+}
+
+function drawTide(p) {
+  // a surging slosh of hot tea
+  ctx.fillStyle = '#b97a2a';
+  ctx.fillRect(p.x, p.y + 5, p.w, p.h - 5);
+  ctx.fillRect(p.x + 5, p.y, p.w - 10, 6);
+  ctx.fillStyle = '#d89a4a'; ctx.fillRect(p.x + 5, p.y, p.w - 10, 3);
+  ctx.fillStyle = '#ffffff';   // foam
+  const f = Math.floor(game.frame / 6) % 2;
+  ctx.fillRect(p.x + 4 + f * 3, p.y - 2, 4, 3); ctx.fillRect(p.x + p.w - 12 - f * 3, p.y - 1, 4, 3);
+}
+
+function drawPuddle(p) {
+  const fade = p.t > 240 ? (300 - p.t) / 60 : 1;
+  ctx.globalAlpha = 0.85 * fade;
+  ctx.fillStyle = '#b97a2a';
+  ctx.beginPath(); ctx.ellipse(p.x + p.w / 2, GROUND_Y - 3, p.w / 2, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#d89a4a';
+  ctx.beginPath(); ctx.ellipse(p.x + p.w / 2 - 6, GROUND_Y - 5, p.w / 3, 2.5, 0, 0, Math.PI * 2); ctx.fill();
+  // steam
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  const s = Math.floor((game.frame + p.x) / 8) % 3;
+  ctx.fillRect(p.x + 14 + s * 2, GROUND_Y - 16 - s * 3, 2, 3);
+  ctx.fillRect(p.x + p.w - 20 - s * 2, GROUND_Y - 20 + s * 2, 2, 3);
+  ctx.globalAlpha = 1;
+}
+
+function drawGossip(p) {
+  ctx.fillStyle = '#ffffcc';
+  ctx.strokeStyle = '#000000'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(p.x, p.y, p.w, p.h, 5); else ctx.rect(p.x, p.y, p.w, p.h);
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();   // tail
+  ctx.moveTo(p.x + p.w - 12, p.y + p.h); ctx.lineTo(p.x + p.w - 2, p.y + p.h + 8); ctx.lineTo(p.x + p.w - 24, p.y + p.h);
+  ctx.closePath(); ctx.fillStyle = '#ffffcc'; ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#000000'; ctx.font = 'bold 7px monospace';
+  ctx.fillText(p.txt, p.x + 5, p.y + 15);
+}
+
+function drawHR(p) {
+  // MANDATORY meeting request, in hot pursuit
+  const flash = Math.floor(game.frame / 8) % 2 === 0;
+  bevelRect(p.x, p.y, p.w, p.h, true);
+  ctx.fillStyle = flash ? '#cc0000' : '#000080';
+  ctx.fillRect(p.x + 3, p.y + 3, p.w - 6, 10);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 7px monospace';
+  ctx.fillText('MEETING REQ', p.x + 6, p.y + 11);
+  ctx.fillStyle = '#000000';
+  ctx.fillText('HR re: tea', p.x + 6, p.y + 24);
+  ctx.fillStyle = '#cc0000'; ctx.font = 'bold 10px monospace';
+  ctx.fillText('!', p.x + p.w - 10, p.y + 25);
+}
+
+function drawProjectiles() {
+  for (const p of game.projectiles) {
+    if (p.type === 'pillar') { drawPillar(p); continue; }
+    if (p.type === 'wave') { drawWave(p); continue; }
+    if (p.type === 'tide') { drawTide(p); continue; }
+    if (p.type === 'puddle') { drawPuddle(p); continue; }
+    if (p.type === 'gossip') { drawGossip(p); continue; }
+    if (p.type === 'hr') { drawHR(p); continue; }
+    ctx.save();
+    ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = '#c0c0c0'; ctx.fillRect(-15, -11, 30, 22);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(-15, -11, 30, 2); ctx.fillRect(-15, -11, 2, 22);
+    ctx.fillStyle = '#404040'; ctx.fillRect(-15, 9, 30, 2); ctx.fillRect(13, -11, 2, 22);
+    ctx.fillStyle = '#000080'; ctx.fillRect(-13, -9, 26, 6);
+    ctx.fillStyle = '#cc0000';
+    ctx.beginPath(); ctx.arc(-5, 4, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 7px monospace'; ctx.fillText('X', -7, 7);
+    ctx.fillStyle = '#707070'; ctx.fillRect(2, 2, 9, 2); ctx.fillRect(2, 6, 7, 2);
+    ctx.restore();
+  }
+}
+
+function drawBossBar() {
+  const b = game.boss;
+  if (!b) return;
+  const w = 216, x = (W - w) / 2, y = HUD_H + 5;
+  ctx.fillStyle = '#c0c0c0'; ctx.fillRect(x, y, w, 27);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, 1); ctx.fillRect(x, y, 1, 27);
+  ctx.fillStyle = '#404040'; ctx.fillRect(x, y + 26, w, 1); ctx.fillRect(x + w - 1, y, 1, 27);
+  ctx.fillStyle = '#000000'; ctx.font = 'bold 8px monospace';
+  ctx.fillText(b.kind === 'start'
+    ? 'START.EXE: The Button That Would Not Stop'
+    : b.kind === 'tea'
+      ? 'TEA.EXE: The Internal Tea (Do Not Forward)'
+      : 'EVIL TWIN: clippy.exe (Not Responding)', x + 6, y + 10);
+  // sunken segmented meter, like a defrag bar gone wrong
+  ctx.fillStyle = '#808080'; ctx.fillRect(x + 5, y + 13, w - 10, 10);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 5, y + 22, w - 10, 1);
+  const segW = (w - 14) / b.maxHp;
+  for (let i = 0; i < b.hp; i++) {
+    ctx.fillStyle = '#cc2020';
+    ctx.fillRect(x + 7 + i * segW, y + 15, segW - 2, 6);
+  }
+}
+
+/* ---------------- dispatch draw helpers -------------------------------- */
+
+function drawObstacle(o) {
+  if (o.type === 'dialog') drawDialog(o);
+  else if (o.type === 'bin') drawBin(o);
+  else if (o.type === 'bsod') drawBsodWall(o);
+  else if (o.type === 'banner') drawBanner(o);
+  else if (o.type === 'hourglass') drawHourglass(o);
+}
+function drawCollectible(cn) {
+  if (cn.kind === 'floppy') drawFloppy(cn);
+  else if (cn.kind === 'cd') drawCD(cn);
+  else if (cn.kind === 'coffee') drawCoffeeMug(cn);
+  else if (cn.kind === 'save') drawGoldFloppy(cn);
+  else if (cn.kind === 'modem') drawModem(cn);
+  else if (cn.kind === 'card') drawAceCard(cn);
+  else if (cn.kind === 'magnet') drawMagnet(cn);
+  else if (cn.kind === 'glide') drawPaperPlane(cn);
+  else if (cn.kind === 'zoom') drawMagnifier(cn);
+  else if (cn.kind === 'tea') drawTeaCup(cn);
+}
+
+function drawTeaCup(cn) {
+  const bob = Math.sin(game.frame * 0.09 + cn.x * 0.03) * 3;
+  const x = cn.x + 2, y = cn.y + 6 + bob;
+  ctx.fillStyle = '#c8c8d0'; ctx.fillRect(x - 1, y + 11, 18, 2);   // saucer
+  ctx.fillStyle = '#f0f0f4'; ctx.fillRect(x + 1, y + 2, 13, 9);    // cup
+  ctx.fillStyle = '#f0f0f4'; ctx.fillRect(x + 14, y + 4, 3, 5);    // handle
+  ctx.fillStyle = '#008080'; ctx.fillRect(x + 15, y + 5, 1, 3);
+  ctx.fillStyle = '#b97a2a'; ctx.fillRect(x + 2, y + 2, 11, 3);    // tea
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';                        // steam
+  const st = Math.floor(game.frame / 8) % 3;
+  ctx.fillRect(x + 4 + st, y - 4, 2, 2); ctx.fillRect(x + 9 - st, y - 8, 2, 2);
+}
+
+function drawMagnet(cn) {
+  const bob = Math.sin(game.frame * 0.09 + cn.x * 0.03) * 3;
+  const x = cn.x + 2, y = cn.y + 3 + bob;
+  ctx.fillStyle = '#cc2020';                                  // horseshoe
+  ctx.fillRect(x, y, 5, 12); ctx.fillRect(x + 12, y, 5, 12);
+  ctx.fillRect(x, y + 10, 17, 5);
+  ctx.fillStyle = '#e05050'; ctx.fillRect(x, y + 10, 17, 2);
+  ctx.fillStyle = '#d8d8e0';                                  // silver tips
+  ctx.fillRect(x, y, 5, 4); ctx.fillRect(x + 12, y, 5, 4);
+  // attraction sparks
+  if (Math.floor(game.frame / 10) % 2 === 0) {
+    ctx.fillStyle = '#ffe66e';
+    ctx.fillRect(x + 1, y - 5, 2, 2); ctx.fillRect(x + 14, y - 7, 2, 2);
+  }
+}
+
+function drawPaperPlane(cn) {
+  const bob = Math.sin(game.frame * 0.09 + cn.x * 0.03) * 4;
+  const x = cn.x, y = cn.y + 6 + bob;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.moveTo(x, y + 10); ctx.lineTo(x + 22, y); ctx.lineTo(x + 9, y + 10); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#d0d8e8';
+  ctx.beginPath(); ctx.moveTo(x + 9, y + 10); ctx.lineTo(x + 22, y); ctx.lineTo(x + 13, y + 14); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#8090a8'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x, y + 10); ctx.lineTo(x + 22, y); ctx.stroke();
+  // motion streaks
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillRect(x - 6, y + 4, 4, 1); ctx.fillRect(x - 9, y + 8, 5, 1);
+}
+
+function drawMagnifier(cn) {
+  const bob = Math.sin(game.frame * 0.09 + cn.x * 0.03) * 3;
+  const cx = cn.x + 9, cy = cn.y + 8 + bob;
+  ctx.strokeStyle = '#404048'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = 'rgba(160,200,255,0.65)';
+  ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(cx - 4, cy - 4, 2, 2);  // glint
+  ctx.fillStyle = '#202028'; ctx.fillRect(cx - 3, cy - 1, 6, 2);  // minus: zoom OUT
+  ctx.save();                                                     // handle
+  ctx.translate(cx + 5, cy + 5); ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = '#7a4a20'; ctx.fillRect(0, -2, 9, 4);
+  ctx.restore();
+}
+
+function drawCoffeeMug(cn) {
+  const bob = Math.sin(game.frame * 0.09 + cn.x * 0.03) * 3;
+  const x = cn.x + 2, y = cn.y + 4 + bob;
+  ctx.fillStyle = '#f4f4f8'; ctx.fillRect(x, y, 13, 13);           // mug
+  ctx.fillStyle = '#c8c8d0'; ctx.fillRect(x, y + 11, 13, 2);
+  ctx.fillStyle = '#f4f4f8'; ctx.fillRect(x + 13, y + 3, 4, 7);    // handle
+  ctx.fillStyle = '#008080'; ctx.fillRect(x + 14, y + 5, 2, 3);    // handle hole
+  ctx.fillStyle = '#5a3a1a'; ctx.fillRect(x + 1, y + 1, 11, 3);    // coffee
+  // steam
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  const st = Math.floor(game.frame / 8) % 3;
+  ctx.fillRect(x + 3 + st, y - 5, 2, 2); ctx.fillRect(x + 8 - st, y - 9, 2, 2);
+}
+
+function drawGoldFloppy(cn) {
+  const bob = Math.sin(game.frame * 0.09 + cn.x * 0.03) * 3;
+  const x = cn.x + 3, y = cn.y + 2 + bob;
+  ctx.fillStyle = '#c89a18'; ctx.fillRect(x, y, 15, 16);
+  ctx.fillStyle = '#e8c04a'; ctx.fillRect(x, y, 15, 2);
+  ctx.fillStyle = '#f4e4b0'; ctx.fillRect(x + 4, y, 9, 6);         // shutter
+  ctx.fillStyle = '#8a6a10'; ctx.fillRect(x + 10, y + 1, 2, 4);    // slot
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 2, y + 9, 11, 6);    // label
+  ctx.fillStyle = '#0a7a2a';                                       // green check
+  ctx.fillRect(x + 4, y + 12, 2, 2); ctx.fillRect(x + 6, y + 13, 2, 2);
+  ctx.fillRect(x + 8, y + 11, 2, 2); ctx.fillRect(x + 10, y + 10, 1, 2);
+  if (Math.floor(game.frame / 14) % 3 === 0) {                     // sparkle
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 13, y - 2, 2, 2);
+  }
+}
+
+function drawModem(cn) {
+  const bob = Math.sin(game.frame * 0.09 + cn.x * 0.03) * 3;
+  const x = cn.x, y = cn.y + 4 + bob;
+  ctx.fillStyle = '#b8b8c0'; ctx.fillRect(x, y, 22, 12);
+  ctx.fillStyle = '#d8d8e0'; ctx.fillRect(x, y, 22, 2);
+  ctx.fillStyle = '#70707a'; ctx.fillRect(x, y + 10, 22, 2);
+  // blinking LEDs
+  const on = Math.floor(game.frame / 7) % 2 === 0;
+  ctx.fillStyle = on ? '#40ff70' : '#0a5a20'; ctx.fillRect(x + 3, y + 5, 3, 3);
+  ctx.fillStyle = on ? '#0a5a20' : '#40ff70'; ctx.fillRect(x + 8, y + 5, 3, 3);
+  ctx.fillStyle = on ? '#ff4040' : '#6a1010'; ctx.fillRect(x + 13, y + 5, 3, 3);
+  // phone cord
+  ctx.fillStyle = '#404048';
+  for (let i = 0; i < 4; i++) ctx.fillRect(x + 18 + (i % 2) * 2, y + 12 + i * 2, 2, 2);
+}
+
+function drawAceCard(cn) {
+  const x = cn.x + 4, y = cn.y + 1;
+  ctx.save();
+  ctx.translate(x + 7, y + 10 + Math.sin(game.frame * 0.09 + cn.x * 0.03) * 3);
+  ctx.rotate(Math.sin(game.frame * 0.06) * 0.18);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(-7, -10, 14, 20);
+  ctx.fillStyle = '#404040';
+  ctx.fillRect(-7, -10, 14, 1); ctx.fillRect(-7, 9, 14, 1);
+  ctx.fillRect(-7, -10, 1, 20); ctx.fillRect(6, -10, 1, 20);
+  ctx.fillStyle = '#cc0000';
+  ctx.font = 'bold 8px monospace'; ctx.fillText('A', -5, -2);
+  ctx.fillRect(-1, 1, 4, 4); ctx.fillRect(-2, 1, 1, 2); ctx.fillRect(3, 1, 1, 2);  // heart-ish
+  ctx.restore();
+}
+
+/* ---------------- main loop -------------------------------------------- */
+
+let lastTime = 0, acc = 0;
+const STEP = 1000 / 60;
+
+function frame(t) {
+  requestAnimationFrame(frame);
+  if (!lastTime) lastTime = t;
+  acc += Math.min(100, t - lastTime);
+  lastTime = t;
+
+  let stepped = false;
+  while (acc >= STEP) {
+    acc -= STEP;
+    if (!stepped) { tick(); stepped = true; }  // render-synced single tick; extra accumulated steps update logic only
+    else if (game.state === STATE.PLAY && !game.paused) { game.frame++; updatePlayer(); updateWorld(); }
+  }
+}
+
+function tick() {
+  game.frame++;
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  if (game.shake > 0) {
+    ctx.setTransform(1, 0, 0, 1, rnd(-1, 1) * game.shake * 0.6, rnd(-1, 1) * game.shake * 0.6);
+  }
+
+  if (game.state === STATE.BOOT) {
+    drawBoot();
+  } else if (game.state === STATE.TITLE) {
+    advanceEyes();
+    drawTitle();
+  } else if (game.state === STATE.PLAY) {
+    if (!game.paused) {
+      updatePlayer();
+      updateWorld();
+    }
+    if (game.state === STATE.PLAY || game.state === STATE.CRASH) {
+      drawScenery();
+      for (const cn of game.coins) drawCollectible(cn);
+      for (const o of game.obstacles) drawObstacle(o);
+      drawBoss();
+      drawProjectiles();
+      drawParticles();
+      drawPlayer();
+      if (game.slowmoT > 0) {           // dial-up slow-mo tint
+        ctx.fillStyle = 'rgba(0,60,170,0.13)';
+        ctx.fillRect(0, 0, W, H);
+      }
+      drawTouchHint();
+      drawBubble();
+      drawHUD();
+      drawBadges();
+      drawBossBar();
+      if (game.paused) drawPauseOverlay();
+    }
+    document.getElementById('statusScore').textContent = 'SCORE ' + pad(game.score, 6);
+  } else if (game.state === STATE.CRASH) {
+    drawCrashAndBsod();
+  } else if (game.state === STATE.BSOD) {
+    drawBsod();
+  }
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(scanCanvas, 0, 0);
+}
+
+// teaches touch players where the duck zone is, then fades away
+function drawTouchHint() {
+  if (!touchMode || game.state !== STATE.PLAY) return;
+  const a = Math.max(0, 1 - game.dist / 1600) * 0.55;
+  if (a <= 0) return;
+  const y = Math.round(H * 0.72);
+  ctx.globalAlpha = a;
+  ctx.fillStyle = '#ffffff';
+  for (let x = 0; x < W; x += 14) ctx.fillRect(x, y, 7, 1);
+  ctx.font = 'bold 10px monospace';
+  ctx.fillText('▼ HOLD HERE TO DUCK', W - 150, y + 14);
+  ctx.fillText('TAP / HOLD ABOVE TO JUMP', W - 174, y - 8);
+  ctx.globalAlpha = 1;
+}
+
+function drawPauseOverlay() {
+  ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(0, 0, W, H);
+  const dw = 240, dh = 84, dx = (W - dw) / 2, dy = (H - dh) / 2;
+  bevelRect(dx, dy, dw, dh, true);
+  ctx.fillStyle = '#000080'; ctx.fillRect(dx + 3, dy + 3, dw - 6, 14);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px monospace';
+  ctx.fillText('CLIPPY.EXE', dx + 7, dy + 14);
+  ctx.fillStyle = '#000000'; ctx.font = '11px monospace';
+  ctx.fillText('Game paused. Coffee break?', dx + 20, dy + 40);
+  ctx.fillText('Press P or tap to resume.', dx + 20, dy + 58);
+}
+
+/* ---------------- input ------------------------------------------------ */
+
+function anyKeyProgress() {
+  Sfx.ensure();
+  if (game.state === STATE.BOOT) { game.bootT = BOOT_DONE_T; return true; }
+  return false;
+}
+
+window.addEventListener('keydown', (e) => {
+  // game window closed/minimized, or the browser is in front: desktop has focus
+  if (!appOpen || browserWin.classList.contains('open')) return;
+  if (e.repeat) {
+    if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') e.preventDefault();
+    return;
+  }
+  if (anyKeyProgress()) { e.preventDefault(); return; }
+
+  switch (e.code) {
+    case 'Space': case 'ArrowUp': case 'KeyW':
+      e.preventDefault();
+      input.jumpHeld = true;
+      tryJump();
+      break;
+    case 'ArrowDown': case 'KeyS':
+      e.preventDefault();
+      setDuck(true);
+      break;
+    case 'Enter':
+      if (game.state === STATE.TITLE) startRun();
+      else if (game.state === STATE.BSOD && game.crashT > 90) startRun();
+      break;
+    case 'KeyP':
+      if (game.paused) resumeGame();
+      else pauseGame();
+      break;
+    case 'KeyM':
+      Sfx.toggleMute();
+      break;
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') input.jumpHeld = false;
+  if (e.code === 'ArrowDown' || e.code === 'KeyS') setDuck(false);
+});
+
+// Touch/mouse: press-and-hold semantics, mirroring the keyboard.
+// Hold the bottom zone to duck (as long as the finger is down); hold
+// anywhere else to jump high / glide. Multi-touch: each finger tracked.
+let touchMode = false;
+const activePointers = new Map();   // pointerId -> 'jump' | 'duck'
+
+canvas.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  Sfx.ensure();
+  if (e.pointerType === 'touch') touchMode = true;
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
+  if (game.state === STATE.BOOT) { game.bootT = BOOT_DONE_T; return; }
+  if (game.state === STATE.PLAY && game.paused) { resumeGame(); return; }   // tap to unpause
+  const rect = canvas.getBoundingClientRect();
+  const relY = (e.clientY - rect.top) / rect.height;
+  if (game.state === STATE.PLAY && relY > 0.72) {
+    activePointers.set(e.pointerId, 'duck');
+    setDuck(true);
+  } else {
+    activePointers.set(e.pointerId, 'jump');
+    input.jumpHeld = true;
+    tryJump();
+  }
+});
+
+function releasePointer(e) {
+  const action = activePointers.get(e.pointerId);
+  activePointers.delete(e.pointerId);
+  if (!action) return;
+  const held = [...activePointers.values()];
+  if (action === 'duck' && !held.includes('duck')) setDuck(false);
+  if (action === 'jump' && !held.includes('jump')) input.jumpHeld = false;
+}
+canvas.addEventListener('pointerup', releasePointer);
+canvas.addEventListener('pointercancel', releasePointer);
+
+window.addEventListener('blur', () => {
+  // releases fired while unfocused never reach us: drop all held input
+  input.jumpHeld = false;
+  player.ducking = false;
+  activePointers.clear();
+  pauseGame('Paused (window lost focus).');
+});
+
+/* ---------------- chrome: menus, dialogs, clock ------------------------ */
+
+const menubar = document.getElementById('menubar');
+let openMenu = null;
+menubar.querySelectorAll('.mitem').forEach((mi) => {
+  mi.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (mi.dataset.menu === 'none') {
+      setStatus('This menu is not implemented. It is 1997. Please understand.');
+      return;
+    }
+    if (openMenu && openMenu !== mi) openMenu.classList.remove('open');
+    mi.classList.toggle('open');
+    openMenu = mi.classList.contains('open') ? mi : null;
+  });
+});
+document.addEventListener('click', () => {
+  if (openMenu) { openMenu.classList.remove('open'); openMenu = null; }
+});
+
+function showDialog(title, icon, html, confirmLabel, onConfirm) {
+  // a modal on top of a live game is a death sentence: pause first
+  pauseGame();
+  document.getElementById('dlgTitle').textContent = title;
+  document.getElementById('dlgBigIcon').textContent = icon;
+  document.getElementById('dlgText').innerHTML = html;
+  // dialogs reopen centered, wherever they were last dragged
+  const box = document.querySelector('#dlgOverlay .dlg');
+  box.style.left = box.style.top = box.style.transform = box.style.position = '';
+  const cbtn = document.getElementById('dlgConfirm');
+  const ok = document.getElementById('dlgOk');
+  if (confirmLabel) {
+    cbtn.style.display = '';
+    cbtn.textContent = confirmLabel;
+    ok.textContent = 'Cancel';
+    cbtn.onclick = () => {
+      document.getElementById('dlgOverlay').classList.remove('show');
+      onConfirm();
+    };
+  } else {
+    cbtn.style.display = 'none';
+    cbtn.onclick = null;
+    ok.textContent = 'OK';
+  }
+  document.getElementById('dlgOverlay').classList.add('show');
+}
+document.querySelectorAll('[data-dlg="close"]').forEach((b) =>
+  b.addEventListener('click', () => document.getElementById('dlgOverlay').classList.remove('show')));
+
+menubar.querySelectorAll('.ditem').forEach((di) => {
+  di.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (openMenu) { openMenu.classList.remove('open'); openMenu = null; }
+    const act = di.dataset.act;
+    if (act === 'new') startRun();
+    else if (act === 'pause') {
+      pauseGame();
+    } else if (act === 'exit') {
+      showDialog('Exit CLIPPY.EXE', '⚠️',
+        'Are you sure you want to exit?<br><br>Clippy will remember this.',
+        'Exit', closeGame);
+    } else if (act === 'about') {
+      showDialog('About CLIPPY.EXE', '📎',
+        '<b>CLIPPY.EXE ' + GAME_VERSION + '</b><br>The Office Assistant Strikes Back<br><br>' +
+        'He has been waiting since 1997.<br>All he ever wanted was to help.<br><br>' +
+        '&copy; 1997 Catterson Design. 640K RAM required.');
+    }
+  });
+});
+
+document.getElementById('btnClose').addEventListener('click', () => {
+  showDialog('Exit CLIPPY.EXE', '⚠️',
+    'It looks like you’re trying to close this window.<br><br>Clippy will remember this.',
+    'Exit', closeGame);
+});
+document.getElementById('btnMin').addEventListener('click', () => minimizeGame());
+
+/* ---- maximize / fullscreen ---- */
+const appWindow = document.querySelector('.app-window');
+const btnMax = document.getElementById('btnMax');
+let preMaxStyle = null;   // dragged position to restore after un-maximizing
+
+function setMaximized(on) {
+  if (on) {
+    preMaxStyle = { left: appWindow.style.left, top: appWindow.style.top, transform: appWindow.style.transform };
+    appWindow.style.left = appWindow.style.top = appWindow.style.transform = '';
+  } else if (preMaxStyle) {
+    appWindow.style.left = preMaxStyle.left;
+    appWindow.style.top = preMaxStyle.top;
+    appWindow.style.transform = preMaxStyle.transform;
+  }
+  appWindow.classList.toggle('maximized', on);
+  btnMax.textContent = on ? '❐' : '▢';
+  btnMax.title = on ? 'Restore' : 'Maximize';
+  setStatus(on ? 'Maximized. All 640Kb of screen, as intended.' : 'Window restored.');
+}
+
+/* ---- draggable windows (desktop only), with click-to-front ---- */
+let topZ = 45;
+
+function makeDraggable(win, handle, skipWhen) {
+  let dragging = false, sx = 0, sy = 0, ox = 0, oy = 0;
+  win.addEventListener('pointerdown', () => { win.style.zIndex = ++topZ; });
+  handle.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.tbtn')) return;                        // window buttons still click
+    if (document.body.classList.contains('mobile-game')) return;  // no window management on phones
+    if (skipWhen && skipWhen()) return;
+    dragging = true;
+    const r = win.getBoundingClientRect();
+    // freeze the centering layout into absolute pixels once
+    win.style.position = 'fixed';
+    win.style.left = r.left + 'px';
+    win.style.top = r.top + 'px';
+    win.style.margin = '0';
+    win.style.transform = 'none';
+    sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top;
+    try { handle.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
+    e.preventDefault();
+  });
+  handle.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const nx = ox + e.clientX - sx, ny = oy + e.clientY - sy;
+    // keep enough titlebar on screen to grab it back
+    win.style.left = Math.min(window.innerWidth - 70, Math.max(70 - win.offsetWidth, nx)) + 'px';
+    win.style.top = Math.min(window.innerHeight - 50, Math.max(0, ny)) + 'px';
+  });
+  const endDrag = () => { dragging = false; };
+  handle.addEventListener('pointerup', endDrag);
+  handle.addEventListener('pointercancel', endDrag);
+}
+
+makeDraggable(appWindow, appWindow.querySelector('.titlebar'),
+  () => appWindow.classList.contains('maximized'));
+
+function toggleMaximize() {
+  const on = !appWindow.classList.contains('maximized');
+  setMaximized(on);
+  // best-effort browser fullscreen on top of the CSS maximize
+  if (on) {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  } else if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+btnMax.addEventListener('click', toggleMaximize);
+// double-click the titlebar, like real Windows
+document.querySelector('.titlebar').addEventListener('dblclick', (e) => {
+  if (e.target.classList.contains('tbtn')) return;
+  toggleMaximize();
+});
+document.addEventListener('fullscreenchange', () => {
+  // Esc out of browser fullscreen also restores the window
+  if (!document.fullscreenElement && appWindow.classList.contains('maximized')) {
+    setMaximized(false);
+  }
+});
+document.getElementById('btnStart').addEventListener('click', () => {
+  showDialog('Start Menu', '🪟', 'The Start menu is busy defragmenting.<br><br>Estimated time remaining: 14 years.');
+});
+document.getElementById('trayVol').addEventListener('click', () => Sfx.toggleMute());
+
+/* ---- desktop shell: close, minimize, reopen, and The Internet ---- */
+
+let appOpen = true;
+const taskClippy = document.getElementById('taskClippy');
+const browserWin = document.getElementById('browserWin');
+const taskInternet = document.getElementById('taskInternet');
+
+function closeGame() {
+  pauseGame();
+  appWindow.style.display = 'none';
+  taskClippy.style.display = 'none';
+  appOpen = false;
+}
+
+function minimizeGame() {
+  pauseGame();
+  appWindow.style.display = 'none';
+  taskClippy.classList.add('min');
+  appOpen = false;
+}
+
+function openGame() {
+  appWindow.style.display = '';
+  appWindow.style.zIndex = ++topZ;
+  taskClippy.style.display = '';
+  taskClippy.classList.remove('min');
+  appOpen = true;
+  setStatus(game.state === STATE.PLAY
+    ? 'Welcome back. Press P or tap to resume.'
+    : 'Ready. It looks like you’re trying to play a game.');
+}
+
+taskClippy.addEventListener('click', () => {
+  if (!appOpen) { openGame(); return; }
+  // buried under another window: raise it; already on top: minimize
+  if (Number(appWindow.style.zIndex || 0) < topZ) appWindow.style.zIndex = ++topZ;
+  else minimizeGame();
+});
+
+// desktop icons: click selects, double-click launches
+document.querySelectorAll('.dicon').forEach((ic) => {
+  ic.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.dicon').forEach((d) => d.classList.remove('selected'));
+    ic.classList.add('selected');
+  });
+  ic.addEventListener('dblclick', () => launchApp(ic.dataset.app));
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.dicon').forEach((d) => d.classList.remove('selected'));
+});
+
+function launchApp(app) {
+  if (app === 'clippy') openGame();
+  else if (app === 'internet') openBrowser();
+  else if (app === 'mycomputer') showDialog('My Computer', '🖥️',
+    'Contents:<br><br>💾 3½ Floppy (A:): not ready<br>💿 (D:): CLIPPY.EXE ' + GAME_VERSION +
+    '<br>🖴 (C:): 528 MB of regrets');
+  else if (app === 'bin') showDialog('Recycle Bin', '🗑️',
+    'Contains 1 item:<br><br>🦍 BONZI.EXE<br><br><b>Do not restore.</b>');
+  else if (app === 'docs') showDialog('My Documents', '📁',
+    '📄 Document1.doc: unsaved since 1997<br>📄 resume_FINAL_v2_REAL.doc<br>📄 doom_cheats.txt');
+}
+
+/* ---- The Internet ---- */
+
+function openBrowser() {
+  browserWin.classList.add('open');
+  browserWin.style.zIndex = ++topZ;
+  taskInternet.style.display = '';
+  document.getElementById('siteVersion').textContent = GAME_VERSION;
+  // the hit counter: every visitor is the 1337th-and-something
+  let hits = storageGet('clippy_hits') || 1336;
+  hits++;
+  storageSet('clippy_hits', hits);
+  document.getElementById('hitCounter').innerHTML =
+    String(hits).padStart(6, '0').split('').map((d) => '<b>' + d + '</b>').join('');
+  if (game.state === STATE.PLAY) pauseGame('Paused. You are surfing the information superhighway.');
+}
+
+function closeBrowser() {
+  browserWin.classList.remove('open');
+  taskInternet.style.display = 'none';
+}
+
+makeDraggable(browserWin, browserWin.querySelector('.titlebar'));
+const dlgBox = document.querySelector('#dlgOverlay .dlg');
+makeDraggable(dlgBox, dlgBox.querySelector('.titlebar'));
+
+document.getElementById('ieClose').addEventListener('click', closeBrowser);
+document.getElementById('ieMin').addEventListener('click', () => browserWin.classList.remove('open'));
+taskInternet.addEventListener('click', () => {
+  if (!browserWin.classList.contains('open')) browserWin.classList.add('open');
+  browserWin.style.zIndex = ++topZ;   // taskbar click always brings it forward
+});
+document.getElementById('playNow97').addEventListener('click', (e) => {
+  e.preventDefault();
+  closeBrowser();
+  openGame();
+});
+document.getElementById('guestbook97').addEventListener('click', (e) => {
+  e.preventDefault();
+  showDialog('Guestbook', '📖', 'The guestbook is full.<br><br>(1 entry. It is from Clippy. It says "hi".)');
+});
+for (const id of ['webringPrev', 'webringNext']) {
+  document.getElementById(id).addEventListener('click', (e) => {
+    e.preventDefault();
+    showDialog('Paperclip WebRing', '🔗',
+      'You are already on the best site in the ring.<br><br>(It is also the only site in the ring.)');
+  });
+}
+
+/* ---- mobile layout: phones get an edge-to-edge game in landscape ---- */
+
+function isSmallTouchDevice() {
+  const touch = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+  return touch && Math.min(screen.width, screen.height) <= 500;
+}
+
+function updateMobileLayout() {
+  const mobile = isSmallTouchDevice();
+  const landscape = window.innerWidth > window.innerHeight;
+  document.body.classList.toggle('mobile-game', mobile && landscape);
+  const rotate = mobile && !landscape;
+  document.getElementById('rotateOverlay').classList.toggle('show', rotate);
+  if (rotate) pauseGame('Rotate your device to landscape.');
+}
+window.addEventListener('resize', updateMobileLayout);
+window.addEventListener('orientationchange', updateMobileLayout);
+updateMobileLayout();
+
+document.getElementById('pauseChip').addEventListener('pointerdown', (e) => {
+  e.stopPropagation();
+  Sfx.ensure();
+  if (game.paused) resumeGame();
+  else pauseGame();
+});
+
+/* ---- PWA: offline play + home-screen install (https only) ---- */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+function updateClock() {
+  const d = new Date();
+  let h = d.getHours();
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  document.getElementById('clock').textContent = h + ':' + String(d.getMinutes()).padStart(2, '0') + ' ' + ap;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ---------------- go --------------------------------------------------- */
+
+// dev/debug handle (also: a cheat menu, in the grand 90s tradition)
+window.__clippy = {
+  game, player,
+  give(kind) {
+    game.coins.push({ kind, x: player.cx + 50, y: GROUND_Y - 70, w: 22, h: 22 });
+  },
+  summonBoss(kind) {
+    if (kind) game.forceBossKind = kind;
+    game.nextBossScore = game.score;
+  },
+  // dev utility: renders the app icon (used to generate icons/*.png)
+  renderIcon(size) {
+    const c = document.createElement('canvas');
+    c.width = size; c.height = size;
+    const g = c.getContext('2d');
+    g.fillStyle = '#008080'; g.fillRect(0, 0, size, size);
+    const px = Math.max(1, Math.floor(size / 42));
+    g.save();
+    g.translate(Math.round((size - 26 * px) / 2), Math.round((size - 37 * px) / 2));
+    const d = createClippyDrawer(g, px);
+    d.drawBody();
+    d.drawEyes(0, 0, false);
+    g.restore();
+    return c.toDataURL('image/png');
+  },
+};
+
+requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>

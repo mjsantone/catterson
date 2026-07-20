@@ -17,6 +17,7 @@ const site = {
 // Asset slot shapes:
 //   { kind: "video",  file, poster?, sound?, caption }   sound: true renders controls, never autoplays
 //   { kind: "stills", prefix, caption }                  matches assets/<slug>/<prefix>*.png|jpg|webp
+//   { kind: "documents", exclude? }                      embeds discovered local HTML with full-view links
 //   { kind: "iframe", file, title, caption }             self-contained HTML, sandboxed
 const pieces = [
   {
@@ -45,20 +46,22 @@ const pieces = [
     copy: "copy-steering.md",
     lead: {
       kind: "video",
-      file: "refinement-loop.mp4",
-      poster: "refinement-loop-poster.jpg",
+      file: "01_save-to-workflow.mp4",
+      poster: "01_save-to-workflow-poster.jpg",
       caption: "Give it a revision and it folds into the saved workflow, the panel opening to show what it just learned.",
     },
     supporting: [
       {
         kind: "video",
-        file: "reuse-workflow.mp4",
-        caption: "Run it again and the saved workflow is right there to pick.",
+        file: "00_chat-input.mp4",
+        afterParagraph: 1,
+        caption: "Start with the task in chat, without a preferences form.",
       },
       {
         kind: "video",
-        file: "just-learned.mp4",
-        caption: "The \"just learned\" toast, the moment it tells you what it noticed.",
+        file: "02_reuse-workflow.mp4",
+        afterParagraph: 3,
+        caption: "Run it again and the saved workflow is right there to pick.",
       },
       {
         kind: "stills",
@@ -113,9 +116,12 @@ const pieces = [
     },
     supporting: [
       {
-        kind: "stills",
-        prefix: "report-",
-        caption: "Five reports, five topics, one house style.",
+        kind: "documents",
+        exclude: [
+          "bolt-dodger.html",
+          "Folio System Storybook.html",
+          "The Rule Against Perpetuities.html",
+        ],
       },
       {
         kind: "video",
@@ -136,17 +142,23 @@ const pieces = [
   },
 ];
 
+// Controls the home index and previous/next sequence. Pieces omitted here are
+// still generated and remain directly accessible.
+const publishedPieceSlugs = ["editorial", "steering", "agent-debrief"];
+
 // The Easter egg. Footer-level wink, not a fifth piece.
 const clippy = {
   slug: "clippy",
   title: "You found the paperclip.",
-  standfirst: "A playable side-scroller. Dessert, not a fifth piece.",
+  description: "CLIPPY.EXE: The Office Assistant Strikes Back.",
   lead: {
     kind: "iframe",
-    file: "clippy-game.html",
+    file: "clippy-main/index.html",
     title: "Clippy, a playable side-scroller",
+    sandbox: "allow-scripts allow-pointer-lock allow-same-origin",
+    fullscreen: true,
     caption: "",
   },
 };
 
-module.exports = { site, pieces, clippy };
+module.exports = { site, pieces, publishedPieceSlugs, clippy };

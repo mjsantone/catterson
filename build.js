@@ -11,7 +11,7 @@
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
-const { site, pieces, clippy } = require("./src/content.js");
+const { site, pieces, publishedPieceSlugs, clippy } = require("./src/content.js");
 const t = require("./src/templates.js");
 
 const ROOT = __dirname;
@@ -53,12 +53,38 @@ function parseCopy(filename) {
 // ---------- asset resolution ----------
 
 const IMG_RE = /\.(png|jpe?g|webp|avif|gif)$/i;
+const HTML_RE = /\.html?$/i;
+
+function documentTitle(file) {
+  const html = fs.readFileSync(file, "utf8");
+  const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const fallback = path.basename(file, path.extname(file));
+  return (match ? match[1] : fallback)
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#(?:39|x27);/gi, "'")
+    .replace(/&mdash;|&#(?:8212|x2014);/gi, ": ")
+    .replace(/\s*—\s*/g, ": ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 function resolveAsset(slug, asset) {
   const dir = path.join(ASSETS, slug);
   if (asset.kind === "stills") {
     const files = fs.existsSync(dir)
       ? fs.readdirSync(dir).filter((f) => f.startsWith(asset.prefix) && IMG_RE.test(f)).sort()
+      : [];
+    return { files };
+  }
+  if (asset.kind === "documents") {
+    const excluded = new Set(asset.exclude || []);
+    const files = fs.existsSync(dir)
+      ? fs.readdirSync(dir)
+          .filter((file) => HTML_RE.test(file) && !excluded.has(file))
+          .sort()
+          .map((file) => ({ file, title: documentTitle(path.join(dir, file)) }))
       : [];
     return { files };
   }
@@ -106,8 +132,11 @@ function walk(dir, out = []) {
 function shipChecks() {
   const problems = [];
 
-  // 1. No em dashes anywhere on the site.
+  // 1. No em dashes in host-generated pages, styles, or scripts. Self-contained
+  // HTML artifacts keep their source copy and editorial voice.
   for (const file of walk(DIST).filter((f) => /\.(html|css|js|svg)$/.test(f))) {
+    const rel = path.relative(DIST, file);
+    if (/^assets[/\\].+\.html$/i.test(rel)) continue;
     const text = fs.readFileSync(file, "utf8");
     if (text.includes("—")) {
       problems.push(`em dash in ${path.relative(ROOT, file)}`);
@@ -148,28 +177,45 @@ copyDir(ASSETS, path.join(DIST, "assets"), (name) => !name.endsWith(".md"));
 const copies = {};
 for (const piece of pieces) copies[piece.slug] = parseCopy(piece.copy);
 
-writePage("index.html", t.home({ site, pieces, copies }));
+const piecesBySlug = new Map(pieces.map((piece) => [piece.slug, piece]));
+const publishedPieces = publishedPieceSlugs.map((slug) => {
+  const piece = piecesBySlug.get(slug);
+  if (!piece) throw new Error(`Published piece not found: ${slug}`);
+  return piece;
+});
+
+writePage("index.html", t.home({ site, pieces: publishedPieces, copies }));
 
 let placeholders = 0;
 let found = 0;
 pieces.forEach((piece, i) => {
   const resolved = resolvePiece(piece);
+  const publishedIndex = publishedPieces.indexOf(piece);
+  const cyclePrev = publishedIndex >= 0
+    ? publishedPieces[(publishedIndex - 1 + publishedPieces.length) % publishedPieces.length]
+    : null;
+  const cycleNext = publishedIndex >= 0
+    ? publishedPieces[(publishedIndex + 1) % publishedPieces.length]
+    : null;
   const slots = [resolved.lead, ...resolved.supporting];
   slots.forEach((r) => {
     if (r.files ? r.files.length : r.exists) found++;
     else placeholders++;
   });
+  const renderPage = piece.slug === "editorial" ? t.editorialPage : t.piecePage;
   writePage(
     `${piece.slug}/index.html`,
-    t.piecePage({
+    renderPage({
       site,
       piece,
       copy: copies[piece.slug],
       resolved,
       index: i,
       total: pieces.length,
-      prev: pieces[i - 1] || null,
-      next: pieces[i + 1] || null,
+      prev: publishedIndex > 0 ? publishedPieces[publishedIndex - 1] : null,
+      next: publishedIndex >= 0 ? publishedPieces[publishedIndex + 1] || null : null,
+      cyclePrev,
+      cycleNext,
     })
   );
 });

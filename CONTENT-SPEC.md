@@ -14,14 +14,15 @@ Quiet confidence, zero salesmanship.
 
 ## SITE STRUCTURE
 
-1. **Home / index** — minimal. Name, one line of positioning, the four pieces as a
+1. **Home / index** — minimal. Name, one line of positioning, the three published pieces as a
    flip-through sequence (cards or a vertical scroll — designer's call, keep it familiar).
    No manifesto, no intro essay, no stated thesis.
-2. **Four piece pages** (or four full-bleed sections), IN THIS ORDER:
-   1. Starter kit  (note: foundations + restraint)
-   2. Steering     (note: the learning loop)
-   3. Agent debrief (note: accountability)
-   4. Editorial    (note: judgment + pull — the closer)
+2. **Four piece pages** are built. The published index and previous/next sequence is:
+  1. Editorial    (note: judgment + pull)
+  2. Steering     (note: the learning loop)
+  3. Agent debrief (note: accountability)
+  Starter kit remains directly accessible at `/kit/`, but is temporarily hidden from
+  the index and published sequence.
 3. **Clippy Easter egg** — hidden or footer-level wink. A playable side-scroller.
    Do NOT give it a card equal to the four pieces. It's dessert.
 
@@ -58,7 +59,7 @@ a README naming its money moments. Lead asset per piece:
 | Kit | persona-picker flow video (pick persona → whole prototype reshapes) | restraint-detail stills if present |
 | Steering | refinement-folds-into-workflow video (+Undo toast) | off-the-record toggle video; "just learned" toast; state stills |
 | Agent debrief | the trust moment, WITH SOUND: chip click → artifact scrolls+pulses | spoken turn-taking debrief clip; stills |
-| Editorial | ONE playable artifact embedded as an iframe (self-contained HTML, e.g. the game) | report stills (the 5 topics); scroll-header video; gallery-hover video; sped-up generation |
+| Editorial | Page-native, scoped Folio system exhibit grounded in the real direction source | one scrollable HTML report output with a standalone full-width view; scroll-header video; gallery-hover video; sped-up generation |
 
 - Editorial's optional pull-quote (the ONLY approved pull-quote on the site):
   "The output isn't the answer. It's the argument."
