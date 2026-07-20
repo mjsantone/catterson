@@ -4,7 +4,7 @@ Status: DONE. Sets the template for the other three.
 
 ---
 
-# I made the house style, then got a team to want it
+# I made the house style, then got teams to want it
 
 ## AI-generated reports looked cheap. I made the house style that fixed it, argued it up the chain, and another team adopted it as their bar.
 
