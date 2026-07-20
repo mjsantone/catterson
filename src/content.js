@@ -47,9 +47,14 @@ const pieces = [
       kind: "video",
       file: "refinement-loop.mp4",
       poster: "refinement-loop-poster.jpg",
-      caption: "A refinement folds into the saved workflow, with an Undo toast.",
+      caption: "Give it a revision and it folds into the saved workflow, the panel opening to show what it just learned.",
     },
     supporting: [
+      {
+        kind: "video",
+        file: "reuse-workflow.mp4",
+        caption: "Run it again and the saved workflow is right there to pick.",
+      },
       {
         kind: "video",
         file: "off-the-record.mp4",
