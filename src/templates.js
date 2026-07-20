@@ -125,8 +125,7 @@ ${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,colo
 function home({ site, pieces, copies }) {
   const entries = pieces
     .map(
-      (p, i) => `<a class="group grid grid-cols-[3.25rem_1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
-<span class="font-sans text-[0.72rem] tracking-[0.14em] text-ink-faint" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
+      (p) => `<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
 <span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.75rem,4vw,3rem)] leading-[1.05] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
 <span class="${META} justify-self-end text-right max-sm:justify-self-start max-sm:text-left">${esc(p.kicker)}</span>
 </a>`
