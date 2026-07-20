@@ -195,4 +195,4 @@ if (!css.includes("../fonts/newsreader-latin.woff2")) {
 shipChecks();
 
 console.log(`Built ${pieces.length + 2} pages to dist/`);
-console.log(`Assets: ${found} found, ${placeholders} placeholder${placeholders === 1 ? "" : "s"}`);
+console.log(`Assets: ${found} present, ${placeholders} slot${placeholders === 1 ? "" : "s"} empty`);

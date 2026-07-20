@@ -57,11 +57,6 @@ const pieces = [
       },
       {
         kind: "video",
-        file: "off-the-record.mp4",
-        caption: "Off the record: new learning stops while everything already learned keeps applying.",
-      },
-      {
-        kind: "video",
         file: "just-learned.mp4",
         caption: "The \"just learned\" toast, the moment it tells you what it noticed.",
       },

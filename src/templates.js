@@ -20,6 +20,12 @@ const HOVER_TITLE = "group-hover:italic group-hover:text-oxblood group-focus-vis
 const CAPTION =
   "mt-3.5 max-w-[35em] border-t border-line pt-3 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint";
 
+// While assets were being captured, a missing one rendered a labeled placeholder.
+// We are past that: a missing asset now renders nothing, so the page shows only
+// real work. A slot still lights up the moment its file lands. Flip this back to
+// true to preview the planned slots.
+const SHOW_PLACEHOLDERS = false;
+
 // root is "" on the home page and "../" on subpages, so the site works from any base path.
 function shell({ site, root, title, description, url, ogType, noindex, body }) {
   return `<!doctype html>
@@ -99,6 +105,7 @@ ${cap}
 }
 
 function placeholder(kindLabel, desc, expectedPath) {
+  if (!SHOW_PLACEHOLDERS) return "";
   return `<figure class="my-[clamp(2.75rem,7vh,4.5rem)]">
 <div class="flex aspect-video flex-col items-center justify-center gap-3 border border-dashed border-line bg-paper-deep p-8 text-center" role="img" aria-label="Placeholder. ${esc(desc)}">
 <span class="${META}">${esc(kindLabel)}</span>
@@ -191,7 +198,7 @@ ${header(site, root, `${num}&hairsp;/&hairsp;${String(total).padStart(2, "0")}`)
 <h2 class="mt-6 text-[clamp(1.25rem,2.4vw,1.5rem)] leading-[1.45] font-normal text-pretty text-ink-soft italic">${esc(copy.standfirst)}</h2>
 </header>
 ${figure(piece.lead, resolved.lead, root, piece.slug)}
-<div class="mx-auto max-w-[35em] space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]">
+<div class="max-w-[35em] space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]">
 ${paragraphs.join("\n")}
 </div>
 ${supporting}
