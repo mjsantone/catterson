@@ -49,7 +49,7 @@ ${noindex ? `<meta name="robots" content="noindex">\n` : ""}<link rel="canonical
 <link rel="stylesheet" href="${root}css/site.css">
 <script src="${root}js/site.js" defer></script>
 </head>
-<body>
+<body data-root="${root}">
 <a class="absolute top-0 -left-[100vw] z-10 bg-ink px-4 py-2 font-sans text-sm text-paper focus-visible:left-0" href="#main">Skip to content</a>
 ${body}
 </body>
@@ -125,7 +125,10 @@ ${right ? `<span class="${META}">${right}</span>` : ""}
 function footer(site, { clip } = {}) {
   return `<footer class="mt-16 flex items-center justify-between gap-4 border-t border-line py-10">
 <a class="${META} no-underline hover:text-oxblood" href="mailto:${esc(site.email)}" title="${esc(site.email)}">Message me</a>
+<span class="flex items-center gap-4">
+<span class="${META}" title="And with agents.">Made by hand.</span>
 ${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,color] duration-200 hover:-rotate-8 hover:text-oxblood motion-reduce:hover:rotate-0" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
+</span>
 </footer>`;
 }
 
@@ -246,4 +249,33 @@ ${footer(site)}
   });
 }
 
-module.exports = { home, piecePage, clippyPage };
+// GitHub Pages serves this from the root for any missing path, so every URL in it
+// must be absolute. The line is a self-quote from the kit piece.
+function notFound({ site }) {
+  const root = site.url;
+  const body = `<div class="${PAGE}">
+${header(site, root)}
+<main id="main" class="flex-1">
+<article>
+<header class="pt-[clamp(3rem,9vh,5.5rem)]">
+<h1 class="${DISPLAY} text-[clamp(2.7rem,6.6vw,4.75rem)] leading-[1.0]">This page stayed out.</h1>
+<h2 class="mt-6 text-[clamp(1.25rem,2.4vw,1.5rem)] leading-[1.45] font-normal text-pretty text-ink-soft italic">The restraint is the design.</h2>
+<p class="mt-10"><a class="${META} no-underline hover:text-oxblood" href="${esc(site.url)}">Back to the index</a></p>
+</header>
+</article>
+</main>
+${footer(site)}
+</div>`;
+
+  return shell({
+    site,
+    root,
+    title: `Not found · ${site.name}`,
+    description: "This page stayed out.",
+    url: site.url,
+    noindex: true,
+    body,
+  });
+}
+
+module.exports = { home, piecePage, clippyPage, notFound };

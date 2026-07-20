@@ -1,7 +1,19 @@
 // Muted loops play only while on screen, and not at all for people who asked
-// for reduced motion (they get controls instead). This is the site's only script.
+// for reduced motion (they get controls instead). Plus one buried thing for
+// whoever thinks to type it.
 (function () {
   "use strict";
+
+  // Type the paperclip's name anywhere and it takes you to him.
+  var typed = "";
+  document.addEventListener("keydown", function (e) {
+    if (e.target.matches("input, textarea, select") || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!e.key || e.key.length !== 1) return;
+    typed = (typed + e.key.toLowerCase()).slice(-6);
+    if (typed === "clippy") {
+      window.location.href = (document.body.getAttribute("data-root") || "") + "clippy/";
+    }
+  });
 
   var videos = document.querySelectorAll("video[data-autoplay]");
   if (!videos.length) return;

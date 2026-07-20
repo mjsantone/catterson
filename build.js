@@ -178,6 +178,7 @@ const clippyResolved = { lead: resolveAsset(clippy.slug, clippy.lead) };
 if (clippyResolved.lead.exists) found++;
 else placeholders++;
 writePage("clippy/index.html", t.clippyPage({ site, clippy, resolved: clippyResolved }));
+writePage("404.html", t.notFound({ site }));
 
 // Compile the stylesheet. Font URLs must stay relative to dist/css/, so fail
 // loudly if the compiler ever rewrites them.
