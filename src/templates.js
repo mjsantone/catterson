@@ -15,7 +15,7 @@ function esc(s) {
 // Recurring class recipes. Kept as named constants so the markup below stays legible.
 const META = "meta text-ink-faint";
 const PAGE = "mx-auto flex min-h-svh max-w-[62rem] flex-col px-[clamp(1.25rem,5vw,3rem)]";
-const DISPLAY = "[font-weight:420] tracking-[-0.02em] text-balance";
+const DISPLAY = "font-display font-normal tracking-[-0.01em] text-balance";
 const HOVER_TITLE = "group-hover:italic group-hover:text-oxblood group-focus-visible:italic group-focus-visible:text-oxblood";
 const CAPTION =
   "mt-3.5 max-w-[35em] border-t border-line pt-3 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint";
@@ -38,6 +38,7 @@ ${noindex ? `<meta name="robots" content="noindex">\n` : ""}<link rel="canonical
 <meta name="twitter:card" content="summary">
 <meta name="theme-color" content="#faf8f4">
 <link rel="icon" href="${root}favicon.svg" type="image/svg+xml">
+<link rel="preload" href="${root}fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${root}fonts/newsreader-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${root}css/site.css">
 <script src="${root}js/site.js" defer></script>
@@ -126,7 +127,7 @@ function home({ site, pieces, copies }) {
     .map(
       (p, i) => `<a class="group grid grid-cols-[3.25rem_1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
 <span class="font-sans text-[0.72rem] tracking-[0.14em] text-ink-faint" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
-<span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.55rem,3.6vw,2.7rem)] leading-[1.08] tracking-[-0.015em] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
+<span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.75rem,4vw,3rem)] leading-[1.05] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
 <span class="${META} justify-self-end text-right max-sm:justify-self-start max-sm:text-left">${esc(p.kicker)}</span>
 </a>`
     )
@@ -134,7 +135,7 @@ function home({ site, pieces, copies }) {
 
   const body = `<div class="${PAGE}">
 <header class="pt-[clamp(4rem,16vh,9rem)] pb-[clamp(2.5rem,7vh,4.5rem)]">
-<h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.6rem,7.5vw,5.75rem)] leading-[1.02]">${esc(site.name)}</h1>
+<h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.9rem,8.2vw,6.5rem)] leading-[0.98]">${esc(site.name)}</h1>
 <p class="meta mt-6 text-ink-soft">${esc(site.tagline)}</p>
 </header>
 <main id="main" class="flex-1">
@@ -164,7 +165,7 @@ function piecePage({ site, piece, copy, resolved, index, total, prev, next }) {
     paragraphs.push(`<p class="text-pretty">${esc(para)}</p>`);
     if (piece.pullQuote && piece.pullQuote.afterParagraph === i + 1) {
       paragraphs.push(
-        `<blockquote class="my-[2.6em] border-y border-line py-[1.8em]"><p class="text-center text-[clamp(1.5rem,3vw,2rem)] leading-[1.3] text-balance italic">${esc(piece.pullQuote.text)}</p></blockquote>`
+        `<blockquote class="my-[2.6em] border-y border-line py-[1.8em]"><p class="font-display text-center text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-balance italic">${esc(piece.pullQuote.text)}</p></blockquote>`
       );
     }
   });
@@ -174,7 +175,7 @@ function piecePage({ site, piece, copy, resolved, index, total, prev, next }) {
     .join("\n");
 
   const flipLink = (href, label, title, right) =>
-    `<a class="group flex flex-col gap-2 no-underline${right ? " ml-auto text-right" : ""}" href="${href}"><span class="${META}">${label}</span><span class="${HOVER_TITLE} text-[1.35rem] [font-weight:420]">${esc(title)}</span></a>`;
+    `<a class="group flex flex-col gap-2 no-underline${right ? " ml-auto text-right" : ""}" href="${href}"><span class="${META}">${label}</span><span class="${HOVER_TITLE} font-display text-[1.5rem]">${esc(title)}</span></a>`;
 
   const nav = `<nav class="flex justify-between gap-8 border-t border-line py-10" aria-label="More pieces">
 ${prev ? flipLink(`../${prev.slug}/`, "Previous", prev.title) : flipLink("../", "Start", "Index")}
@@ -187,7 +188,7 @@ ${header(site, root, `${num}&hairsp;/&hairsp;${String(total).padStart(2, "0")}`)
 <article>
 <header class="max-w-[44rem] pt-[clamp(3rem,9vh,5.5rem)]">
 <p class="${META}"><span class="mr-[1em] text-oxblood">${num}</span>${esc(piece.kicker)}</p>
-<h1 class="${DISPLAY} mt-6 text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.03]">${esc(copy.headline)}</h1>
+<h1 class="${DISPLAY} mt-6 text-[clamp(2.7rem,6.6vw,4.75rem)] leading-[1.0]">${esc(copy.headline)}</h1>
 <h2 class="mt-6 text-[clamp(1.25rem,2.4vw,1.5rem)] leading-[1.45] font-normal text-pretty text-ink-soft italic">${esc(copy.standfirst)}</h2>
 </header>
 ${figure(piece.lead, resolved.lead, root, piece.slug)}
@@ -219,7 +220,7 @@ ${header(site, root)}
 <main id="main" class="flex-1">
 <article>
 <header class="pt-[clamp(3rem,9vh,5.5rem)]">
-<h1 class="${DISPLAY} text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.03]">${esc(clippy.title)}</h1>
+<h1 class="${DISPLAY} text-[clamp(2.7rem,6.6vw,4.75rem)] leading-[1.0]">${esc(clippy.title)}</h1>
 <h2 class="mt-6 text-[clamp(1.25rem,2.4vw,1.5rem)] leading-[1.45] font-normal text-pretty text-ink-soft italic">${esc(clippy.standfirst)}</h2>
 </header>
 ${figure(clippy.lead, resolved.lead, root, clippy.slug)}
