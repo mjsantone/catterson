@@ -169,9 +169,13 @@ function piecePage({ site, piece, copy, resolved, index, total, prev, next }) {
   const root = "../";
   const num = String(index + 1).padStart(2, "0");
 
+  // The opening paragraph gets a drop cap set in the display face.
+  const DROP_CAP =
+    "first-letter:float-left first-letter:font-display first-letter:text-[3.4em] first-letter:leading-[0.8] first-letter:pr-[0.12em] first-letter:mt-[0.05em]";
+
   const paragraphs = [];
   copy.body.forEach((para, i) => {
-    paragraphs.push(`<p class="text-pretty">${esc(para)}</p>`);
+    paragraphs.push(`<p class="text-pretty${i === 0 ? " " + DROP_CAP : ""}">${esc(para)}</p>`);
     if (piece.pullQuote && piece.pullQuote.afterParagraph === i + 1) {
       paragraphs.push(
         `<blockquote class="my-[2.6em] border-y border-line py-[1.8em]"><p class="font-display text-center text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-balance italic">${esc(piece.pullQuote.text)}</p></blockquote>`
