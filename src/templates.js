@@ -126,7 +126,7 @@ function footer(site, { clip } = {}) {
   return `<footer class="mt-16 flex items-center justify-between gap-4 border-t border-line py-10">
 <a class="${META} no-underline hover:text-oxblood" href="mailto:${esc(site.email)}" title="${esc(site.email)}">Message me</a>
 <span class="flex items-center gap-4">
-<span class="${META}">Set in Instrument Serif and Newsreader.</span>
+<span class="${META}">Set in Fraunces and Newsreader.</span>
 ${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,color] duration-200 hover:-rotate-8 hover:text-oxblood motion-reduce:hover:rotate-0" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
 </span>
 </footer>`;
