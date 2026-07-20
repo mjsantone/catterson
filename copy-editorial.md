@@ -6,7 +6,7 @@ Status: DONE. Sets the template for the other three.
 
 # I made the house style, then got teams to want it
 
-## AI-generated reports looked cheap. I made the house style that fixed it, argued it up the chain, and another team adopted it as their bar.
+## AI-generated reports looked cheap. I made the house style that fixed it, argued it up the chain, and teams keep coming to ask for it.
 
 The output looked like AI output. Gray boxes, default type, charts a spreadsheet would be embarrassed by. Everyone could see it and nobody owned it. Polish had been deprioritized for stability and feature parity, a completely valid call by engineering to keep the product moving. I decided waiting wasn't enough.
 
@@ -16,7 +16,7 @@ The hard part was not styling one report. It was teaching a probabilistic model 
 
 I made the argument up the chain too, that the output is the product, not the packaging. It got forwarded two levels. And I stayed honest about the work itself. The Folio house style and composition rules are mine, merged into the staging mirror for Microsoft's Researcher agent, and I am developing them now with the engineer who owns integration toward production. I stayed in the code the whole way, down to catching the layout bugs by eye that the screenshots hid. I measure what I ship: one round of config changes to push richer layouts simply didn't work, and I reported that plainly instead of dressing it up. Knowing which lever actually moves the model, and which just adds complexity, is the difference between craft and decoration.
 
-Then the part that matters more than shipping: another team came to me. They pointed at what I had made as the example of well-crafted, design-system output, and asked how to get theirs closer. The decision out of that room was to integrate my work into their pipeline. That is pull, not push. I did not lobby them. They saw the bar and wanted it.
+Then the part that matters more than shipping: another team came to me. They pointed at what I had made as the example of well-crafted, design-system output, and asked how to get theirs closer. The decision out of that room was to integrate my work into their pipeline. And it kept happening. It is about a team a week now, reaching out with the same question. That is pull, not push. I did not lobby any of them. They saw the bar and wanted it.
 
 ---
 
