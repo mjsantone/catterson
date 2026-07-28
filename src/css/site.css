@@ -108,6 +108,265 @@
   text-transform: uppercase;
 }
 
+.detail-reveal-ready [data-detail-reveal] {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 420ms ease-out,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.detail-reveal-ready [data-detail-reveal][data-visible="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-reveal-ready [data-detail-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+html.site-locked {
+  overflow: hidden;
+}
+
+html.site-locked .site-content,
+html.site-unlocked .password-gate {
+  display: none;
+}
+
+.password-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  min-height: 100svh;
+  background:
+    linear-gradient(var(--color-line), var(--color-line)) 0 5.25rem / 100% 1px no-repeat,
+    var(--color-paper);
+  color: var(--color-ink);
+}
+
+.password-gate__header {
+  display: flex;
+  height: 5.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-inline: clamp(1.25rem, 5vw, 3rem);
+}
+
+.password-gate__main {
+  display: grid;
+  min-height: calc(100svh - 5.25rem);
+  place-items: center;
+  padding: 2rem 1rem max(2rem, env(safe-area-inset-bottom));
+}
+
+.password-gate__form {
+  width: min(42rem, 100%);
+  text-align: center;
+}
+
+.password-gate__label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 440;
+  line-height: 1;
+}
+
+.password-gate__hint,
+.password-gate__status {
+  min-height: 1.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-faint);
+}
+
+.password-gate__hint {
+  margin-top: 0.8rem;
+  text-transform: uppercase;
+}
+
+.password-gate__entry {
+  position: relative;
+  margin-top: 2rem;
+  border-radius: 12px;
+}
+
+.password-gate__input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+  cursor: text;
+}
+
+.password-gate__cells {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: clamp(0.35rem, 1vw, 0.75rem);
+}
+
+.password-gate__cell {
+  display: grid;
+  aspect-ratio: 0.78;
+  place-items: center;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--color-paper-deep);
+  font-family: var(--font-sans);
+  font-size: 1.4rem;
+  line-height: 1;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.password-gate__cell[data-filled="true"]::before {
+  content: "";
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: var(--color-ink);
+}
+
+.password-gate__cell[data-active="true"] {
+  border-color: var(--color-ink);
+  background: var(--color-paper);
+}
+
+.password-gate__entry:focus-within {
+  outline: 2px solid var(--color-oxblood);
+  outline-offset: 4px;
+}
+
+.password-gate__form[data-invalid="true"] .password-gate__cell {
+  border-color: var(--color-oxblood);
+}
+
+.password-gate__status {
+  margin-top: 1rem;
+  color: var(--color-oxblood);
+}
+
+.document-carousel {
+  --carousel-width: min(75rem, calc(100vw - 2rem));
+  --slide-width: min(56rem, calc(100vw - 3rem));
+  width: var(--carousel-width);
+  margin-inline: calc((100% - var(--carousel-width)) / 2);
+}
+
+.document-carousel__viewport {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.document-carousel__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.document-carousel__track {
+  display: flex;
+  width: max-content;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  padding: 0 calc((var(--carousel-width) - var(--slide-width)) / 2) 0.5rem;
+}
+
+.document-carousel__slide {
+  flex: 0 0 var(--slide-width);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+.document-carousel__slide[data-active="false"] .document-carousel__frame,
+.document-carousel__slide[data-active="false"] .document-carousel__caption {
+  pointer-events: none;
+}
+
+.document-carousel__frame {
+  contain: paint;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 32px;
+  background: var(--color-ink);
+}
+
+.document-carousel__caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-top: 0.875rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--color-ink-faint);
+}
+
+.document-carousel__controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.document-carousel__button {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.document-carousel__button:hover {
+  border-color: var(--color-ink-faint);
+  color: var(--color-oxblood);
+}
+
+@media (max-width: 32rem) {
+  .password-gate__label {
+    font-size: 2.25rem;
+  }
+
+  .password-gate__entry {
+    margin-top: 1.5rem;
+  }
+
+  .password-gate__cell {
+    border-radius: 9px;
+    font-size: 1rem;
+  }
+
+  .document-carousel {
+    --carousel-width: calc(100% + 2.5rem);
+    --slide-width: calc(100vw - 3.5rem);
+    margin-inline: -1.25rem;
+  }
+
+  .document-carousel__track {
+    gap: 0.5rem;
+  }
+
+  .document-carousel__frame {
+    border-radius: 20px;
+  }
+}
+
 .clippy-cameo {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right, 0px));

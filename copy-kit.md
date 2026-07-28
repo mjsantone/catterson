@@ -17,3 +17,7 @@ Knowing what to leave out is harder than knowing what to put in. A foundation th
 
 ---
 BUILD: lead = persona-picker flow video (pick persona -> whole prototype reshapes). Debugging paragraph CUT (Catterson call, Jul 14) — held for interview as an "I actually code" beat.
+
+## INLINE STORY
+
+My team needed a place to start. Not a finished app to bend to a new idea, but a foundation that could stand one up fast. I made a persona system that lets a designer pick a realistic synthetic person and watch the whole prototype become theirs: greeting, suggestions, manager, files, and search tools. The hard part was keeping that useful system from turning the starter kit into my app. It falls back to mock data, ships live connections off by default, and runs with zero setup or credentials. The restraint is the design.

@@ -8,28 +8,48 @@
 
 const site = {
   name: "Matthew Santone",
-  tagline: "Principal design architect. I think by making.",
+  tagline: "Twenty years of craft, now applied to how humans and AI agents work together.",
   // Change this if the site moves to a custom domain. Used for canonical + OG URLs.
   url: "https://mjsantone.github.io/catterson/",
   email: "matthewsantone@gmail.com",
+  homeExternalPreview: {
+    title: "Fuse",
+    label: "Live tool",
+    description: "Blend weighted ingredients into a new output on a freeform canvas.",
+    image: "assets/fuse/fuse-preview.webp",
+    url: "https://fuse-catterson-gcakeab6etetcaaq.westus2-01.azurewebsites.net",
+  },
 };
 
 // Asset slot shapes:
 //   { kind: "video",  file, poster?, sound?, caption }   sound: true renders controls, never autoplays
-//   { kind: "stills", prefix, caption }                  matches assets/<slug>/<prefix>*.png|jpg|webp
+//   { kind: "stills", prefix?, files?, layout?, caption } matches discovered or explicit images
 //   { kind: "documents", exclude? }                      embeds discovered local HTML with full-view links
 //   { kind: "iframe", file, title, caption }             self-contained HTML, sandboxed
 const pieces = [
   {
+    slug: "document-editing",
+    title: "Document editing",
+    kicker: "Prototype as specification",
+    copy: "copy-document-editing.md",
+    lead: {
+      kind: "stills",
+      files: ["images/confirm.webp"],
+      layout: "sequence",
+      caption: "A proposed edit arrives as tracked changes, ready to accept or reject.",
+    },
+    supporting: [],
+  },
+  {
     slug: "kit",
-    title: "Starter kit",
+    title: "1P Starter Kit",
     kicker: "Foundations and restraint",
     copy: "copy-kit.md",
     lead: {
-      kind: "video",
-      file: "persona-picker.mp4",
-      poster: "persona-picker-poster.jpg",
-      caption: "Pick a persona and the whole prototype reshapes around them.",
+      kind: "stills",
+      files: ["images/landing.webp"],
+      layout: "sequence",
+      caption: "The empty state: one input, a few starting points, nothing else.",
     },
     supporting: [
       {
@@ -46,22 +66,24 @@ const pieces = [
     copy: "copy-steering.md",
     lead: {
       kind: "video",
-      file: "01_save-to-workflow.mp4",
-      poster: "01_save-to-workflow-poster.jpg",
-      caption: "Give it a revision and it folds into the saved workflow, the panel opening to show what it just learned.",
+      file: "01_create.mp4",
+      poster: "01_create-poster.webp",
+      caption: "Start with the task in chat, no preferences form.",
     },
     supporting: [
       {
         kind: "video",
-        file: "00_chat-input.mp4",
+        file: "02_learn.mp4",
+        poster: "02_learn-poster.webp",
         afterParagraph: 1,
-        caption: "Start with the task in chat, without a preferences form.",
+        caption: "Refine the result, then save the run as a named workflow.",
       },
       {
         kind: "video",
-        file: "02_reuse-workflow.mp4",
-        afterParagraph: 3,
-        caption: "Run it again and the saved workflow is right there to pick.",
+        file: "03_reuse.mp4",
+        poster: "03_reuse-poster.webp",
+        afterParagraph: 2,
+        caption: "Reuse it later and each rule shows the correction it came from.",
       },
       {
         kind: "stills",
@@ -76,24 +98,33 @@ const pieces = [
     kicker: "Accountability",
     copy: "copy-agent-debrief.md",
     lead: {
-      kind: "video",
-      file: "trust-moment.mp4",
-      poster: "trust-moment-poster.jpg",
-      sound: true,
-      caption: "With sound. Click a decision chip and the artifact scrolls to and pulses the exact region that decision shaped.",
+      kind: "stills",
+      files: ["images/06 - Show us.webp"],
+      layout: "sequence",
+      fullView: true,
+      caption: "The agent introduces the calls beneath its answer, then waits.",
     },
     supporting: [
       {
         kind: "video",
-        file: "debrief-turns.mp4",
-        poster: "debrief-turns-poster.jpg",
-        sound: true,
-        caption: "With sound. The spoken debrief raises one decision, then stops and waits.",
+        file: "03_memo.mp4",
+        poster: "03_memo-poster.webp",
+        afterParagraph: 3,
+        caption: "Each call stays tied to the passage it produced, with its reasoning beside it.",
       },
       {
-        kind: "stills",
-        prefix: "still-",
-        caption: "Decision chips carry intent, confidence, rejected alternatives, and sources.",
+        kind: "video",
+        file: "01_challenge.mp4",
+        poster: "01_challenge-poster.webp",
+        afterParagraph: 4,
+        caption: "Pushed with bare authority, the call holds and says why.",
+      },
+      {
+        kind: "video",
+        file: "02_rechallenge.mp4",
+        poster: "02_rechallenge-poster.webp",
+        afterParagraph: 4,
+        caption: "Given a real reason, it revises the call and records the change.",
       },
     ],
   },
@@ -117,10 +148,14 @@ const pieces = [
     supporting: [
       {
         kind: "documents",
+        files: [
+          "Folio System Storybook.html",
+          "Liebeck v McDonalds  Myth vs the Record.html",
+          "The Rule Against Perpetuities.html",
+        ],
+        featured: "Liebeck v McDonalds  Myth vs the Record.html",
         exclude: [
           "bolt-dodger.html",
-          "Folio System Storybook.html",
-          "The Rule Against Perpetuities.html",
         ],
       },
       {
@@ -142,9 +177,12 @@ const pieces = [
   },
 ];
 
-// Controls the home index and previous/next sequence. Pieces omitted here are
-// still generated and remain directly accessible.
+// Main stories appear in the Home index and previous/next sequence.
 const publishedPieceSlugs = ["editorial", "steering", "agent-debrief"];
+
+// Smaller stories render in full on Home and do not generate detail routes.
+// Pieces omitted from both lists still generate hidden, directly accessible routes.
+const inlineStorySlugs = ["document-editing", "kit"];
 
 // The Easter egg. Footer-level wink, not a fifth piece.
 const clippy = {
@@ -161,4 +199,4 @@ const clippy = {
   },
 };
 
-module.exports = { site, pieces, publishedPieceSlugs, clippy };
+module.exports = { site, pieces, publishedPieceSlugs, inlineStorySlugs, clippy };

@@ -14,25 +14,32 @@ Quiet confidence, zero salesmanship.
 
 ## SITE STRUCTURE
 
+0. **Access gate** — first load shows nine rounded password cells. A successful unlock
+  persists in the current browser, so reviewers do not need to re-enter it in every tab.
 1. **Home / index** — minimal. Name, one line of positioning, the three published pieces as a
    flip-through sequence (cards or a vertical scroll — designer's call, keep it familiar).
    No manifesto, no intro essay, no stated thesis.
-2. **Four piece pages** are built. The published index and previous/next sequence is:
+2. **Three main piece pages** form the published index and previous/next sequence:
   1. Editorial    (note: judgment + pull)
   2. Steering     (note: the learning loop)
   3. Agent debrief (note: accountability)
-  Starter kit remains directly accessible at `/kit/`, but is temporarily hidden from
-  the index and published sequence.
-3. **Clippy Easter egg** — hidden or footer-level wink. A playable side-scroller.
+3. **Mini inline stories** sit below the main index and are fulfilled entirely on Home.
+  They have no detail route or previous/next navigation. Document Editing comes first,
+  followed by the 1P Starter Kit. Mini headlines render one step below detail-page
+  headlines: 40px wide and 28px narrow. The first mini has no leading divider; later
+  minis use a divider between stories. An optional 16:9 proof asset sits below the
+  headline in the left column and stacks above the copy on narrow screens.
+4. **External live preview** — Fuse appears beneath the mini stories as a clickable
+  16:9 screenshot at its native 505px UI scale, with standard 32px artifact corners
+  and an external-link fallback. It scales down fluidly on narrow screens.
+5. **Clippy Easter egg** — hidden or footer-level wink. A playable side-scroller.
    Do NOT give it a card equal to the four pieces. It's dessert.
 
 ## ONE-LINE POSITIONING (homepage, under the name)
-"Principal design architect. I think by making."
-(If a second line is wanted: "Twenty years of craft, now applied to how humans and AI
-agents work together." Use at most one of these two lines beyond the name — lean.)
+"Twenty years of craft, now applied to how humans and AI agents work together."
 
 ## THE REPEATABLE PIECE COMPONENT (build ONCE, use 4x)
-Every piece renders identically:
+Every main piece renders identically:
 - **H1 HEADLINE** — the punchy claim
 - **H2 STANDFIRST** — unlabeled, 2 sentences, first person. Visually a subtitle, never
   labeled "TL;DR" or "Summary."
@@ -40,7 +47,15 @@ Every piece renders identically:
   immediately after the standfirst
 - **BODY** — dense prose (~350-450 words), rendered as flowing paragraphs. NO added
   subheads inside the body, NO bullets, NO pull-quotes unless specified per piece.
+  Opening and closing paragraphs render at 24px; explanatory middle paragraphs at
+  20px. Both share the 704px editorial column; the 24px style lands near 70 characters
+  per line, while the 20px style is allowed a longer rag to preserve alignment.
+  Detail-page standfirsts step to 32px and headlines to 64px on wide screens, with
+  28px and 48px narrow-screen equivalents.
 - **SUPPORTING ASSETS** — interleaved with or following the body per piece notes
+- **SCROLL REVEAL** — detail-page editorial beats reveal once with a 420ms fade and
+  8px rise. Home is excluded. Iframe-containing media is never transformed, hidden tabs
+  render immediately, and reduced-motion users receive no animation.
 
 ## FINAL COPY
 The four copy files are FINAL and verbatim: copy-kit.md, copy-steering.md,
@@ -56,16 +71,16 @@ a README naming its money moments. Lead asset per piece:
 
 | Piece | Lead asset | Supporting |
 |---|---|---|
-| Kit | persona-picker flow video (pick persona → whole prototype reshapes) | restraint-detail stills if present |
-| Steering | refinement-folds-into-workflow video (+Undo toast) | off-the-record toggle video; "just learned" toast; state stills |
-| Agent debrief | the trust moment, WITH SOUND: chip click → artifact scrolls+pulses | spoken turn-taking debrief clip; stills |
-| Editorial | Page-native, scoped Folio system exhibit grounded in the real direction source | one scrollable HTML report output with a standalone full-width view; scroll-header video; gallery-hover video; sped-up generation |
+| Document Editing inline story | selection to Ask to tracked-change review video | none |
+| 1P Starter Kit inline story | empty-state landing still (one input, a few starting points, nothing else) | restraint-detail stills if present |
+| Steering | start-in-chat video | refine-into-named-workflow video; reuse video showing each rule's originating correction; pause-learning clip |
+| Agent debrief | "show us" overview still, opens full size | binding, hold, and tracked-revision videos; evidence swap and sign-off gate vignettes still to capture |
+| Editorial | Page-native, scoped Folio system exhibit grounded in the real direction source | a three-output horizontal carousel with Liebeck featured at center and standalone full-width views; scroll-header video; gallery-hover video; sped-up generation |
 
 - Editorial's optional pull-quote (the ONLY approved pull-quote on the site):
   "The output isn't the answer. It's the argument."
-- Videos: muted autoplay-safe, captions burned in where the source has them, loop the
-  short ones, always show controls on the sound-on debrief clip (it must NOT autoplay
-  with sound).
+- Videos: muted autoplay-safe, captions burned in where the source has them, and loop
+  the short ones. Any future sound-on media must show controls and never autoplay.
 - Missing assets at build time: render a clearly-labeled placeholder slot per the plan
   above and continue. Do not fake, generate, or substitute imagery.
 

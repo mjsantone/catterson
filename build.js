@@ -11,7 +11,7 @@
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
-const { site, pieces, publishedPieceSlugs, clippy } = require("./src/content.js");
+const { site, pieces, publishedPieceSlugs, inlineStorySlugs, clippy } = require("./src/content.js");
 const t = require("./src/templates.js");
 
 const ROOT = __dirname;
@@ -50,6 +50,22 @@ function parseCopy(filename) {
   return { headline, standfirst, body };
 }
 
+function parseInlineCopy(filename) {
+  const lines = fs.readFileSync(path.join(ROOT, filename), "utf8").split("\n");
+  const marker = lines.findIndex((line) => line.trim() === "## INLINE STORY");
+  if (marker < 0) throw new Error(`${filename}: expected an INLINE STORY section`);
+
+  const body = [];
+  for (let index = marker + 1; index < lines.length; index++) {
+    const line = lines[index].trim();
+    if (!line) continue;
+    if (line === "---" || line.startsWith("## ")) break;
+    body.push(line);
+  }
+  if (!body.length) throw new Error(`${filename}: INLINE STORY section is empty`);
+  return body;
+}
+
 // ---------- asset resolution ----------
 
 const IMG_RE = /\.(png|jpe?g|webp|avif|gif)$/i;
@@ -73,20 +89,29 @@ function documentTitle(file) {
 function resolveAsset(slug, asset) {
   const dir = path.join(ASSETS, slug);
   if (asset.kind === "stills") {
+    const requested = asset.files || [];
     const files = fs.existsSync(dir)
-      ? fs.readdirSync(dir).filter((f) => f.startsWith(asset.prefix) && IMG_RE.test(f)).sort()
+      ? (requested.length
+          ? requested
+          : fs.readdirSync(dir).filter((file) => file.startsWith(asset.prefix)).sort()
+        )
+          .filter((file) => IMG_RE.test(file) && fs.existsSync(path.join(dir, file)))
       : [];
     return { files };
   }
   if (asset.kind === "documents") {
     const excluded = new Set(asset.exclude || []);
+    const requested = asset.files || [];
     const files = fs.existsSync(dir)
-      ? fs.readdirSync(dir)
+      ? (requested.length ? requested : fs.readdirSync(dir).sort())
           .filter((file) => HTML_RE.test(file) && !excluded.has(file))
-          .sort()
+          .filter((file) => fs.existsSync(path.join(dir, file)))
           .map((file) => ({ file, title: documentTitle(path.join(dir, file)) }))
       : [];
-    return { files };
+    return {
+      files,
+      featuredIndex: Math.max(0, files.findIndex(({ file }) => file === asset.featured)),
+    };
   }
   const exists = fs.existsSync(path.join(dir, asset.file));
   const poster = asset.poster ? fs.existsSync(path.join(dir, asset.poster)) : false;
@@ -108,7 +133,7 @@ function copyDir(from, to, filter) {
     const src = path.join(from, entry.name);
     const dst = path.join(to, entry.name);
     if (entry.isDirectory()) copyDir(src, dst, filter);
-    else if (!filter || filter(entry.name)) fs.copyFileSync(src, dst);
+    else if (!filter || filter(entry.name, src)) fs.copyFileSync(src, dst);
   }
 }
 
@@ -148,7 +173,7 @@ function shipChecks() {
   //    this repo generates or names is not.)
   const INTERNAL = /microsoft|msft|azure|sharepoint|workiq|msal|m365|copilot|simthetics/i;
   const microcopy = JSON.stringify({ site, pieces, clippy }, (key, value) =>
-    key === "copy" ? undefined : value
+    key === "copy" || key === "url" ? undefined : value
   );
   if (INTERNAL.test(microcopy)) problems.push("internal term in src/content.js microcopy");
   if (/—/.test(microcopy)) problems.push("em dash in src/content.js microcopy");
@@ -172,7 +197,21 @@ fs.mkdirSync(DIST, { recursive: true });
 copyDir(path.join(ROOT, "src/js"), path.join(DIST, "js"));
 copyDir(path.join(ROOT, "src/fonts"), path.join(DIST, "fonts"));
 copyDir(path.join(ROOT, "src/static"), DIST);
-copyDir(ASSETS, path.join(DIST, "assets"), (name) => !name.endsWith(".md"));
+
+// Local capture masters sit beside the published derivatives and are never
+// copied into the build: full-resolution stills (PNG/JPEG originals of the
+// published WebPs) and raw screen recordings, which are kept in per-capture
+// revision folders (movs/, r1/, r2/ ...) and published as compressed MP4s.
+const MASTERS = [
+  /^(?:agent-debrief|document-editing|fuse|kit)[/\\]images[/\\].+\.(?:png|jpe?g)$/i,
+  /^agent-debrief[/\\]movs[/\\]/i,
+  /^steering[/\\]r\d+[/\\]/i,
+];
+copyDir(ASSETS, path.join(DIST, "assets"), (name, src) => {
+  if (name.endsWith(".md")) return false;
+  const rel = path.relative(ASSETS, src);
+  return !MASTERS.some((pattern) => pattern.test(rel));
+});
 
 const copies = {};
 for (const piece of pieces) copies[piece.slug] = parseCopy(piece.copy);
@@ -183,12 +222,24 @@ const publishedPieces = publishedPieceSlugs.map((slug) => {
   if (!piece) throw new Error(`Published piece not found: ${slug}`);
   return piece;
 });
+const inlineStories = inlineStorySlugs.map((slug) => {
+  const piece = piecesBySlug.get(slug);
+  if (!piece) throw new Error(`Inline story not found: ${slug}`);
+  if (publishedPieceSlugs.includes(slug)) throw new Error(`Piece cannot be both published and inline: ${slug}`);
+  return {
+    piece,
+    copy: copies[slug],
+    body: parseInlineCopy(piece.copy),
+    resolved: resolvePiece(piece),
+  };
+});
 
-writePage("index.html", t.home({ site, pieces: publishedPieces, copies }));
+writePage("index.html", t.home({ site, pieces: publishedPieces, copies, inlineStories }));
 
 let placeholders = 0;
 let found = 0;
 pieces.forEach((piece, i) => {
+  if (inlineStorySlugs.includes(piece.slug)) return;
   const resolved = resolvePiece(piece);
   const publishedIndex = publishedPieces.indexOf(piece);
   const cyclePrev = publishedIndex >= 0

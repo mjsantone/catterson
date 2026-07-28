@@ -1,6 +1,6 @@
 # catterson
 
-A lean, static, flip-through portfolio. Paper and ink, one serif, four pieces.
+A lean, static, flip-through portfolio. Paper and ink, three main stories, and smaller stories told inline.
 
 ## How it works
 
@@ -12,7 +12,7 @@ A lean, static, flip-through portfolio. Paper and ink, one serif, four pieces.
   Edit the copy files, rebuild, done.
 - `src/content.js` holds everything that is not copy: piece order, asset slots,
   and generated microcopy (captions, labels). `src/templates.js` renders the one
-  piece component used by all four pieces and carries the Tailwind classes;
+  main piece component and the Home inline-story renderer, and carries the Tailwind classes;
   `src/css/site.css` holds the theme tokens, fonts, and base styles.
 - Assets are looked up on disk. A missing file renders as a labeled placeholder
   showing the exact path it expects. Drop the file in `assets/<piece>/` with the

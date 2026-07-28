@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Folio: An Editorial System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,450;0,6..72,500;1,6..72,400;1,6..72,500&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fff;
+  --tint: #f0f0f0;
+  --border: #c7c7c7;
+  --border-soft: #dedede;
+  --fg: #242424;
+  --fg-2: #5d5d5d;
+  --blue-light: #c6e1ff;
+  --blue-mid: #2f95f4;
+  --blue-dark: #0b497f;
+  --lime-light: #e6ffcf;
+  --lime-mid: #6da603;
+  --lime-dark: #345200;
+  --pumpkin-light: #fde61e;
+  --pumpkin-mid: #e46832;
+  --pumpkin-dark: #762f0e;
+  --purple-light: #e4d6ff;
+  --purple-mid: #a575e8;
+  --purple-dark: #523778;
+  --pink-light: #ffcee6;
+  --pink-mid: #d961a6;
+  --pink-dark: #6f2b53;
+  --serif: "Newsreader", Georgia, serif;
+  --sans: "Inter", system-ui, sans-serif;
+  --page-margin: clamp(16px, 4vw, 32px);
+  --main: min(704px, calc(100vw - (var(--page-margin) * 2)));
+  --off-grid: min(1068px, calc(100vw - (var(--page-margin) * 2)));
+  --s-8: 8px;
+  --s-12: 12px;
+  --s-16: 16px;
+  --s-20: 20px;
+  --s-24: 24px;
+  --s-32: 32px;
+  --s-40: 40px;
+  --s-48: 48px;
+  --s-64: 64px;
+  --s-80: 80px;
+  --radius: 20px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  max-width: 1440px;
+  margin: 0 auto;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+.document {
+  width: var(--main);
+  margin: 0 auto;
+  padding: var(--s-64) 0 var(--s-80);
+  container: folio / inline-size;
+}
+.off-grid {
+  width: var(--off-grid);
+  margin-left: calc((var(--main) - var(--off-grid)) / 2);
+}
+.eyebrow {
+  color: var(--fg-2);
+  font: 500 12px/1.4 var(--sans);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.editorial-caption {
+  color: var(--fg-2);
+  font: italic 400 16px/1.5 var(--serif);
+}
+.page-header { padding: var(--s-20) 0 0; }
+.header-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-24);
+  padding-bottom: var(--s-20);
+  border-bottom: 1px solid var(--fg);
+}
+h1 {
+  max-width: 10em;
+  margin-top: var(--s-40);
+  font: 400 clamp(44px, 8cqi, 64px)/0.98 var(--serif);
+  letter-spacing: -1px;
+}
+.deck {
+  max-width: 25em;
+  margin-top: var(--s-32);
+  font: italic 400 clamp(20px, 4cqi, 28px)/1.4 var(--serif);
+}
+.system-note {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--s-16);
+  margin-top: var(--s-48);
+  padding-top: var(--s-20);
+  border-top: 1px solid var(--border);
+}
+.system-note strong {
+  display: block;
+  font: 450 24px/1.2 var(--serif);
+}
+.system-note span { color: var(--fg-2); font-size: 12px; }
+.section { margin-top: 112px; }
+.section-break {
+  display: flex;
+  align-items: center;
+  gap: var(--s-16);
+  margin-bottom: var(--s-40);
+}
+.section-break::before { content: ""; flex: 1; height: 1px; background: var(--border); }
+.section-break .label { font: italic 400 16px/1.5 var(--serif); color: var(--fg-2); }
+.section-title {
+  max-width: 14em;
+  margin-bottom: var(--s-40);
+  font: 450 clamp(28px, 5cqi, 40px)/1.15 var(--serif);
+}
+.specimen-label { margin-bottom: var(--s-16); }
+.specimen + .specimen { margin-top: var(--s-64); }
+
+.foundation-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--s-40);
+  align-items: end;
+}
+.type-display { font: 400 clamp(48px, 11cqi, 78px)/0.92 var(--serif); letter-spacing: -1px; }
+.type-display em { font-weight: 400; }
+.type-notes { display: flex; flex-direction: column; gap: var(--s-16); }
+.type-notes p:first-child { font: 450 24px/1.2 var(--serif); }
+.type-notes p:last-child { color: var(--fg-2); font-size: 12px; }
+.palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-8); margin-top: var(--s-32); }
+.swatch { aspect-ratio: 1; border-radius: 12px; border: 1px solid rgba(36,36,36,.14); }
+
+.standfirst-block { max-width: var(--main); }
+.standfirst-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-16);
+  padding-bottom: var(--s-20);
+  margin-bottom: var(--s-24);
+  border-bottom: 1px solid var(--border);
+}
+.standfirst {
+  margin-bottom: var(--s-32);
+  font: 400 clamp(22px, 4cqi, 28px)/1.4 var(--serif);
+}
+.standfirst .lede { font-style: italic; }
+.gist {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: var(--s-32);
+  padding: 28px 32px;
+  background: var(--tint);
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+}
+.gist-title { margin-top: var(--s-8); font: 450 24px/1.1 var(--serif); }
+.gist ul { display: flex; flex-direction: column; gap: var(--s-16); list-style: none; }
+.gist li { position: relative; padding-left: var(--s-24); line-height: 1.5; }
+.gist li::before { content: "•"; position: absolute; left: 0; color: var(--fg-2); }
+.gist b { font-weight: 600; }
+.gist .value { font: 500 18px/1 var(--serif); }
+
+.plate-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-24);
+  margin-bottom: var(--s-20);
+}
+.plate-deck { max-width: 31em; font: italic 400 18px/1.4 var(--serif); }
+.plate-grid {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  grid-template-rows: auto auto;
+  gap: var(--s-16);
+}
+.frame { display: flex; flex-direction: column; gap: var(--s-12); }
+.frame.hero { grid-row: 1 / span 2; }
+.shot { position: relative; overflow: hidden; border-radius: var(--radius); background: #0b0b0c; }
+.frame.hero .shot { aspect-ratio: 4 / 5; }
+.frame:not(.hero) .shot { aspect-ratio: 5 / 4; }
+.scene { position: absolute; inset: 0; }
+.scene-night {
+  background:
+    radial-gradient(120% 80% at 50% 118%, rgba(47,149,244,.65), transparent 46%),
+    radial-gradient(60% 40% at 78% 16%, rgba(198,225,255,.3), transparent 60%),
+    linear-gradient(180deg, #06121f 0%, #0b497f 64%, #0a2c49 100%);
+}
+.scene-night::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 22%, #fff 50%, transparent 52%),
+    radial-gradient(1px 1px at 28% 12%, #cfe3ff 50%, transparent 52%),
+    radial-gradient(1.4px 1.4px at 44% 30%, #fff 50%, transparent 52%),
+    radial-gradient(1px 1px at 62% 18%, #fff 50%, transparent 52%),
+    radial-gradient(1px 1px at 86% 22%, #fff 50%, transparent 52%);
+}
+.scene-dome {
+  background:
+    radial-gradient(80% 60% at 50% 122%, rgba(228,104,50,.85), transparent 52%),
+    radial-gradient(50% 40% at 50% 116%, rgba(253,230,30,.8), transparent 46%),
+    linear-gradient(180deg, #0b0b14 0%, #241019 60%, #3a1606 100%);
+}
+.scene-ridge { background: linear-gradient(180deg, #0a1f33 0%, #2f95f4 50%, #0b497f 50.4%, #07121d 100%); }
+.scene-ridge::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 0;
+  background: linear-gradient(180deg, #0a2840, #06101a);
+  clip-path: polygon(0 38%,18% 26%,34% 40%,52% 22%,70% 36%,86% 24%,100% 34%,100% 100%,0 100%);
+}
+.tag {
+  position: absolute;
+  left: var(--s-12);
+  bottom: var(--s-12);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(11,11,12,.42);
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.frame figcaption { display: flex; gap: var(--s-8); font: italic 400 15px/1.45 var(--serif); color: var(--fg-2); }
+.frame figcaption b { color: var(--fg); font-weight: 500; }
+
+.big-number {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--s-48);
+  align-items: center;
+  padding: var(--s-48) 0;
+}
+.big-number .figure { display: flex; align-items: flex-start; font: 400 clamp(72px, 17cqi, 128px)/.82 var(--serif); letter-spacing: -4px; }
+.big-number .unit { margin-top: .18em; margin-left: 2px; font-size: .42em; letter-spacing: -1px; }
+.big-number .rail { display: flex; flex-direction: column; gap: var(--s-12); }
+.big-number .rail strong { font: 450 24px/1.25 var(--serif); }
+.big-number .rail p { color: var(--fg-2); }
+.big-number .source { font-size: 12px; }
+
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-16); }
+.stat-card {
+  min-height: 150px;
+  padding: var(--s-16);
+  border: 1px solid var(--fg);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.stat-card .number { font: 400 clamp(36px, 8cqi, 56px)/1 var(--serif); letter-spacing: -1px; }
+.stat-card .caption { color: var(--fg-2); font-size: 12px; }
+
+.grid-quote {
+  --quote-border: var(--purple-dark);
+  --quote-fill: var(--purple-light);
+  display: grid;
+  grid-template-columns: 42px 1fr 84px;
+  border: 1px solid var(--quote-border);
+  color: var(--quote-border);
+}
+.quote-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--quote-border);
+  font: 400 46px/1 var(--serif);
+  padding-top: 12px;
+}
+.quote-body { padding: var(--s-24); background: var(--quote-fill); font-size: 20px; line-height: 1.45; }
+.quote-body strong { font-weight: 600; }
+.quote-grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+.quote-grid span { min-height: 42px; border-left: 1px solid var(--quote-border); border-bottom: 1px solid var(--quote-border); }
+.quote-grid span:nth-last-child(-n+2) { border-bottom: 0; }
+
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-40); }
+.chart-title { margin-bottom: var(--s-20); font: 450 20px/1.2 var(--serif); }
+.columns {
+  height: 220px;
+  padding: 0 var(--s-8);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-16);
+}
+.column { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+.column .value { margin-bottom: var(--s-8); font: 450 18px/1 var(--serif); }
+.column .bar { width: 100%; border-radius: 4px 4px 0 0; }
+.column-labels { display: flex; gap: var(--s-16); padding: var(--s-8) var(--s-8) 0; }
+.column-labels span { flex: 1; text-align: center; color: var(--fg-2); font-size: 12px; }
+.bar-chart { display: flex; flex-direction: column; gap: var(--s-16); }
+.bar-row { display: grid; grid-template-columns: 72px 1fr; align-items: center; gap: var(--s-12); }
+.bar-label { color: var(--fg-2); font-size: 12px; text-align: right; }
+.bar-track { display: flex; align-items: center; gap: var(--s-8); }
+.bar { height: 20px; border-radius: 3px; }
+.bar-value { flex-shrink: 0; font: 450 17px/1 var(--serif); }
+
+.timeline { position: relative; display: flex; flex-direction: column; gap: var(--s-40); padding-left: 64px; }
+.timeline::before { content: ""; position: absolute; left: 20px; top: 20px; bottom: 20px; width: 1px; background: var(--border); }
+.milestone { position: relative; display: grid; grid-template-columns: 120px 1fr; gap: var(--s-24); }
+.milestone::before {
+  content: "";
+  position: absolute;
+  left: -50px;
+  top: 17px;
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--fg);
+  border-radius: 50%;
+  background: var(--bg);
+}
+.milestone .phase { font: 450 24px/1.2 var(--serif); }
+.milestone .copy strong { display: block; font-size: 18px; font-weight: 600; }
+.milestone .copy p { margin-top: var(--s-8); color: var(--fg-2); font-size: 13px; }
+
+.rules { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.rule { min-height: 150px; padding: var(--s-24); background: var(--bg); }
+.rule .index { font: 450 24px/1 var(--serif); }
+.rule strong { display: block; margin-top: var(--s-32); font-size: 17px; }
+.rule p { margin-top: var(--s-8); color: var(--fg-2); font-size: 13px; }
+.footer {
+  margin-top: 112px;
+  padding-top: var(--s-20);
+  border-top: 1px solid var(--fg);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-24);
+}
+.footer p { font: italic 400 16px/1.5 var(--serif); }
+
+@container folio (max-width: 560px) {
+  .system-note, .foundation-grid, .stat-grid, .charts, .rules { grid-template-columns: 1fr; }
+  .gist { grid-template-columns: 1fr; gap: var(--s-16); }
+  .plate-head { flex-direction: column; gap: var(--s-8); }
+  .plate-grid { grid-template-columns: 1fr; grid-template-rows: none; }
+  .frame.hero { grid-row: auto; }
+  .frame.hero .shot, .frame:not(.hero) .shot { aspect-ratio: 16 / 10; }
+  .big-number { grid-template-columns: 1fr; gap: var(--s-24); }
+  .milestone { grid-template-columns: 1fr; gap: var(--s-8); }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main class="document">
+  <header class="page-header">
+    <div class="header-meta">
+      <span class="eyebrow">Folio system</span>
+      <span class="editorial-caption">Rich output, one visual language</span>
+    </div>
+    <h1>An editorial system for researched work</h1>
+    <p class="deck">A compact set of type, color, layout, evidence, and data primitives that can make very different subjects feel authored by the same hand.</p>
+    <div class="system-note">
+      <div><strong>704 px</strong><span>Main reading measure</span></div>
+      <div><strong>1068 px</strong><span>Off-grid visual field</span></div>
+      <div><strong>24 px</strong><span>Editorial sub-grid gutter</span></div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="section-break"><span class="label">01 / Foundations</span></div>
+    <h2 class="section-title">One serif, one sans, and color in pairs</h2>
+    <div class="foundation-grid">
+      <div class="type-display">Argument<br><em>with evidence.</em></div>
+      <div class="type-notes">
+        <p>Newsreader carries the voice. Inter carries the furniture.</p>
+        <p>Display type stays editorial. Labels, metadata, captions, tables, and controls stay quiet and exact.</p>
+      </div>
+    </div>
+    <div class="palette" aria-label="Paired color palette">
+      <div class="swatch" style="background:var(--blue-light)"></div>
+      <div class="swatch" style="background:var(--lime-light)"></div>
+      <div class="swatch" style="background:var(--pumpkin-light)"></div>
+      <div class="swatch" style="background:var(--purple-light)"></div>
+      <div class="swatch" style="background:var(--pink-light)"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-break"><span class="label">02 / Opening</span></div>
+    <h2 class="section-title">Give the reader the argument before the evidence</h2>
+    <div class="specimen">
+      <p class="eyebrow specimen-label">Standfirst + The Gist</p>
+      <div class="standfirst-block">
+        <div class="standfirst-meta">
+          <span class="eyebrow">Reserves</span>
+          <span class="editorial-caption">by Wren Halloway</span>
+          <span class="editorial-caption">June 2026 · 14 min read</span>
+        </div>
+        <p class="standfirst"><span class="lede">A third of humanity</span> can no longer see the Milky Way from where they sleep. The world's last dark places are being mapped, ranked, and defended as infrastructure.</p>
+        <div class="gist">
+          <div><span class="eyebrow">The Gist</span><p class="gist-title">In short</p></div>
+          <ul>
+            <li><b>Darkness is now a measured resource.</b> Reserves are certified on a <span class="value">0–22</span> sky-brightness scale.</li>
+            <li><b>The loss is accelerating.</b> Artificial brightness is climbing <span class="value">9.6%</span> a year.</li>
+            <li><b>Protection works, cheaply.</b> Shielded lighting cuts skyglow without cutting safety.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-break"><span class="label">03 / Image</span></div>
+    <h2 class="section-title">Let imagery carry a sequence, not decorate a page</h2>
+    <div class="specimen off-grid">
+      <p class="eyebrow specimen-label">Editorial plate</p>
+      <div class="plate-head">
+        <span class="eyebrow">Plate I · The Reserves</span>
+        <span class="plate-deck">Three certified dark-sky sites, observed on moonless nights within a single fortnight.</span>
+      </div>
+      <div class="plate-grid">
+        <figure class="frame hero">
+          <div class="shot"><div class="scene scene-night"></div><span class="tag">Aoraki · New Zealand</span></div>
+          <figcaption><b>1</b><span>The Mackenzie Basin reads within a whisper of a perfectly natural sky.</span></figcaption>
+        </figure>
+        <figure class="frame">
+          <div class="shot"><div class="scene scene-dome"></div><span class="tag">Light dome · 40 km out</span></div>
+          <figcaption><b>2</b><span>A distant city still bruises the horizon amber.</span></figcaption>
+        </figure>
+        <figure class="frame">
+          <div class="shot"><div class="scene scene-ridge"></div><span class="tag">Ridge observatory · dusk</span></div>
+          <figcaption><b>3</b><span>The last blue minutes before measurement begins.</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-break"><span class="label">04 / Evidence</span></div>
+    <h2 class="section-title">Scale the fact to the weight it carries</h2>
+    <div class="specimen">
+      <p class="eyebrow specimen-label">Big-number band</p>
+      <div class="big-number">
+        <div class="figure">83<span class="unit">%</span></div>
+        <div class="rail">
+          <strong>of the world's population lives under a light-polluted sky.</strong>
+          <p>For Europe and North America the figure rises past 99%, a continent that has switched off its own ceiling.</p>
+          <span class="source"><b>Source.</b> World Atlas of Artificial Night Sky Brightness.</span>
+        </div>
+      </div>
+    </div>
+    <div class="specimen">
+      <p class="eyebrow specimen-label">Insight cards</p>
+      <div class="stat-grid">
+        <div class="stat-card"><p class="number">9.6%</p><p class="caption">Annual increase in observed sky brightness</p></div>
+        <div class="stat-card"><p class="number">21.9</p><p class="caption">Near-natural reading at Aoraki</p></div>
+        <div class="stat-card"><p class="number">3,000+</p><p class="caption">Stars visible from a protected reserve</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-break"><span class="label">05 / Voice</span></div>
+    <h2 class="section-title">A quote should alter the page's rhythm</h2>
+    <div class="specimen">
+      <p class="eyebrow specimen-label">Grid quote</p>
+      <figure class="grid-quote">
+        <div class="quote-mark">“</div>
+        <blockquote class="quote-body">The purpose of the system is not consistency for its own sake. It is to give <strong>different arguments</strong> the same editorial confidence.</blockquote>
+        <div class="quote-grid" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-break"><span class="label">06 / Data</span></div>
+    <h2 class="section-title">Choose the shape that tells the comparison honestly</h2>
+    <div class="charts">
+      <div class="specimen">
+        <p class="eyebrow specimen-label">Column chart</p>
+        <h3 class="chart-title">Observed sky quality</h3>
+        <div class="columns">
+          <div class="column"><span class="value">21.9</span><span class="bar" style="height:100%;background:var(--lime-mid)"></span></div>
+          <div class="column"><span class="value">19.4</span><span class="bar" style="height:76%;background:var(--blue-mid)"></span></div>
+          <div class="column"><span class="value">17.1</span><span class="bar" style="height:52%;background:var(--pumpkin-mid)"></span></div>
+          <div class="column"><span class="value">14.2</span><span class="bar" style="height:24%;background:var(--purple-mid)"></span></div>
+        </div>
+        <div class="column-labels"><span>Reserve</span><span>Rural</span><span>Suburb</span><span>City</span></div>
+      </div>
+      <div class="specimen">
+        <p class="eyebrow specimen-label">Ranked bars</p>
+        <h3 class="chart-title">Sources of skyglow</h3>
+        <div class="bar-chart">
+          <div class="bar-row"><span class="bar-label">Commercial</span><div class="bar-track"><span class="bar" style="width:100%;background:var(--blue-mid)"></span><span class="bar-value">42%</span></div></div>
+          <div class="bar-row"><span class="bar-label">Roads</span><div class="bar-track"><span class="bar" style="width:67%;background:var(--lime-mid)"></span><span class="bar-value">28%</span></div></div>
+          <div class="bar-row"><span class="bar-label">Residential</span><div class="bar-track"><span class="bar" style="width:43%;background:var(--pumpkin-mid)"></span><span class="bar-value">18%</span></div></div>
+          <div class="bar-row"><span class="bar-label">Other</span><div class="bar-track"><span class="bar" style="width:29%;background:var(--purple-mid)"></span><span class="bar-value">12%</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-break"><span class="label">07 / Sequence</span></div>
+    <h2 class="section-title">Chronology stays in normal flow</h2>
+    <div class="specimen">
+      <p class="eyebrow specimen-label">Vertical timeline</p>
+      <div class="timeline">
+        <div class="milestone"><span class="phase">Discover</span><div class="copy"><strong>Find the argument</strong><p>Separate the useful evidence from the material that merely proves the research happened.</p></div></div>
+        <div class="milestone"><span class="phase">Structure</span><div class="copy"><strong>Assign editorial weight</strong><p>Decide what opens, what interrupts, what supports, and what belongs in the source line.</p></div></div>
+        <div class="milestone"><span class="phase">Compose</span><div class="copy"><strong>Build the page rhythm</strong><p>Alternate prose, images, data, and pauses so the argument remains visible while the document deepens.</p></div></div>
+        <div class="milestone"><span class="phase">Refine</span><div class="copy"><strong>Remove what does not pull</strong><p>Consistency comes from judgment applied repeatedly, not from filling every available component slot.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-break"><span class="label">08 / Rules</span></div>
+    <h2 class="section-title">The system is mostly what it refuses to do</h2>
+    <div class="rules">
+      <div class="rule"><span class="index">01</span><strong>One argument per page</strong><p>Every component must clarify, support, or pace that argument.</p></div>
+      <div class="rule"><span class="index">02</span><strong>Evidence earns scale</strong><p>A number becomes large because it turns the story, not because a layout needs a hero.</p></div>
+      <div class="rule"><span class="index">03</span><strong>Color works in pairs</strong><p>Light surfaces carry dark text. Mid tones are reserved for marks and data.</p></div>
+      <div class="rule"><span class="index">04</span><strong>Variation stays bounded</strong><p>The subject can change completely while the type, measure, spacing, and caption logic hold.</p></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span class="eyebrow">Folio</span>
+    <p>Different subjects. One editorial hand.</p>
+  </footer>
+</main>
+</body>
+</html>

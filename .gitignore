@@ -4,5 +4,14 @@ node_modules/
 
 # Local Editorial references and held-back artifacts.
 assets/editorial/direction-folio-split/
-assets/editorial/Folio System Storybook.html
-assets/editorial/The Rule Against Perpetuities.html
+
+# Local full-resolution masters and test derivatives; optimized WebPs are published.
+assets/agent-debrief/images/*.png
+assets/agent-debrief/images/*.jpg
+assets/document-editing/images/*.png
+assets/fuse/images/*.png
+assets/kit/images/*.png
+
+# Raw screen-recording masters; compressed MP4s are published.
+assets/agent-debrief/movs/
+assets/steering/r[0-9]*/

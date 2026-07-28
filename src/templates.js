@@ -12,6 +12,45 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
+const RANSOM_FONTS = [
+  "Abril Fatface",
+  "Bebas Neue",
+  "Bungee Shade",
+  "DM Serif Display",
+  "Alfa Slab One",
+  "Fredericka the Great",
+  "Lobster",
+  "Monoton",
+  "Pacifico",
+  "Playfair Display",
+  "Rye",
+  "Rubik Mono One",
+];
+const RANSOM_CLUSTERS = ["Sa", "to"];
+
+function ransomClusters(word) {
+  const clusters = [];
+  for (let index = 0; index < word.length;) {
+    const cluster = RANSOM_CLUSTERS.find((candidate) => word.startsWith(candidate, index));
+    clusters.push(cluster || word[index]);
+    index += cluster ? cluster.length : 1;
+  }
+  return clusters;
+}
+
+function ransomName(name) {
+  let index = 0;
+  const words = name.split(" ").map((word) => {
+    const letters = ransomClusters(word).map((letter) => {
+      const font = RANSOM_FONTS[index % RANSOM_FONTS.length];
+      index++;
+      return `<span class="home-name__letter" data-letter="${esc(letter)}" style="--ransom-font: '${font}'" aria-hidden="true"><span class="home-name__base">${esc(letter)}</span></span>`;
+    });
+    return `<span class="home-name__word">${letters.join("")}</span>`;
+  });
+  return words.join(" ");
+}
+
 // Recurring class recipes. Kept as named constants so the markup below stays legible.
 const META = "meta text-ink-faint";
 const PAGE = "mx-auto flex min-h-svh max-w-[62rem] flex-col px-[clamp(1.25rem,5vw,3rem)]";
@@ -21,6 +60,16 @@ const CAPTION =
   "mt-3.5 max-w-[35em] font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint";
 const DROP_CAP =
   "first-letter:float-left first-letter:font-display first-letter:text-[3.4em] first-letter:leading-[0.8] first-letter:pr-[0.12em] first-letter:mt-[0.05em]";
+const DETAIL_HEADLINE = `${DISPLAY} mt-6 text-[48px] leading-[1.02] sm:text-[64px]`;
+const DETAIL_STANDFIRST =
+  "mt-6 max-w-[44rem] text-[28px] leading-[1.4] font-normal text-pretty text-ink-soft italic sm:text-[32px]";
+const BODY_LARGE = "max-w-[44rem] text-[24px] leading-[1.7] text-pretty";
+const BODY_MEDIUM = "max-w-[44rem] text-[20px] leading-[1.7] text-pretty";
+
+function bodyParagraph(text, index, total) {
+  const size = index === 0 || index === total - 1 ? BODY_LARGE : BODY_MEDIUM;
+  return `<p class="${size}${index === 0 ? " " + DROP_CAP : ""}">${esc(text)}</p>`;
+}
 
 // While assets were being captured, a missing one rendered a labeled placeholder.
 // We are past that: a missing asset now renders nothing, so the page shows only
@@ -31,7 +80,7 @@ const SHOW_PLACEHOLDERS = false;
 // root is "" on the home page and "../" on subpages, so the site works from any base path.
 function shell({ site, root, title, description, url, ogType, noindex, body }) {
   return `<!doctype html>
-<html lang="en">
+<html lang="en" class="site-locked">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -45,16 +94,40 @@ ${noindex ? `<meta name="robots" content="noindex">\n` : ""}<link rel="canonical
 <meta property="og:site_name" content="${esc(site.name)}">
 <meta name="twitter:card" content="summary">
 <meta name="theme-color" content="#faf8f4">
+<script>try{if(localStorage.getItem("catterson.access.v1")==="open")document.documentElement.className="site-unlocked"}catch(e){}try{if(sessionStorage.getItem("catterson.access.v1")==="open")document.documentElement.className="site-unlocked"}catch(e){}</script>
 <link rel="icon" href="${root}favicon.svg" type="image/svg+xml">
 <link rel="preload" href="${root}fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${root}fonts/newsreader-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${root}css/site.css">
+<script src="${root}js/password-gate.js" defer></script>
 <script src="${root}js/site.js" defer></script>
 <script src="${root}js/clippy-cameo.js" defer></script>
 </head>
 <body data-root="${root}">
+<div class="password-gate" id="password-gate" data-site-name="${esc(site.name)}">
+<header class="password-gate__header">
+<span class="meta">${esc(site.name)}</span>
+<span class="meta text-ink-faint">Private preview</span>
+</header>
+<main class="password-gate__main">
+<form class="password-gate__form" id="password-gate-form" novalidate>
+<label class="password-gate__label" for="password-gate-input">Enter password</label>
+<p class="password-gate__hint" id="password-gate-hint">Nine letters</p>
+<div class="password-gate__entry" id="password-gate-entry">
+<input class="password-gate__input" id="password-gate-input" name="password" type="password" maxlength="9" autocomplete="current-password" autocapitalize="none" spellcheck="false" aria-describedby="password-gate-hint password-gate-status" aria-invalid="false">
+<div class="password-gate__cells" aria-hidden="true">
+${Array.from({ length: 9 }, () => '<span class="password-gate__cell"></span>').join("\n")}
+</div>
+</div>
+<p class="password-gate__status" id="password-gate-status" role="status" aria-live="polite"></p>
+<button class="sr-only" type="submit">Unlock portfolio</button>
+</form>
+</main>
+</div>
+<div class="site-content">
 <a class="absolute top-0 -left-[100vw] z-10 bg-ink px-4 py-2 font-sans text-sm text-paper focus-visible:left-0" href="#main">Skip to content</a>
 ${body}
+</div>
 </body>
 </html>
 `;
@@ -85,35 +158,71 @@ ${cap}
 
   if (asset.kind === "stills") {
     if (!resolved.files.length) {
-      return placeholder("Stills placeholder", asset.caption, dir + asset.prefix + "*.png");
+      const expected = asset.files ? asset.files.join(", ") : dir + asset.prefix + "*.png";
+      return placeholder("Stills placeholder", asset.caption, expected);
     }
     const imgs = resolved.files
       .map(
-        (f, i) =>
-          `<img class="block h-auto w-full bg-paper-deep" src="${root}${dir}${f}" alt="${esc(asset.caption)} Still ${i + 1} of ${resolved.files.length}." loading="lazy" decoding="async">`
+        (f, i) => {
+          const src = `${root}${dir}${f.split("/").map(encodeURIComponent).join("/")}`;
+          const alt = resolved.files.length === 1
+            ? asset.caption
+            : `${asset.caption} Still ${i + 1} of ${resolved.files.length}.`;
+          const image = `<img class="block h-auto w-full rounded-[32px] bg-paper-deep" src="${src}" alt="${esc(alt)}" loading="${opts && opts.lead ? "eager" : "lazy"}" decoding="async"${opts && opts.lead ? ' fetchpriority="high"' : ""}>`;
+          return asset.fullView
+            ? `<a class="block cursor-zoom-in" href="${src}" target="_blank" rel="noopener" aria-label="View full-size image: ${esc(asset.caption)}" title="Open full size">${image}</a>`
+            : image;
+        }
       )
       .join("\n");
-    return `<figure ${media}><div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4">
+    const layout = asset.layout === "sequence"
+      ? "grid gap-[clamp(1rem,3vw,1.5rem)]"
+      : "grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4";
+    const fullViewSrc = asset.fullView
+      ? `${root}${dir}${resolved.files[0].split("/").map(encodeURIComponent).join("/")}`
+      : "";
+    const stillsCap = asset.caption
+      ? asset.fullView
+        ? `<figcaption class="mt-3.5 flex max-w-[44rem] flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint"><span>${esc(asset.caption)}</span><a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${fullViewSrc}" target="_blank" rel="noopener">Open full size <span aria-hidden="true">↗</span></a></figcaption>`
+        : cap
+      : "";
+    return `<figure ${media}><div class="${layout}">
 ${imgs}
-</div>${cap}</figure>`;
+</div>${stillsCap}</figure>`;
   }
 
   if (asset.kind === "documents") {
     if (!resolved.files.length) {
       return placeholder("Document placeholder", "Editorial outputs", dir + "*.html");
     }
-    return resolved.files
-      .map(({ file, title }) => {
+    const slides = resolved.files
+      .map(({ file, title }, index) => {
         const src = `${root}${dir}${file.split("/").map(encodeURIComponent).join("/")}`;
-        return `<figure ${media}>
-      <div class="aspect-video overflow-hidden rounded-[32px] border border-line bg-ink"><iframe class="block h-full w-full border-0 bg-paper" src="${esc(src)}" title="${esc(title)}" loading="lazy" sandbox="allow-same-origin" data-document-viewer></iframe></div>
-<figcaption class="mt-3.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint">
+        const active = index === resolved.featuredIndex;
+        const inactiveAttrs = active ? "" : ` aria-hidden="true"`;
+        const inactiveTab = active ? "" : ` tabindex="-1"`;
+        return `<div class="document-carousel__slide" data-carousel-slide data-active="${active}"${inactiveAttrs}>
+      <div class="document-carousel__frame"><iframe class="block h-full w-full border-0 bg-paper" src="${esc(src)}" title="${esc(title)}" loading="eager" sandbox="allow-same-origin" data-document-viewer${inactiveTab}></iframe></div>
+<div class="document-carousel__caption">
 <span>${esc(title)}</span>
-<a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view">Open full view <span aria-hidden="true">↗</span></a>
-</figcaption>
-</figure>`;
+      <a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${inactiveTab}>Open full view <span aria-hidden="true">↗</span></a>
+ </div>
+</div>`;
       })
       .join("\n");
+    return `<figure ${media}>
+<div class="document-carousel" data-document-carousel data-featured-index="${resolved.featuredIndex}">
+<div class="document-carousel__viewport" data-carousel-viewport tabindex="0" aria-label="Editorial outputs">
+<div class="document-carousel__track">
+${slides}
+</div>
+</div>
+<div class="document-carousel__controls">
+<button class="document-carousel__button" type="button" data-carousel-prev aria-label="Previous output" title="Previous output">←</button>
+<button class="document-carousel__button" type="button" data-carousel-next aria-label="Next output" title="Next output">→</button>
+</div>
+</div>
+</figure>`;
   }
 
   if (asset.kind === "iframe") {
@@ -149,8 +258,8 @@ ${right ? `<span class="${META}">${right}</span>` : ""}
 </header>`;
 }
 
-function footer(site, { clip } = {}) {
-  return `<footer class="mt-16 flex items-center justify-between gap-4 border-t border-line py-10">
+function footer(site, { clip, narrow, center } = {}) {
+  return `<footer class="mt-16 flex items-center justify-between gap-4 border-t border-line py-10${narrow ? " max-w-[44rem]" : ""}${center ? " mx-auto w-full" : ""}">
 <a class="${META} no-underline hover:text-oxblood" href="mailto:${esc(site.email)}" title="${esc(site.email)}">Message me</a>
 <span class="flex items-center gap-4">
 <span class="${META}">Set in Fraunces and Newsreader.</span>
@@ -159,7 +268,9 @@ ${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,colo
 </footer>`;
 }
 
-function home({ site, pieces, copies }) {
+function home({ site, pieces, copies, inlineStories }) {
+  const ransomFontQuery = RANSOM_FONTS.map((font) => `family=${font.replace(/ /g, "+")}`).join("&");
+  const ransomFontText = encodeURIComponent(site.name.replace(/\s+/g, ""));
   const entries = pieces
     .map(
       (p) => `<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
@@ -168,16 +279,67 @@ function home({ site, pieces, copies }) {
 </a>`
     )
     .join("\n");
+  const inlineStoryMarkup = inlineStories.length
+    ? `<section class="mb-16 pt-[clamp(4rem,10vh,7rem)]" aria-label="More things I made">
+${inlineStories.map(({ piece, copy, body: storyBody, resolved }, storyIndex) => {
+  const media = figure(piece.lead, resolved.lead, "", piece.slug, { flush: true });
+  const storyClass = storyIndex === 0
+    ? ""
+    : "mt-8 border-t border-line pt-[clamp(2rem,5vh,3rem)]";
+  return `<article class="${storyClass}" id="${piece.slug}">
+<div class="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,25rem)] md:gap-12">
+<header>
+<p class="${META}"><span>${esc(piece.title)}</span><span class="max-sm:hidden" aria-hidden="true"> · </span><span class="max-sm:block">${esc(piece.kicker)}</span></p>
+<h2 class="${DISPLAY} mt-4 max-w-[18em] text-[28px] leading-[1.08] sm:text-[40px]">${esc(copy.headline)}</h2>
+${media ? `<div class="mt-[clamp(2rem,5vh,3rem)]">${media}</div>` : ""}
+</header>
+<div class="space-y-[1.2em] text-[1.2rem] leading-[1.65] text-pretty">
+${storyBody.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
+</div>
+</div>
+</article>`;
+}).join("\n")}
+</section>`
+    : "";
+  const externalPreview = site.homeExternalPreview
+    ? `<figure class="mb-16 border-t border-line pt-[clamp(2.5rem,7vh,4.5rem)]">
+<div class="mx-auto max-w-[31.5625rem]">
+<a class="block overflow-hidden rounded-[32px] bg-ink no-underline" href="${esc(site.homeExternalPreview.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(site.homeExternalPreview.title)} live tool">
+<img class="block aspect-video h-auto w-full object-cover" src="${esc(site.homeExternalPreview.image)}" alt="${esc(site.homeExternalPreview.title)} canvas combining accountability, legal review, and human judgment into a review framework." loading="lazy" decoding="async">
+</a>
+<figcaption class="mt-3.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint">
+<span><span class="text-ink">${esc(site.homeExternalPreview.title)}</span> · ${esc(site.homeExternalPreview.description)}</span>
+<a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(site.homeExternalPreview.url)}" target="_blank" rel="noopener">Open ${esc(site.homeExternalPreview.label.toLowerCase())} <span aria-hidden="true">↗</span></a>
+</figcaption>
+</div>
+</figure>`
+    : "";
 
-  const body = `<div class="${PAGE}">
+  const body = `<style>
+@import url("https://fonts.googleapis.com/css2?${ransomFontQuery}&text=${ransomFontText}&display=swap");
+.home-name__word{position:relative;display:inline-block;white-space:nowrap;isolation:isolate}
+.home-name__word+.home-name__word{margin-left:.22em}
+.home-name__letter{position:relative;z-index:0;display:inline-block}
+.home-name__base{transition:opacity 80ms linear}
+.home-name__letter::after{content:attr(data-letter);position:absolute;left:50%;top:50%;opacity:0;font-family:var(--ransom-font);font-size:.92em;font-weight:400;line-height:1;white-space:nowrap;transform:translate(-50%,-48%);transition:opacity 80ms linear;color:var(--color-oxblood);pointer-events:none}
+@media (hover:hover){
+  .home-name__letter:hover{z-index:2}
+  .home-name__letter:hover .home-name__base{opacity:0}
+  .home-name__letter:hover::after{opacity:1}
+}
+@media (prefers-reduced-motion:reduce){.home-name__base,.home-name__letter::after{transition:none}}
+</style>
+<div class="${PAGE}">
 <header class="pt-[clamp(4rem,16vh,9rem)] pb-[clamp(2.5rem,7vh,4.5rem)]">
-<h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.7rem,7.4vw,5.8rem)] leading-[1.0]">${esc(site.name)}</h1>
+<h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.7rem,7.4vw,5.8rem)] leading-[1.0]" aria-label="${esc(site.name)}">${ransomName(site.name)}</h1>
 <p class="meta mt-6 text-ink-soft">${esc(site.tagline)}</p>
 </header>
 <main id="main" class="flex-1">
-<nav class="mb-16 border-b border-line" aria-label="Pieces">
+<nav class="border-b border-line" aria-label="Main stories">
 ${entries}
 </nav>
+${inlineStoryMarkup}
+${externalPreview}
 </main>
 ${footer(site, { clip: true })}
 </div>`;
@@ -206,17 +368,17 @@ function piecePage({ site, piece, copy, resolved, prev, next, cyclePrev, cycleNe
   let prose = [];
   const flushProse = () => {
     if (!prose.length) return;
-    bodyBlocks.push(`<div class="max-w-[35em] space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]">
+    bodyBlocks.push(`<div class="space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]">
 ${prose.join("\n")}
 </div>`);
     prose = [];
   };
 
   copy.body.forEach((para, i) => {
-    prose.push(`<p class="text-pretty${i === 0 ? " " + DROP_CAP : ""}">${esc(para)}</p>`);
+    prose.push(bodyParagraph(para, i, copy.body.length));
     if (piece.pullQuote && piece.pullQuote.afterParagraph === i + 1) {
       prose.push(
-        `<blockquote class="my-[2.6em] border-y border-line py-[1.8em]"><p class="font-display text-center text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-balance italic">${esc(piece.pullQuote.text)}</p></blockquote>`
+        `<blockquote class="my-[2.6em] max-w-[35em] border-y border-line py-[1.8em]"><p class="font-display text-center text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-balance italic">${esc(piece.pullQuote.text)}</p></blockquote>`
       );
     }
     piece.supporting.forEach((asset, assetIndex) => {
@@ -231,11 +393,13 @@ ${prose.join("\n")}
   supportingFigures.forEach((supportingFigure, i) => {
     if (!placedSupporting.has(i)) bodyBlocks.push(supportingFigure);
   });
+  const leadFigure = figure(piece.lead, resolved.lead, root, piece.slug, { lead: true });
+  const articleClass = leadFigure ? "" : " [&>header+*]:mt-16";
 
   const flipLink = (href, label, title, right) =>
     `<a class="group flex flex-col gap-2 no-underline${right ? " ml-auto text-right" : ""}" href="${href}"><span class="${META}">${label}</span><span class="${HOVER_TITLE} font-display text-[1.5rem]">${esc(title)}</span></a>`;
 
-  const nav = `<nav class="flex justify-between gap-8 border-t border-line py-10" aria-label="More pieces">
+  const nav = `<nav class="flex max-w-[44rem] justify-between gap-8 border-t border-line py-10" style="margin-top:clamp(4rem,8vh,4.5rem)" aria-label="More pieces">
 ${prev ? flipLink(`../${prev.slug}/`, "Previous", prev.title) : flipLink("../", "Start", "Index")}
 ${next ? flipLink(`../${next.slug}/`, "Next", next.title, true) : flipLink("../", "End", "Back to the index", true)}
 </nav>`;
@@ -243,18 +407,18 @@ ${next ? flipLink(`../${next.slug}/`, "Next", next.title, true) : flipLink("../"
   const body = `<div class="${PAGE}">
 ${header(site, root)}
 <main id="main" class="flex-1"${cycle}>
-<article>
+<article class="${articleClass.trim()}">
 <header class="max-w-[44rem] pt-[clamp(3rem,9vh,5.5rem)]">
 <p class="${META}">${esc(piece.kicker)}</p>
-<h1 class="${DISPLAY} mt-6 text-[clamp(2.5rem,6vw,4.3rem)] leading-[1.04]">${esc(copy.headline)}</h1>
-<h2 class="mt-6 text-[clamp(1.25rem,2.4vw,1.5rem)] leading-[1.45] font-normal text-pretty text-ink-soft italic">${esc(copy.standfirst)}</h2>
+<h1 class="${DETAIL_HEADLINE}">${esc(copy.headline)}</h1>
+<h2 class="${DETAIL_STANDFIRST}">${esc(copy.standfirst)}</h2>
 </header>
-${figure(piece.lead, resolved.lead, root, piece.slug, { lead: true })}
+${leadFigure}
 ${bodyBlocks.join("\n")}
 </article>
 ${nav}
 </main>
-${footer(site)}
+${footer(site, { narrow: true })}
 </div>`;
 
   return shell({
@@ -272,7 +436,7 @@ ${footer(site)}
 // Its chrome is deliberately mono/source, so it never reads as a finished output.
 // The one code panel quotes real token values from the direction source, scoped:
 // the composition logic that applies them is not shown.
-const FOLIO_SYS = `
+const FOLIO_SYS = `<div class="py-[clamp(0.75rem,2vh,1.25rem)]">
 <style>
 .folio-sys{--f-paper:#f4f2ee;--f-panel:#1b1917;--f-panel-ink:#e9e5dd;--f-panel-faint:#8f8880;--f-ink:#1f1c1a;--f-muted:#6f6862;--f-faint:#9a938b;--f-line:#e2ddd4;--f-line-2:#cfc8bd;--f-accent:#7a2e24;--f-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
   container:folioSys / inline-size;font-family:var(--f-mono);color:var(--f-ink);font-size:14px;line-height:1.6}
@@ -325,31 +489,35 @@ const FOLIO_SYS = `
     <div class="fs-lab">What the architecture protects</div>
     <div class="fs-div">
       <div class="fs-lane"><div class="fs-who">Input</div><div class="fs-does">The model <b>authors</b></div><ul><li>content and argument</li><li>rough intent per section</li><li>which component to reach for</li></ul></div>
-      <div class="fs-seam">&rarr;</div>
+      <div class="fs-seam" aria-hidden="true">&darr;</div>
       <div class="fs-lane b"><div class="fs-who">Source of truth</div><div class="fs-does">The render layer <b>enforces</b></div><ul><li>grid, measure, and rhythm</li><li>type, color, and spacing</li><li>every rule the model cannot hold</li></ul></div>
     </div>
   </div>
 
   <div class="fs-sec">
-    <div class="fs-lab">The enforceable layer, scoped</div>
+    <div class="fs-lab">The editorial judgment, scoped</div>
     <div class="fs-file">
-      <div class="fs-bar"><span class="fs-dot a"></span><span class="fs-dot b"></span><span class="fs-dot c"></span><span class="fs-fname">direction-folio-split/SKILL.md</span><span class="fs-badge">token excerpt</span></div>
+      <div class="fs-bar"><span class="fs-dot a"></span><span class="fs-dot b"></span><span class="fs-dot c"></span><span class="fs-fname">direction-folio-split/SKILL.md</span><span class="fs-badge">composition rhythm</span></div>
       <div class="fs-code">
-<span class="l"><span class="c">/* real declarations; composition logic omitted */</span></span>
-<span class="l"><span class="p">--folio-serif</span>:<span class="v"> 'Newsreader', 'Source Serif 4', Georgia, serif</span>;</span>
-<span class="l"><span class="p">--folio-sans</span>:<span class="v"> 'Inter', 'Source Sans 3', system-ui, sans-serif</span>;</span>
+<span class="l"><span class="c">## Composition Rhythm</span></span>
 <span class="l blank"> </span>
-<span class="l"><span class="p">--folio-pumpkin-light</span>:<span class="v"> #FDE61E</span>;</span>
-<span class="l"><span class="p">--folio-pumpkin-mid</span>:<span class="v"> #E46832</span>;</span>
-<span class="l"><span class="p">--folio-pumpkin-dark</span>:<span class="v"> #762F0E</span>;</span>
+<span class="l">Long-form documents need <span class="v">visual punctuation</span>.</span>
+<span class="l">A wall of body paragraphs reads as a brief, not as Folio.</span>
 <span class="l blank"> </span>
-<span class="l"><span class="p">--w-main</span>:<span class="v"> min(704px, calc(100vw - (var(--page-margin) * 2)))</span>;</span>
-<span class="l"><span class="p">--w-off-grid</span>:<span class="v"> min(1068px, calc(100vw - (var(--page-margin) * 2)))</span>;</span>
+<span class="l">Some moments are positional, not free-floating:</span>
+<span class="l"><span class="p">-</span> the Standfirst opens the report</span>
+<span class="l"><span class="p">-</span> one Big-Number Band lands at the apex</span>
+<span class="l"><span class="p">-</span> an Editorial Plate appears when images belong together</span>
+<span class="l blank"> </span>
+<span class="l">Do not pad with visuals if the content does not earn them.</span>
+<span class="l">A pull quote belongs only when the sentence already exists</span>
+<span class="l">in the prose and is strong enough to stop the reader.</span>
       </div>
     </div>
-    <p class="fs-cap">A real slice of the core. Component implementations and orchestration stay private.</p>
+    <p class="fs-cap">A real, shortened slice of the core. Component implementations and orchestration stay private.</p>
   </div>
-</section>`;
+</section>
+</div>`;
 
 function editorialPage({ site, piece, copy, resolved, prev, next, cyclePrev, cycleNext }) {
   const root = "../";
@@ -377,12 +545,10 @@ function editorialPage({ site, piece, copy, resolved, prev, next, cyclePrev, cyc
     .join("\n");
 
   const READING =
-    "reading max-w-[35em] space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]";
-  const paras = copy.body.map(
-    (p, i) => `<p class="text-pretty${i === 0 ? " " + DROP_CAP : ""}">${esc(p)}</p>`
-  );
+    "reading mx-auto max-w-[44rem] space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]";
+  const paras = copy.body.map((p, i) => bodyParagraph(p, i, copy.body.length));
   const pull = piece.pullQuote
-    ? `<blockquote class="border-y border-line py-[1.8em]"><p class="font-display text-center text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-balance italic">${esc(piece.pullQuote.text)}</p></blockquote>`
+    ? `<blockquote class="mx-auto max-w-[35em] border-y border-line py-[1.8em]"><p class="font-display text-center text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-balance italic">${esc(piece.pullQuote.text)}</p></blockquote>`
     : "";
 
   // Story, then the system exhibit, then a real output, then the close.
@@ -395,7 +561,7 @@ function editorialPage({ site, piece, copy, resolved, prev, next, cyclePrev, cyc
   const flipLink = (href, label, title, right) =>
     `<a class="group flex flex-col gap-2 no-underline${right ? " ml-auto text-right" : ""}" href="${href}"><span class="${META}">${label}</span><span class="${HOVER_TITLE} font-display text-[1.5rem]">${esc(title)}</span></a>`;
 
-  const nav = `<nav class="flex justify-between gap-8 border-t border-line py-10 mt-[clamp(3rem,8vh,5rem)]" aria-label="More pieces">
+  const nav = `<nav class="mx-auto mt-[clamp(3rem,8vh,5rem)] flex max-w-[44rem] justify-between gap-8 border-t border-line py-10" aria-label="More pieces">
 ${prev ? flipLink(`../${prev.slug}/`, "Previous", prev.title) : flipLink("../", "Start", "Index")}
 ${next ? flipLink(`../${next.slug}/`, "Next", next.title, true) : flipLink("../", "End", "Back to the index", true)}
 </nav>`;
@@ -404,10 +570,10 @@ ${next ? flipLink(`../${next.slug}/`, "Next", next.title, true) : flipLink("../"
 ${header(site, root)}
 <main id="main" class="flex-1"${cycle}>
 <article>
-<header class="max-w-[44rem] pt-[clamp(3rem,9vh,5.5rem)]">
+<header class="mx-auto max-w-[44rem] pt-[clamp(3rem,9vh,5.5rem)]">
 <p class="${META}">${esc(piece.kicker)}</p>
-<h1 class="${DISPLAY} mt-6 text-[clamp(2.5rem,6vw,4.3rem)] leading-[1.04]">${esc(copy.headline)}</h1>
-<h2 class="mt-6 text-[clamp(1.25rem,2.4vw,1.5rem)] leading-[1.45] font-normal text-pretty text-ink-soft italic">${esc(copy.standfirst)}</h2>
+<h1 class="${DETAIL_HEADLINE}">${esc(copy.headline)}</h1>
+<h2 class="${DETAIL_STANDFIRST}">${esc(copy.standfirst)}</h2>
 </header>
 ${leadOutput}
 <div class="mt-[clamp(2.25rem,7vh,3.75rem)] space-y-[clamp(2.25rem,6.5vh,3.6rem)]">
@@ -416,7 +582,7 @@ ${flow}
 </article>
 ${nav}
 </main>
-${footer(site)}
+${footer(site, { narrow: true, center: true })}
 </div>`;
 
   return shell({
@@ -437,7 +603,7 @@ ${header(site, root)}
 <main id="main" class="flex-1">
 <article>
 <header class="pt-[clamp(3rem,9vh,5.5rem)]">
-<h1 class="${DISPLAY} text-[clamp(2.5rem,6vw,4.3rem)] leading-[1.04]">${esc(clippy.title)}</h1>
+<h1 class="${DETAIL_HEADLINE.replace(" mt-6", "")}">${esc(clippy.title)}</h1>
 </header>
 ${figure(clippy.lead, resolved.lead, root, clippy.slug)}
 </article>
