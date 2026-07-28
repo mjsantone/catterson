@@ -16,3 +16,6 @@ assets/production-code/images/*.png
 # Raw screen-recording masters; compressed MP4s are published.
 assets/agent-debrief/movs/
 assets/steering/r[0-9]*/
+
+# Source decks and resume PDFs. Reference only, and far past GitHub's file limit.
+assets/resume/

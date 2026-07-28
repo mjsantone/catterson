@@ -202,10 +202,12 @@ copyDir(path.join(ROOT, "src/static"), DIST);
 // copied into the build: full-resolution stills (PNG/JPEG originals of the
 // published WebPs) and raw screen recordings, which are kept in per-capture
 // revision folders (movs/, r1/, r2/ ...) and published as compressed MP4s.
+// resume/ holds source decks, which are reference material and not pages.
 const MASTERS = [
   /^(?:agent-debrief|document-editing|fuse|kit|production-code)[/\\]images[/\\].+\.(?:png|jpe?g)$/i,
   /^agent-debrief[/\\]movs[/\\]/i,
   /^steering[/\\]r\d+[/\\]/i,
+  /^resume[/\\]/i,
 ];
 copyDir(ASSETS, path.join(DIST, "assets"), (name, src) => {
   if (name.endsWith(".md")) return false;
