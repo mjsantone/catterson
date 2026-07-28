@@ -11,6 +11,7 @@ assets/agent-debrief/images/*.jpg
 assets/document-editing/images/*.png
 assets/fuse/images/*.png
 assets/kit/images/*.png
+assets/production-code/images/*.png
 
 # Raw screen-recording masters; compressed MP4s are published.
 assets/agent-debrief/movs/

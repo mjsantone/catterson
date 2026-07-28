@@ -10,7 +10,14 @@ Published image sequence from CONTENT-SPEC.md. Run `node build.js` after replaci
 
 - `03_memo.mp4`: each call tied to the passage it produced, with its reasoning beside it.
 - `01_challenge.mp4`: pushed with bare authority, the call holds and says why.
-- `02_rechallenge.mp4`: given a real reason, the call is revised and the change recorded.
+- `02_rechallenge.mp4`: given a real reason, the call is revised and the change recorded. Cut from the master in two segments, `12-18` and `32-41.6`, because the master opens by replaying the hold exchange that `01_challenge.mp4` already covers, then sits on "the agent is thinking" for sixteen seconds while the capture tool zooms around an unchanging screen. Rebuild it with:
+
+```sh
+ffmpeg -i movs/r1/02_rechallenge.mp4 -filter_complex \
+  "[0:v]trim=12:18,setpts=PTS-STARTPTS[a];[0:v]trim=32:41.6,setpts=PTS-STARTPTS[b];[a][b]concat=n=2:v=1[out]" \
+  -map "[out]" -c:v libx264 -crf 26 -preset slow -profile:v high -level 4.0 \
+  -pix_fmt yuv420p -r 30 -an -movflags +faststart 02_rechallenge.mp4
+```
 - `*-poster.webp`: frame-zero posters, so each video holds `preload="none"` until it scrolls into view.
 
 Each published image opens at full resolution. The PNG captures in `images/` are local masters. The quality-92 WebP derivatives are the published assets.

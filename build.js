@@ -203,7 +203,7 @@ copyDir(path.join(ROOT, "src/static"), DIST);
 // published WebPs) and raw screen recordings, which are kept in per-capture
 // revision folders (movs/, r1/, r2/ ...) and published as compressed MP4s.
 const MASTERS = [
-  /^(?:agent-debrief|document-editing|fuse|kit)[/\\]images[/\\].+\.(?:png|jpe?g)$/i,
+  /^(?:agent-debrief|document-editing|fuse|kit|production-code)[/\\]images[/\\].+\.(?:png|jpe?g)$/i,
   /^agent-debrief[/\\]movs[/\\]/i,
   /^steering[/\\]r\d+[/\\]/i,
 ];

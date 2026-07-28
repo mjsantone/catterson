@@ -60,6 +60,19 @@ const pieces = [
     ],
   },
   {
+    slug: "production-code",
+    title: "Production code",
+    kicker: "Craft in the details",
+    copy: "copy-production-code.md",
+    lead: {
+      kind: "stills",
+      files: ["images/pull-requests.webp"],
+      layout: "sequence",
+      caption: "Merged changes to production, titles obscured.",
+    },
+    supporting: [],
+  },
+  {
     slug: "steering",
     title: "Steering",
     kicker: "The learning loop",
@@ -98,20 +111,12 @@ const pieces = [
     kicker: "Accountability",
     copy: "copy-agent-debrief.md",
     lead: {
-      kind: "stills",
-      files: ["images/06 - Show us.webp"],
-      layout: "sequence",
-      fullView: true,
-      caption: "The agent introduces the calls beneath its answer, then waits.",
+      kind: "video",
+      file: "03_memo.mp4",
+      poster: "03_memo-poster.webp",
+      caption: "Each call stays tied to the passage it produced, with its reasoning beside it.",
     },
     supporting: [
-      {
-        kind: "video",
-        file: "03_memo.mp4",
-        poster: "03_memo-poster.webp",
-        afterParagraph: 3,
-        caption: "Each call stays tied to the passage it produced, with its reasoning beside it.",
-      },
       {
         kind: "video",
         file: "01_challenge.mp4",
@@ -182,7 +187,7 @@ const publishedPieceSlugs = ["editorial", "steering", "agent-debrief"];
 
 // Smaller stories render in full on Home and do not generate detail routes.
 // Pieces omitted from both lists still generate hidden, directly accessible routes.
-const inlineStorySlugs = ["document-editing", "kit"];
+const inlineStorySlugs = ["document-editing", "kit", "production-code"];
 
 // The Easter egg. Footer-level wink, not a fifth piece.
 const clippy = {
