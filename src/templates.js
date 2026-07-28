@@ -262,7 +262,6 @@ function footer(site, { clip, narrow, center } = {}) {
   return `<footer class="mt-16 flex items-center justify-between gap-4 border-t border-line py-10${narrow ? " max-w-[44rem]" : ""}${center ? " mx-auto w-full" : ""}">
 <a class="${META} no-underline hover:text-oxblood" href="mailto:${esc(site.email)}" title="${esc(site.email)}">Message me</a>
 <span class="flex items-center gap-4">
-<span class="${META}">Set in Fraunces and Newsreader.</span>
 ${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,color] duration-200 hover:-rotate-8 hover:text-oxblood motion-reduce:hover:rotate-0" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
 </span>
 </footer>`;
@@ -303,15 +302,13 @@ ${storyBody.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
     : "";
   const externalPreview = site.homeExternalPreview
     ? `<figure class="mb-16 border-t border-line pt-[clamp(2.5rem,7vh,4.5rem)]">
-<div class="mx-auto max-w-[31.5625rem]">
 <a class="block overflow-hidden rounded-[32px] bg-ink no-underline" href="${esc(site.homeExternalPreview.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(site.homeExternalPreview.title)} live tool">
-<img class="block aspect-video h-auto w-full object-cover" src="${esc(site.homeExternalPreview.image)}" alt="${esc(site.homeExternalPreview.title)} canvas combining accountability, legal review, and human judgment into a review framework." loading="lazy" decoding="async">
+<img class="block aspect-video h-auto w-full object-cover" src="${esc(site.homeExternalPreview.image)}" alt="${esc(site.homeExternalPreview.alt)}" loading="lazy" decoding="async">
 </a>
 <figcaption class="mt-3.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint">
 <span><span class="text-ink">${esc(site.homeExternalPreview.title)}</span> · ${esc(site.homeExternalPreview.description)}</span>
 <a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(site.homeExternalPreview.url)}" target="_blank" rel="noopener">Open ${esc(site.homeExternalPreview.label.toLowerCase())} <span aria-hidden="true">↗</span></a>
 </figcaption>
-</div>
 </figure>`
     : "";
 

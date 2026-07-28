@@ -4,17 +4,17 @@ This mini inline story is published on Home and has no detail route.
 
 ## Lead
 
-- `images/pull-requests.webp`: the merged pull request list. The slot renders nothing until this file exists, so Home is safe to ship without it.
+- `images/diff.webp`: the overlay panel from a pull request's visual regression check, one render in pink and the other in green, with the offsets showing where the layout moved.
 
-The shape is the proof, not the text: row count, completed badges, review avatars, comment counts. Every title, repository name, branch name, feature codename, and reviewer identity has to be obscured or replaced before this ships. The source capture shows internal project names in every row.
-
-Crop to 16:9 and export at 1600x900 so it matches the other two inline stories:
+Cropped from `images/diff.png`, a three-panel export: baseline, overlay, and new render. Only the middle panel is published.
 
 ```sh
-ffmpeg -i images/pull-requests.png -vf "crop=W:H:X:Y,scale=1600:900:flags=lanczos" /tmp/pr.png
-cwebp -q 92 -m 6 -mt -sharp_yuv -metadata none /tmp/pr.png -o images/pull-requests.webp
+ffmpeg -i images/diff.png -vf "crop=604:340:1618:181" /tmp/diff.png
+cwebp -q 92 -m 6 -mt -sharp_yuv -metadata none /tmp/diff.png -o images/diff.webp
 ```
 
-- `images/*.png`: full-resolution masters. Gitignored and never copied into the build.
+The crop stays at native resolution on purpose. The component render is only about 384px wide in the source, so enlarging it to match the 1600x900 of the other inline stories would invent detail and soften the type. At 604px the browser scales down into the 448px slot instead of up.
 
-Update the caption in `src/content.js` once the real crop lands, so it describes what is actually visible.
+Nothing here needs redaction. The sample content is generic and no title, repository, branch, or reviewer appears.
+
+- `images/*.png`: full-resolution masters. Gitignored and never copied into the build.
