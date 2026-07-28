@@ -6,7 +6,7 @@ Status: DONE. Sets the template for the other three.
 
 # I codified the house style, then got teams to want it
 
-## Fluent Expression had designed a report language in Figma. I codified it into skills and a render system so an LLM could compose with it, then merged the experiment into Microsoft's Researcher agent.
+## Fluent Expression had designed a report language in Figma. I codified it into skills and a render system so an LLM could compose with it, from a tort case to the rule against perpetuities, then merged the experiment into Microsoft's Researcher agent.
 
 AI-generated reports looked cheap: gray boxes, default type, charts a spreadsheet would be embarrassed by. Engineering had correctly prioritized stability and feature parity. I went looking for a visual foundation that could survive generation, not just make one report look better.
 

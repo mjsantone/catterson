@@ -8,7 +8,7 @@
 
 const site = {
   name: "Matthew Santone",
-  tagline: "Twenty years of craft, now applied to how humans and AI agents work together.",
+  tagline: "Twenty years of craft, now applied to AI that a professional has to answer for.",
   // Change this if the site moves to a custom domain. Used for canonical + OG URLs.
   url: "https://mjsantone.github.io/catterson/",
   email: "matthewsantone@gmail.com",
@@ -183,7 +183,7 @@ const pieces = [
 ];
 
 // Main stories appear in the Home index and previous/next sequence.
-const publishedPieceSlugs = ["editorial", "steering", "agent-debrief"];
+const publishedPieceSlugs = ["agent-debrief", "editorial", "steering"];
 
 // Smaller stories render in full on Home and do not generate detail routes.
 // Pieces omitted from both lists still generate hidden, directly accessible routes.
