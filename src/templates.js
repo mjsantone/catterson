@@ -77,10 +77,14 @@ function bodyParagraph(text, index, total) {
 // true to preview the planned slots.
 const SHOW_PLACEHOLDERS = false;
 
+// The private-preview password screen. Off means the site renders open to anyone.
+// It was only ever a soft screen: asset URLs are public either way.
+const PASSWORD_GATE = false;
+
 // root is "" on the home page and "../" on subpages, so the site works from any base path.
 function shell({ site, root, title, description, url, ogType, noindex, body }) {
   return `<!doctype html>
-<html lang="en" class="site-locked">
+<html lang="en"${PASSWORD_GATE ? ' class="site-locked"' : ""}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -94,17 +98,17 @@ ${noindex ? `<meta name="robots" content="noindex">\n` : ""}<link rel="canonical
 <meta property="og:site_name" content="${esc(site.name)}">
 <meta name="twitter:card" content="summary">
 <meta name="theme-color" content="#faf8f4">
-<script>try{if(localStorage.getItem("catterson.access.v1")==="open")document.documentElement.className="site-unlocked"}catch(e){}try{if(sessionStorage.getItem("catterson.access.v1")==="open")document.documentElement.className="site-unlocked"}catch(e){}</script>
-<link rel="icon" href="${root}favicon.svg" type="image/svg+xml">
+${PASSWORD_GATE ? `<script>try{if(localStorage.getItem("catterson.access.v1")==="open")document.documentElement.className="site-unlocked"}catch(e){}try{if(sessionStorage.getItem("catterson.access.v1")==="open")document.documentElement.className="site-unlocked"}catch(e){}</script>
+` : ""}<link rel="icon" href="${root}favicon.svg" type="image/svg+xml">
 <link rel="preload" href="${root}fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${root}fonts/newsreader-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${root}css/site.css">
-<script src="${root}js/password-gate.js" defer></script>
-<script src="${root}js/site.js" defer></script>
+${PASSWORD_GATE ? `<script src="${root}js/password-gate.js" defer></script>
+` : ""}<script src="${root}js/site.js" defer></script>
 <script src="${root}js/clippy-cameo.js" defer></script>
 </head>
 <body data-root="${root}">
-<div class="password-gate" id="password-gate" data-site-name="${esc(site.name)}">
+${PASSWORD_GATE ? `<div class="password-gate" id="password-gate" data-site-name="${esc(site.name)}">
 <header class="password-gate__header">
 <span class="meta">${esc(site.name)}</span>
 <span class="meta text-ink-faint">Private preview</span>
@@ -124,7 +128,7 @@ ${Array.from({ length: 9 }, () => '<span class="password-gate__cell"></span>').j
 </form>
 </main>
 </div>
-<div class="site-content">
+` : ""}<div class="site-content">
 <a class="absolute top-0 -left-[100vw] z-10 bg-ink px-4 py-2 font-sans text-sm text-paper focus-visible:left-0" href="#main">Skip to content</a>
 ${body}
 </div>
@@ -330,6 +334,7 @@ ${storyBody.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 <header class="pt-[clamp(4rem,16vh,9rem)] pb-[clamp(2.5rem,7vh,4.5rem)]">
 <h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.7rem,7.4vw,5.8rem)] leading-[1.0]" aria-label="${esc(site.name)}">${ransomName(site.name)}</h1>
 <p class="meta mt-6 text-ink-soft">${esc(site.tagline)}</p>
+${site.intro ? `<p class="mt-8 max-w-[34em] text-[1.2rem] leading-[1.6] text-pretty">${esc(site.intro)}</p>` : ""}
 </header>
 <main id="main" class="flex-1">
 <nav class="border-b border-line" aria-label="Main stories">

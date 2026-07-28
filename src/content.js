@@ -9,6 +9,10 @@
 const site = {
   name: "Matthew Santone",
   tagline: "Twenty years of craft, now applied to AI that a professional has to answer for.",
+  // Renders under the tagline on Home only. Picks up "twenty years" from the
+  // tagline rather than restating it, so the time marker lands once.
+  intro:
+    "Most of it went to people whose output gets reviewed by someone harder to please than they are. Graphics programmers, data scientists, engineers deploying models they would have to defend. The user changed and the rule did not. I stay in the code through implementation, because that is where a design either holds or quietly gives way.",
   // Change this if the site moves to a custom domain. Used for canonical + OG URLs.
   url: "https://mjsantone.github.io/catterson/",
   email: "matthewsantone@gmail.com",
