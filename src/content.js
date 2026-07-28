@@ -24,6 +24,27 @@ const site = {
     image: "assets/fuse/fuse-preview.webp",
     url: "https://fuse-catterson-gcakeab6etetcaaq.westus2-01.azurewebsites.net",
   },
+  // Published elsewhere, newest first. Titles and outlets are as printed.
+  writing: [
+    {
+      title: "Lucid dreaming together with AI",
+      publication: "Microsoft Design",
+      year: "2025",
+      url: "https://microsoft.design/articles/lucid-dreaming-together-with-ai/",
+    },
+    {
+      title: "A designer's guide to conquering anxiety",
+      publication: "Fast Company",
+      year: "2017",
+      url: "https://www.fastcompany.com/90139038/a-designers-guide-to-conquering-anxiety",
+    },
+  ],
+  // A 2023 portfolio deck, one tile per page, discovered on disk at build time.
+  archive: {
+    label: "The 2023 deck",
+    note: "In 2023 I sketched tunable assistants, teams of agents that hand work to each other, and interfaces that show why the model chose what it chose. I make those things now, for people who have to sign their name to the output.",
+    dir: "archive",
+  },
 };
 
 // Asset slot shapes:

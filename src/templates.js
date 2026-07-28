@@ -271,7 +271,7 @@ ${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,colo
 </footer>`;
 }
 
-function home({ site, pieces, copies, inlineStories }) {
+function home({ site, pieces, copies, inlineStories, archive = [] }) {
   const ransomFontQuery = RANSOM_FONTS.map((font) => `family=${font.replace(/ /g, "+")}`).join("&");
   const ransomFontText = encodeURIComponent(site.name.replace(/\s+/g, ""));
   const entries = pieces
@@ -316,6 +316,30 @@ ${storyBody.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 </figure>`
     : "";
 
+  const writingList = site.writing && site.writing.length
+    ? `<section class="mb-16 border-t border-line pt-[clamp(2.5rem,7vh,4.5rem)]" aria-labelledby="writing-heading">
+<h2 class="${META}" id="writing-heading">Writing</h2>
+<ul class="mt-6 list-none p-0">
+${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
+<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 py-5 no-underline max-sm:grid-cols-1 max-sm:gap-1.5" href="${esc(item.url)}" target="_blank" rel="noopener">
+<span class="${HOVER_TITLE} font-display text-[1.35rem] leading-[1.2] transition-colors duration-150">${esc(item.title)}&nbsp;<span class="text-ink-faint" aria-hidden="true">↗</span></span>
+<span class="${META} justify-self-end text-right max-sm:justify-self-start max-sm:text-left">${esc(item.publication)} · ${esc(item.year)}</span>
+</a>
+</li>`).join("\n")}
+</ul>
+</section>`
+    : "";
+
+  const archiveGrid = archive.length && site.archive
+    ? `<section class="mb-16 border-t border-line pt-[clamp(2.5rem,7vh,4.5rem)]" aria-labelledby="archive-heading">
+<h2 class="${META}" id="archive-heading">${esc(site.archive.label)}</h2>
+<p class="mt-4 max-w-[34em] text-[1.05rem] leading-[1.6] text-ink-soft text-pretty">${esc(site.archive.note)}</p>
+<div class="mt-8 grid grid-cols-3 gap-px overflow-hidden rounded-[20px] bg-line sm:grid-cols-5 md:grid-cols-6">
+${archive.map((file) => `<img class="block aspect-video h-auto w-full bg-paper-deep object-cover" src="assets/${esc(site.archive.dir)}/${esc(file)}" alt="" width="480" height="270" loading="lazy" decoding="async">`).join("\n")}
+</div>
+</section>`
+    : "";
+
   const body = `<style>
 @import url("https://fonts.googleapis.com/css2?${ransomFontQuery}&text=${ransomFontText}&display=swap");
 .home-name__word{position:relative;display:inline-block;white-space:nowrap;isolation:isolate}
@@ -342,6 +366,8 @@ ${entries}
 </nav>
 ${inlineStoryMarkup}
 ${externalPreview}
+${writingList}
+${archiveGrid}
 </main>
 ${footer(site, { clip: true })}
 </div>`;

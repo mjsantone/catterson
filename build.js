@@ -173,7 +173,7 @@ function shipChecks() {
   //    this repo generates or names is not.)
   const INTERNAL = /microsoft|msft|azure|sharepoint|workiq|msal|m365|copilot|simthetics/i;
   const microcopy = JSON.stringify({ site, pieces, clippy }, (key, value) =>
-    key === "copy" || key === "url" ? undefined : value
+    key === "copy" || key === "url" || key === "publication" ? undefined : value
   );
   if (INTERNAL.test(microcopy)) problems.push("internal term in src/content.js microcopy");
   if (/—/.test(microcopy)) problems.push("em dash in src/content.js microcopy");
@@ -236,7 +236,12 @@ const inlineStories = inlineStorySlugs.map((slug) => {
   };
 });
 
-writePage("index.html", t.home({ site, pieces: publishedPieces, copies, inlineStories }));
+const archiveDir = site.archive ? path.join(ASSETS, site.archive.dir) : null;
+const archiveFiles = archiveDir && fs.existsSync(archiveDir)
+  ? fs.readdirSync(archiveDir).filter((file) => IMG_RE.test(file)).sort()
+  : [];
+
+writePage("index.html", t.home({ site, pieces: publishedPieces, copies, inlineStories, archive: archiveFiles }));
 
 let placeholders = 0;
 let found = 0;
