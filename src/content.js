@@ -12,7 +12,7 @@ const site = {
   // Renders under the tagline on Home only. Picks up "twenty years" from the
   // tagline rather than restating it, so the time marker lands once.
   intro:
-    "Most of it went to people whose output gets reviewed by someone harder to please than they are. Graphics programmers, data scientists, engineers deploying models they would have to defend. The user changed and the rule did not. I stay in the code through implementation, because that is where a design either holds or quietly gives way.",
+    "I have made developer tools, machine learning platforms, mixed reality, a satellite radio service, and the design systems underneath them. I design, I write the production code, and I publish. The range is not a detour. Most of what a hard problem needs sits outside the discipline that owns it, and somebody has to have been in both rooms.",
   // Change this if the site moves to a custom domain. Used for canonical + OG URLs.
   url: "https://mjsantone.github.io/catterson/",
   email: "matthewsantone@gmail.com",
