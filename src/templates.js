@@ -335,11 +335,11 @@ ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
   // backfills the gaps that leaves.
   const archiveLarge = new Set((site.archive && site.archive.large) || []);
   const archiveGrid = archive.length && site.archive
-    ? `<div class="relative left-1/2 mt-[clamp(2.5rem,7vh,4.5rem)] grid w-screen -translate-x-1/2 grid-cols-8 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_7px)/8*9/16)]">
+    ? `<div class="relative left-1/2 mt-[clamp(5rem,14vh,9rem)] grid w-screen -translate-x-1/2 grid-cols-8 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_7px)/8*9/16)]">
 ${archive.map((file) => {
   const page = parseInt((file.match(/(\d+)/) || [])[1], 10);
   const big = archiveLarge.has(page);
-  return `<img class="block h-full w-full bg-paper-deep object-cover${big ? " col-span-2 row-span-2" : ""}" src="assets/${esc(site.archive.dir)}/${esc(file)}" alt="" width="1152" height="648" loading="lazy" decoding="async">`;
+  return `<img class="archive-tile block h-full w-full bg-paper-deep object-cover${big ? " col-span-2 row-span-2" : ""}" src="assets/${esc(site.archive.dir)}/${esc(file)}" alt="" width="1152" height="648" loading="lazy" decoding="async">`;
 }).join("\n")}
 </div>`
     : "";

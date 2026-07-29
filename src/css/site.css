@@ -140,6 +140,24 @@ html.site-locked {
   overflow-x: clip;
 }
 
+/* Archive tiles sit grey and come back on hover. Only where hovering exists:
+   on touch there is no way to bring the colour back, so it never leaves. */
+@media (hover: hover) {
+  .archive-tile {
+    filter: grayscale(1);
+    transition: filter 300ms ease;
+  }
+  .archive-tile:hover {
+    filter: grayscale(0);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+  .archive-tile {
+    transition: none;
+  }
+}
+
 html.site-locked .site-content,
 html.site-unlocked .password-gate {
   display: none;
