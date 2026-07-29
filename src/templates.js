@@ -368,10 +368,12 @@ ${archive.map((file) => {
 </section>`
     : "";
 
-  // Same treatment as the pull quotes on the piece pages, so it reads as a
-  // quote rather than a fourth story headline.
+  // Left aligned, unruled, with a hanging quote mark doing the separating.
   const statement = site.statement
-    ? `<blockquote class="mx-auto my-[clamp(2.75rem,8vh,4.5rem)] max-w-[35em] border-y border-line py-[1.8em]"><p class="font-display text-center text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-balance italic">${esc(site.statement)}</p></blockquote>`
+    ? `<blockquote class="my-[clamp(2.75rem,8vh,4.5rem)] flex max-w-[40em] gap-[clamp(0.75rem,2.5vw,1.5rem)]">
+<span class="font-display select-none text-[clamp(6rem,17vw,14rem)] leading-[0.62] text-oxblood" aria-hidden="true">&ldquo;</span>
+<p class="font-display text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-pretty italic">${esc(site.statement)}</p>
+</blockquote>`
     : "";
 
   const body = `<style>
