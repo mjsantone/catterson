@@ -30,15 +30,6 @@ const site = {
     image: "assets/fuse/fuse-preview.webp",
     url: "https://fuse-catterson-gcakeab6etetcaaq.westus2-01.azurewebsites.net",
   },
-  // Four things that happened, under the intro. No labels: naming the quality
-  // was doing the deck's job of asserting it, and the sentences carry it alone.
-  // Each one is corroborated further down the same page.
-  capabilities: [
-    "I argued in print for letting a model wander, then spent a year making systems that will not.",
-    "I sketched most of what I make now three years before I made any of it.",
-    "I set a bar for generated reports and made it reusable. A team I never pitched took it.",
-    "Twenty years in, I learned to ship production code.",
-  ],
   // Published elsewhere, newest first. Titles and outlets are as printed.
   writing: [
     {
@@ -62,6 +53,9 @@ const site = {
     thumbDir: "archive/thumbs",
     label: "Earlier work",
     description: "One hundred thirty pages from a 2023 portfolio deck, shown as a visual archive.",
+    // The deck's own thesis, printed on page five over a mosaic of the work.
+    // It reads here as the caption the wall of tiles otherwise lacks.
+    statement: "I make complex systems more accessible, so people become more capable than their formal training alone.",
     // The deck's own chapter openers, which are the pages that carry no page
     // number. They take the double tiles. Their spacing is uneven, which is
     // the point: a fixed interval lands every large tile in the same column.
