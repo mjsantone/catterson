@@ -149,7 +149,7 @@ html.site-locked {
 @media (hover: hover) {
   .archive-tile {
     filter: grayscale(1);
-    opacity: 0.55;
+    opacity: 0.7;
     transition: filter 900ms ease, opacity 900ms ease;
   }
   .archive-tile:hover {
