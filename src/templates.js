@@ -372,7 +372,6 @@ ${archive.map((file) => {
 
   const body = `<style>
 .home-name__word{position:relative;display:inline-block;white-space:nowrap;isolation:isolate}
-.home-name__word+.home-name__word{margin-left:.22em}
 .home-name__letter{position:relative;z-index:0;display:inline-block}
 .home-name__base{transition:opacity 80ms linear}
 .home-name__letter::after{content:attr(data-letter);position:absolute;left:50%;top:50%;opacity:0;font-family:var(--ransom-font);font-size:.92em;font-weight:var(--ransom-weight);font-style:var(--ransom-style);line-height:1;white-space:nowrap;transform:translate(-50%,-48%) rotate(var(--ransom-turn)) scale(var(--ransom-scale));transition:opacity 80ms linear;color:var(--color-oxblood);pointer-events:none}
@@ -385,8 +384,8 @@ ${archive.map((file) => {
 </style>
 <div class="${PAGE}">
 <header class="pt-[clamp(4rem,16vh,9rem)] pb-[clamp(2.5rem,7vh,4.5rem)]">
-<h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.7rem,7.4vw,5.8rem)] leading-[1.0]" aria-label="${esc(site.name)}">${ransomName(site.name)}</h1>
-<p class="mt-6 max-w-[24em] text-[clamp(1.5rem,2.6vw,1.75rem)] leading-[1.35] text-pretty text-ink-soft italic">${esc(site.tagline)}</p>
+<h1 class="${DISPLAY} max-w-[12em] text-[clamp(3.4rem,7.4vw,5.8rem)] leading-[1.0] [word-spacing:0.14em]" aria-label="${esc(site.name)}">${ransomName(site.name)}</h1>
+<p class="mt-6 max-w-[29em] text-[1.2rem] leading-[1.6] text-pretty text-ink-soft italic">${esc(site.tagline)}</p>
 ${introParagraphs.length ? `<div class="mt-8 max-w-[29em] space-y-[1em] text-[1.2rem] leading-[1.6] text-pretty">
 ${introParagraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 </div>` : ""}
