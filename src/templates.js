@@ -344,6 +344,17 @@ ${archive.map((file) => {
 </div>`
     : "";
 
+  // Same row grammar as the story index and the writing list, at body size so
+  // it stays subordinate to the headlines below it.
+  const capabilities = site.capabilities && site.capabilities.length
+    ? `<dl class="mt-[clamp(2.25rem,6vh,3.5rem)]">
+${site.capabilities.map((item) => `<div class="grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-3.5 max-sm:grid-cols-1 max-sm:gap-1">
+<dt class="text-[1.15rem] leading-[1.35]">${esc(item.claim)}</dt>
+<dd class="${META} m-0 justify-self-end text-right max-sm:justify-self-start max-sm:text-left">${esc(item.evidence)}</dd>
+</div>`).join("\n")}
+</dl>`
+    : "";
+
   const body = `<style>
 @import url("https://fonts.googleapis.com/css2?${ransomFontQuery}&text=${ransomFontText}&display=swap");
 .home-name__word{position:relative;display:inline-block;white-space:nowrap;isolation:isolate}
@@ -363,6 +374,7 @@ ${archive.map((file) => {
 <h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.7rem,7.4vw,5.8rem)] leading-[1.0]" aria-label="${esc(site.name)}">${ransomName(site.name)}</h1>
 <p class="meta mt-6 text-ink-soft">${esc(site.tagline)}</p>
 ${site.intro ? `<p class="mt-8 max-w-[34em] text-[1.2rem] leading-[1.6] text-pretty">${esc(site.intro)}</p>` : ""}
+${capabilities}
 </header>
 <main id="main" class="flex-1">
 <nav class="border-b border-line" aria-label="Main stories">

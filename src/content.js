@@ -24,6 +24,15 @@ const site = {
     image: "assets/fuse/fuse-preview.webp",
     url: "https://fuse-catterson-gcakeab6etetcaaq.westus2-01.azurewebsites.net",
   },
+  // Four claims under the intro, each paired with the number that backs it.
+  // Every figure here is checkable: three essays in print, the patent count and
+  // the Red Dot, the studio dates, and the merges from the production code story.
+  capabilities: [
+    { claim: "I write it down.", evidence: "Three published essays" },
+    { claim: "I make the thing.", evidence: "Six patents, one Red Dot" },
+    { claim: "I give the work away.", evidence: "First designer hired, partner in four" },
+    { claim: "I am still learning the job.", evidence: "Twenty nine merges in nine months" },
+  ],
   // Published elsewhere, newest first. Titles and outlets are as printed.
   writing: [
     {
