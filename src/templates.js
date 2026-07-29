@@ -353,9 +353,6 @@ ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
     ? `<section class="relative left-1/2 mt-[clamp(5rem,14vh,9rem)] w-screen -translate-x-1/2" aria-labelledby="archive-heading">
 <h2 class="sr-only" id="archive-heading">${esc(site.archive.label)}</h2>
 <p class="sr-only">${esc(site.archive.description)}</p>
-${site.archive.statement ? `<div class="mx-auto max-w-[62rem] px-[clamp(1.25rem,5vw,3rem)]">
-<p class="mb-[clamp(2rem,6vh,3.5rem)] max-w-[20em] font-display text-[clamp(1.55rem,3.4vw,2.4rem)] leading-[1.18] text-pretty">${esc(site.archive.statement)}</p>
-</div>` : ""}
 <div class="grid grid-cols-8 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_7px)/8*9/16)]">
 ${archive.map((file) => {
   const page = parseInt((file.match(/(\d+)/) || [])[1], 10);
@@ -369,6 +366,12 @@ ${archive.map((file) => {
 }).join("\n")}
 </div>
 </section>`
+    : "";
+
+  // Same treatment as the pull quotes on the piece pages, so it reads as a
+  // quote rather than a fourth story headline.
+  const statement = site.statement
+    ? `<blockquote class="mx-auto my-[clamp(2.75rem,8vh,4.5rem)] max-w-[35em] border-y border-line py-[1.8em]"><p class="font-display text-center text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-balance italic">${esc(site.statement)}</p></blockquote>`
     : "";
 
   const body = `<style>
@@ -396,6 +399,7 @@ ${introParagraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 <nav class="border-b border-line" aria-label="Main stories">
 ${entries}
 </nav>
+${statement}
 ${inlineStoryMarkup}
 ${externalPreview}
 ${writingList}

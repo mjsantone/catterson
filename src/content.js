@@ -30,6 +30,10 @@ const site = {
     image: "assets/fuse/fuse-preview.webp",
     url: "https://fuse-catterson-gcakeab6etetcaaq.westus2-01.azurewebsites.net",
   },
+  // The deck's own thesis, printed on page five over a mosaic of the work.
+  // It sits between the main stories and the smaller ones, where the four
+  // capability bullets used to be.
+  statement: "I make complex systems more accessible, so people become more capable than their formal training alone.",
   // Published elsewhere, newest first. Titles and outlets are as printed.
   writing: [
     {
@@ -53,9 +57,6 @@ const site = {
     thumbDir: "archive/thumbs",
     label: "Earlier work",
     description: "One hundred thirty pages from a 2023 portfolio deck, followed by eight screens from Salesforce and Wrap, shown as a visual archive.",
-    // The deck's own thesis, printed on page five over a mosaic of the work.
-    // It reads here as the caption the wall of tiles otherwise lacks.
-    statement: "I make complex systems more accessible, so people become more capable than their formal training alone.",
     // The deck's own chapter openers, which are the pages that carry no page
     // number. They take the double tiles. Their spacing is uneven, which is
     // the point: a fixed interval lands every large tile in the same column.
