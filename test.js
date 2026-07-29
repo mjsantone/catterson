@@ -114,6 +114,8 @@ for (const page of hostPages) {
 assert.deepStrictEqual(missing, []);
 
 const home = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
+assert.match(home, /Principal product designer\. I think by making\./);
+assert.doesNotMatch(home, /My work spans AI/);
 assert.strictEqual(count(home, /class="archive-tile\b/g), 130);
 assert.strictEqual(count(home, /assets\/archive\/thumbs\/slide-\d+\.webp 384w/g), 130);
 assert.match(home, /<section[^>]+aria-labelledby="archive-heading"/);

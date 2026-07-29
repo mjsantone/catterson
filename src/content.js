@@ -8,19 +8,19 @@
 
 const site = {
   name: "Matthew Santone",
-  tagline: "Principal designer. I think by making.",
+  tagline: "Principal product designer. I think by making.",
   // The first paragraph says who Matthew is; the second establishes the breadth
   // of an ongoing practice. Both stay in present tense.
   intro: [
-    "I design software that makes complicated things easier to understand and use.",
-    "My work spans AI, developer tools, machine learning platforms, mixed reality, and consumer products. I move between product strategy, interaction design, prototyping, design systems, writing, and production code because the hardest problems rarely belong to one discipline.",
+    "I design complicated software and make it easier to understand and use.",
+    "My work ranges from developer tools and enterprise platforms to mixed reality and consumer products. Depending on the problem, I move between product strategy, interaction design, prototyping, design systems, writing, and production code.",
   ],
   // Change this if the site moves to a custom domain. Used for canonical + OG URLs.
   url: "https://mjsantone.github.io/catterson/",
   email: "matthewsantone@gmail.com",
   social: {
     image: "assets/social/home.jpg",
-    alt: "Matthew Santone, principal designer. I think by making.",
+    alt: "Matthew Santone, principal product designer. I think by making.",
   },
   homeExternalPreview: {
     title: "Fuse",
