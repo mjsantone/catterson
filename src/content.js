@@ -20,7 +20,7 @@ const site = {
     title: "Fuse",
     label: "Live tool",
     description: "Blend weighted ingredients into a new output on a freeform canvas.",
-    alt: "Fuse canvas blending disco, origami, sea shanty, neon, and brutalism into an album cover.",
+    alt: "Fuse canvas with flow, form, and play blended into one shape, each ingredient holding its own share of the result.",
     image: "assets/fuse/fuse-preview.webp",
     url: "https://fuse-catterson-gcakeab6etetcaaq.westus2-01.azurewebsites.net",
   },
