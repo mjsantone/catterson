@@ -30,10 +30,6 @@ const site = {
     image: "assets/fuse/fuse-preview.webp",
     url: "https://fuse-catterson-gcakeab6etetcaaq.westus2-01.azurewebsites.net",
   },
-  // The deck's own thesis, printed on page five over a mosaic of the work.
-  // It sits between the main stories and the smaller ones, where the four
-  // capability bullets used to be.
-  statement: "I make complex systems more accessible, so people become more capable than their formal training alone.",
   // Published elsewhere, newest first. Titles and outlets are as printed.
   writing: [
     {

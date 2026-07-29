@@ -368,14 +368,6 @@ ${archive.map((file) => {
 </section>`
     : "";
 
-  // Left aligned, unruled, with a hanging quote mark doing the separating.
-  const statement = site.statement
-    ? `<blockquote class="my-[clamp(2.75rem,8vh,4.5rem)] flex max-w-[40em] gap-[clamp(0.75rem,2.5vw,1.5rem)]">
-<span class="font-display select-none text-[clamp(6rem,17vw,14rem)] leading-[0.62] text-oxblood" aria-hidden="true">&ldquo;</span>
-<p class="font-display text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-pretty italic">${esc(site.statement)}</p>
-</blockquote>`
-    : "";
-
   const body = `<style>
 .home-name__word{position:relative;display:inline-block;white-space:nowrap;isolation:isolate}
 .home-name__word+.home-name__word{margin-left:.22em}
@@ -401,7 +393,6 @@ ${introParagraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 <nav class="border-b border-line" aria-label="Main stories">
 ${entries}
 </nav>
-${statement}
 ${inlineStoryMarkup}
 ${externalPreview}
 ${writingList}

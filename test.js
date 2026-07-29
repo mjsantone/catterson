@@ -145,13 +145,8 @@ assert.doesNotMatch(home, /salesforce-01\.webp[\s\S]*slide-001\.webp/);
 assert.strictEqual((130 - 10 + 10 * 4 + 8) % 8, 0);
 assert.match(home, /<section[^>]+aria-labelledby="archive-heading"/);
 assert.match(home, /<h2 class="sr-only" id="archive-heading">Earlier work<\/h2>/);
-// The statement is a quote between the main stories and the smaller ones, not a fourth headline.
-assert.match(home, /aria-label="Main stories"[\s\S]*<blockquote[\s\S]*aria-label="More things I made"/);
-assert.match(home, /<blockquote[^>]*>[\s\S]*?formal training alone[\s\S]*?<\/blockquote>/);
-assert.doesNotMatch(home, /<blockquote[^>]*border-y/);
-assert.doesNotMatch(home, /<blockquote[\s\S]{0,400}text-center/);
-// The oversized opening mark is decoration, so it stays out of the accessibility tree.
-assert.match(home, /<blockquote[\s\S]{0,220}aria-hidden="true">&ldquo;<\/span>/);
+assert.doesNotMatch(home, /formal training alone/);
+assert.doesNotMatch(home, /<blockquote/);
 assert.strictEqual(count(home, /https:\/\/fuse-catterson/g), 1);
 assert.doesNotMatch(home, /fonts\.googleapis\.com/);
 assert.match(home, /confirm\.webp"[^>]+width="1600" height="900"/);
