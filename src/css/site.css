@@ -13,7 +13,9 @@
   --color-ink-soft: #55504a;
   --color-ink-faint: #756e66;
   --color-line: #ddd6cc;
-  --color-oxblood: #7a2e24;
+  /* Cobalt on warm paper. Named for its role, not its hue, so a future
+     change does not leave the token lying about itself. */
+  --color-accent: #0b4fd8;
 
   --font-serif: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
   --font-display: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman", serif;
@@ -84,7 +86,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-oxblood);
+    outline: 2px solid var(--color-accent);
     outline-offset: 3px;
   }
 
@@ -293,17 +295,17 @@ html.site-unlocked .password-gate {
 }
 
 .password-gate__entry:focus-within {
-  outline: 2px solid var(--color-oxblood);
+  outline: 2px solid var(--color-accent);
   outline-offset: 4px;
 }
 
 .password-gate__form[data-invalid="true"] .password-gate__cell {
-  border-color: var(--color-oxblood);
+  border-color: var(--color-accent);
 }
 
 .password-gate__status {
   margin-top: 1rem;
-  color: var(--color-oxblood);
+  color: var(--color-accent);
 }
 
 .document-carousel {
@@ -408,7 +410,7 @@ html.site-unlocked .password-gate {
 
 .document-carousel__button:hover {
   border-color: var(--color-ink-faint);
-  color: var(--color-oxblood);
+  color: var(--color-accent);
 }
 
 @media (max-width: 32rem) {

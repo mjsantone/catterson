@@ -176,6 +176,9 @@ assert.doesNotMatch(cameo, /aria-label="Pieces"/);
 const css = fs.readFileSync(path.join(ROOT, "src", "css", "site.css"), "utf8");
 const faint = css.match(/--color-ink-faint:\s*(#[0-9a-f]{6})/i)[1];
 assert(contrast(faint, "#faf8f4") >= 4.5);
+// The accent is used as link text on hover, so it carries a text contrast floor.
+const accent = css.match(/--color-accent:\s*(#[0-9a-f]{6})/i)[1];
+assert(contrast(accent, "#faf8f4") >= 4.5, `accent ${accent} is ${contrast(accent, "#faf8f4")}:1 on paper`);
 assert(contrast("#6f6862", "#f4f2ee") >= 4.5);
 assert(contrast("#8f8880", "#1b1917") >= 4.5);
 

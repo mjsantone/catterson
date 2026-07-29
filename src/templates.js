@@ -49,7 +49,7 @@ function ransomName(name) {
 const META = "meta text-ink-faint";
 const PAGE = "mx-auto flex min-h-svh max-w-[62rem] flex-col px-[clamp(1.25rem,5vw,3rem)]";
 const DISPLAY = "font-display [font-weight:440] tracking-[-0.01em] text-balance";
-const HOVER_TITLE = "group-hover:italic group-hover:text-oxblood group-focus-visible:italic group-focus-visible:text-oxblood";
+const HOVER_TITLE = "group-hover:italic group-hover:text-accent group-focus-visible:italic group-focus-visible:text-accent";
 const CAPTION =
   "mt-3.5 max-w-[35em] font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint";
 const DROP_CAP =
@@ -194,7 +194,7 @@ ${cap}
       : "";
     const stillsCap = asset.caption
       ? asset.fullView
-        ? `<figcaption class="mt-3.5 flex max-w-[44rem] flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint"><span>${esc(asset.caption)}</span><a class="tap-target shrink-0 text-ink no-underline hover:text-oxblood" href="${fullViewSrc}" target="_blank" rel="noopener">Open full size <span aria-hidden="true">↗</span></a></figcaption>`
+        ? `<figcaption class="mt-3.5 flex max-w-[44rem] flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint"><span>${esc(asset.caption)}</span><a class="tap-target shrink-0 text-ink no-underline hover:text-accent" href="${fullViewSrc}" target="_blank" rel="noopener">Open full size <span aria-hidden="true">↗</span></a></figcaption>`
         : cap
       : "";
     return `<figure ${media}><div class="${layout}">
@@ -221,7 +221,7 @@ ${imgs}
       <div class="document-carousel__frame">${posterImage}<iframe class="document-carousel__viewer block h-full w-full border-0 bg-paper" data-src="${esc(src)}" title="${esc(title)}" sandbox="allow-same-origin" data-document-viewer tabindex="-1"></iframe></div>
 <div class="document-carousel__caption">
 <span>${esc(title)}</span>
-      <a class="tap-target shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${active ? "" : ' tabindex="-1"'}>Open full view <span aria-hidden="true">↗</span></a>
+      <a class="tap-target shrink-0 text-ink no-underline hover:text-accent" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${active ? "" : ' tabindex="-1"'}>Open full view <span aria-hidden="true">↗</span></a>
  </div>
 </div>`;
       })
@@ -269,16 +269,16 @@ function placeholder(kindLabel, desc, expectedPath) {
 
 function header(site, root, right) {
   return `<header class="flex items-baseline justify-between border-b border-line py-7">
-<a class="meta tap-target text-ink no-underline hover:text-oxblood" href="${root || "./"}">${esc(site.name)}</a>
+<a class="meta tap-target text-ink no-underline hover:text-accent" href="${root || "./"}">${esc(site.name)}</a>
 ${right ? `<span class="${META}">${right}</span>` : ""}
 </header>`;
 }
 
 function footer(site, { clip, narrow, center, rule = true } = {}) {
   return `<footer class="mt-16 flex items-center justify-between gap-4 py-10${rule ? " border-t border-line" : ""}${narrow ? " max-w-[44rem]" : ""}${center ? " mx-auto w-full" : ""}">
-<a class="${META} tap-target no-underline hover:text-oxblood" href="mailto:${esc(site.email)}" title="${esc(site.email)}">Message me</a>
+<a class="${META} tap-target no-underline hover:text-accent" href="mailto:${esc(site.email)}" title="${esc(site.email)}">Message me</a>
 <span class="flex items-center gap-4">
-${clip ? `<a class="tap-target p-1.5 leading-none text-ink-faint transition-[transform,color] duration-200 hover:-rotate-8 hover:text-oxblood motion-reduce:hover:rotate-0" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
+${clip ? `<a class="tap-target p-1.5 leading-none text-ink-faint transition-[transform,color] duration-200 hover:-rotate-8 hover:text-accent motion-reduce:hover:rotate-0" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
 </span>
 </footer>`;
 }
@@ -327,7 +327,7 @@ ${storyBody.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 </span>
 <figcaption class="mt-3.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint">
 <span><span class="text-ink">${esc(site.homeExternalPreview.title)}</span> · ${esc(site.homeExternalPreview.description)}</span>
-<span class="shrink-0 text-ink group-hover:text-oxblood">Open ${esc(site.homeExternalPreview.label.toLowerCase())} <span aria-hidden="true">↗</span></span>
+<span class="shrink-0 text-ink group-hover:text-accent">Open ${esc(site.homeExternalPreview.label.toLowerCase())} <span aria-hidden="true">↗</span></span>
 </figcaption>
 </a>
 </figure>`
@@ -374,7 +374,7 @@ ${archive.map((file) => {
 .home-name__word{position:relative;display:inline-block;white-space:nowrap;isolation:isolate}
 .home-name__letter{position:relative;z-index:0;display:inline-block}
 .home-name__base{transition:opacity 80ms linear}
-.home-name__letter::after{content:attr(data-letter);position:absolute;left:50%;top:50%;opacity:0;font-family:var(--ransom-font);font-size:.92em;font-weight:var(--ransom-weight);font-style:var(--ransom-style);line-height:1;white-space:nowrap;transform:translate(-50%,-48%) rotate(var(--ransom-turn)) scale(var(--ransom-scale));transition:opacity 80ms linear;color:var(--color-oxblood);pointer-events:none}
+.home-name__letter::after{content:attr(data-letter);position:absolute;left:50%;top:50%;opacity:0;font-family:var(--ransom-font);font-size:.92em;font-weight:var(--ransom-weight);font-style:var(--ransom-style);line-height:1;white-space:nowrap;transform:translate(-50%,-48%) rotate(var(--ransom-turn)) scale(var(--ransom-scale));transition:opacity 80ms linear;color:var(--color-accent);pointer-events:none}
 @media (hover:hover){
   .home-name__letter:hover{z-index:2}
   .home-name__letter:hover .home-name__base{opacity:0}
@@ -695,7 +695,7 @@ ${header(site, root)}
 <header class="pt-[clamp(3rem,9vh,5.5rem)]">
 <h1 class="${DISPLAY} text-[clamp(2.5rem,6vw,4.3rem)] leading-[1.04]">This page stayed out.</h1>
 <h2 class="mt-6 text-[clamp(1.25rem,2.4vw,1.5rem)] leading-[1.45] font-normal text-pretty text-ink-soft italic">The restraint is the design.</h2>
-<p class="mt-10"><a class="${META} no-underline hover:text-oxblood" href="${esc(site.url)}">Back to the index</a></p>
+<p class="mt-10"><a class="${META} no-underline hover:text-accent" href="${esc(site.url)}">Back to the index</a></p>
 </header>
 </article>
 </main>
