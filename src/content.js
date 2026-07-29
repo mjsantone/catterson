@@ -44,6 +44,10 @@ const site = {
   // says "there is a lot of history here" without being told to.
   archive: {
     dir: "archive",
+    // The deck's own chapter openers, which are the pages that carry no page
+    // number. They take the double tiles. Their spacing is uneven, which is
+    // the point: a fixed interval lands every large tile in the same column.
+    large: [1, 6, 8, 49, 64, 67, 76, 77, 94, 102, 123],
   },
 };
 

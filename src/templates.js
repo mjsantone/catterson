@@ -331,11 +331,16 @@ ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
     : "";
 
   // Full bleed: the grid escapes the reading column to the viewport edges.
-  // Every seventh tile doubles, filling four cells, so the rhythm is uneven
-  // without being random. Dense flow backfills the gaps that leaves.
+  // The deck's chapter openers double, filling four cells. Dense flow
+  // backfills the gaps that leaves.
+  const archiveLarge = new Set((site.archive && site.archive.large) || []);
   const archiveGrid = archive.length && site.archive
     ? `<div class="relative left-1/2 mt-[clamp(2.5rem,7vh,4.5rem)] mb-16 grid w-screen -translate-x-1/2 grid-cols-5 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_4px)/5*9/16)]">
-${archive.map((file, i) => `<img class="block h-full w-full bg-paper-deep object-cover${i % 7 === 3 ? " col-span-2 row-span-2" : ""}" src="assets/${esc(site.archive.dir)}/${esc(file)}" alt="" width="1152" height="648" loading="lazy" decoding="async">`).join("\n")}
+${archive.map((file) => {
+  const page = parseInt((file.match(/(\d+)/) || [])[1], 10);
+  const big = archiveLarge.has(page);
+  return `<img class="block h-full w-full bg-paper-deep object-cover${big ? " col-span-2 row-span-2" : ""}" src="assets/${esc(site.archive.dir)}/${esc(file)}" alt="" width="1152" height="648" loading="lazy" decoding="async">`;
+}).join("\n")}
 </div>`
     : "";
 
