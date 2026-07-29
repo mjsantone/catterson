@@ -4,7 +4,7 @@ Status: DONE. Sets the template for the other three.
 
 ---
 
-# I codified the house style. Then it spread without me.
+# I codified the house style, and teams started coming to me for it
 
 ## Fluent Expression had designed a report language in Figma. I codified it into skills and a render system so an LLM could compose with it, from a tort case to the rule against perpetuities, then merged the experiment into Microsoft's Researcher agent.
 

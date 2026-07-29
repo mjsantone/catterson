@@ -30,7 +30,7 @@ const site = {
   capabilities: [
     "I argued in print for letting a model wander, then spent a year making systems that will not.",
     "I sketched most of what I make now three years before I made any of it.",
-    "I set the bar for what a generated report should look like, then made it something other teams could pick up. One did without being asked.",
+    "I set the bar for what a generated report should look like, then made it something other teams could pick up. One took it up without being pitched.",
     "Twenty years in, I learned to ship production code.",
   ],
   // Published elsewhere, newest first. Titles and outlets are as printed.
