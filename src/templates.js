@@ -330,14 +330,13 @@ ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
 </section>`
     : "";
 
+  // Full bleed: the grid escapes the reading column to the viewport edges.
+  // Every seventh tile doubles, filling four cells, so the rhythm is uneven
+  // without being random. Dense flow backfills the gaps that leaves.
   const archiveGrid = archive.length && site.archive
-    ? `<section class="mb-16 border-t border-line pt-[clamp(2.5rem,7vh,4.5rem)]" aria-labelledby="archive-heading">
-<h2 class="${META}" id="archive-heading">${esc(site.archive.label)}</h2>
-<p class="mt-4 max-w-[34em] text-[1.05rem] leading-[1.6] text-ink-soft text-pretty">${esc(site.archive.note)}</p>
-<div class="mt-8 grid grid-cols-3 gap-px overflow-hidden rounded-[20px] bg-line sm:grid-cols-5 md:grid-cols-6">
-${archive.map((file) => `<img class="block aspect-video h-auto w-full bg-paper-deep object-cover" src="assets/${esc(site.archive.dir)}/${esc(file)}" alt="" width="480" height="270" loading="lazy" decoding="async">`).join("\n")}
-</div>
-</section>`
+    ? `<div class="relative left-1/2 mt-[clamp(2.5rem,7vh,4.5rem)] mb-16 grid w-screen -translate-x-1/2 grid-cols-5 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_4px)/5*9/16)]">
+${archive.map((file, i) => `<img class="block h-full w-full bg-paper-deep object-cover${i % 7 === 3 ? " col-span-2 row-span-2" : ""}" src="assets/${esc(site.archive.dir)}/${esc(file)}" alt="" width="1152" height="648" loading="lazy" decoding="async">`).join("\n")}
+</div>`
     : "";
 
   const body = `<style>

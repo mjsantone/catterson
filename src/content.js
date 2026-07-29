@@ -40,9 +40,9 @@ const site = {
     },
   ],
   // A 2023 portfolio deck, one tile per page, discovered on disk at build time.
+  // No heading or caption: at this size the tiles are texture, and the grid
+  // says "there is a lot of history here" without being told to.
   archive: {
-    label: "The 2023 deck",
-    note: "In 2023 I sketched tunable assistants, teams of agents that hand work to each other, and interfaces that show why the model chose what it chose. I make those things now, for people who have to sign their name to the output.",
     dir: "archive",
   },
 };

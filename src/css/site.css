@@ -132,6 +132,14 @@ html.site-locked {
   overflow: hidden;
 }
 
+/* The archive grid is 100vw, which overshoots the client width whenever a
+   classic scrollbar is present. Clip on the wrapper rather than the root:
+   overflow set on html propagates to the viewport and still scrolls, and
+   clip rather than hidden so nothing here becomes a scroll container. */
+.site-content {
+  overflow-x: clip;
+}
+
 html.site-locked .site-content,
 html.site-unlocked .password-gate {
   display: none;
