@@ -292,8 +292,8 @@ function home({ site, pieces, copies, inlineStories, archive = [] }) {
   const entries = pieces
     .map(
       (p) => `<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
-<span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.6rem,3.7vw,2.7rem)] leading-[1.08] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
-<span class="${META} justify-self-end text-right max-sm:justify-self-start max-sm:text-left">${esc(p.kicker)}</span>
+<span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.6rem,3.7vw,2.7rem)] leading-[1.08] transition-colors duration-150">${esc(copies[p.slug].headline)}&nbsp;<span class="inline-block text-[0.5em] not-italic text-ink-faint transition-[transform,color] duration-200 group-hover:translate-x-1 group-hover:text-accent group-focus-visible:translate-x-1 group-focus-visible:text-accent motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" aria-hidden="true">→</span></span>
+<span class="${META} justify-self-end text-right transition-colors duration-150 group-hover:text-accent group-focus-visible:text-accent max-sm:justify-self-start max-sm:text-left">${esc(p.kicker)}</span>
 </a>`
     )
     .join("\n");
