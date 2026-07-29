@@ -8,7 +8,7 @@
 
 const site = {
   name: "Matthew Santone",
-  tagline: "Twenty years of craft, now applied to AI that a professional has to answer for.",
+  tagline: "Principal design architect. I think by making.",
   // Renders under the tagline on Home only. Picks up "twenty years" from the
   // tagline rather than restating it, so the time marker lands once.
   intro:
@@ -24,14 +24,14 @@ const site = {
     image: "assets/fuse/fuse-preview.webp",
     url: "https://fuse-catterson-gcakeab6etetcaaq.westus2-01.azurewebsites.net",
   },
-  // Four claims under the intro, each paired with the number that backs it.
-  // Every figure here is checkable: three essays in print, the patent count and
-  // the Red Dot, the studio dates, and the merges from the production code story.
+  // The four facets from the 2023 deck, inverted. There the label carried a
+  // paragraph of qualities; here it carries one thing that happened, so the
+  // label is the claim and the sentence is the receipt.
   capabilities: [
-    { claim: "I write it down.", evidence: "Three published essays" },
-    { claim: "I make the thing.", evidence: "Six patents, one Red Dot" },
-    { claim: "I give the work away.", evidence: "First designer hired, partner in four" },
-    { claim: "I am still learning the job.", evidence: "Twenty nine merges in nine months" },
+    { claim: "I argued in print for letting a model wander, then spent a year making systems that will not.", evidence: "Storyteller" },
+    { claim: "I sketched most of what I make now three years before I made any of it.", evidence: "Designer" },
+    { claim: "I put the shared design system in place of components I had made myself.", evidence: "Amplifier" },
+    { claim: "Twenty years in, I learned to ship production code.", evidence: "Forever student" },
   ],
   // Published elsewhere, newest first. Titles and outlets are as printed.
   writing: [
