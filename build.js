@@ -270,8 +270,12 @@ const inlineStories = inlineStorySlugs.map((slug) => {
 });
 
 const archiveDir = site.archive ? path.join(ASSETS, site.archive.dir) : null;
+// Deck pages hold their run, then the screens appended after it. Plain sorting
+// would file salesforce- ahead of slide-.
+const deckFirst = (a, b) =>
+  Number(!a.startsWith("slide-")) - Number(!b.startsWith("slide-")) || a.localeCompare(b);
 const archiveFiles = archiveDir && fs.existsSync(archiveDir)
-  ? fs.readdirSync(archiveDir).filter((file) => IMG_RE.test(file)).sort()
+  ? fs.readdirSync(archiveDir).filter((file) => IMG_RE.test(file)).sort(deckFirst)
   : [];
 
 const publishedFiles = new Set();

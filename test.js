@@ -132,11 +132,17 @@ assert.deepStrictEqual(missing, []);
 const home = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
 assert.match(home, /Principal product designer\. I think by making\./);
 assert.doesNotMatch(home, /My work spans AI/);
-assert.strictEqual(count(home, /class="archive-tile\b/g), 136);
+assert.strictEqual(count(home, /class="archive-tile\b/g), 138);
 assert.strictEqual(count(home, /assets\/archive\/thumbs\/slide-\d+\.webp 384w/g), 130);
 assert.strictEqual(count(home, /assets\/archive\/thumbs\/wrap-\d+\.webp 384w/g), 6);
+assert.strictEqual(count(home, /assets\/archive\/thumbs\/salesforce-\d+\.webp 384w/g), 2);
 // The appended screens reuse low numbers that appear in the deck's large-tile list.
-assert.doesNotMatch(home, /wrap-\d+\.webp[^>]*col-span-2/);
+assert.doesNotMatch(home, /(?:wrap|salesforce)-\d+\.webp[^>]*col-span-2/);
+// Deck pages must stay ahead of the appended screens.
+assert.match(home, /slide-130\.webp[\s\S]*salesforce-01\.webp/);
+assert.doesNotMatch(home, /salesforce-01\.webp[\s\S]*slide-001\.webp/);
+// 130 pages with ten doubles plus eight screens fills 21 rows of 8 exactly.
+assert.strictEqual((130 - 10 + 10 * 4 + 8) % 8, 0);
 assert.match(home, /<section[^>]+aria-labelledby="archive-heading"/);
 assert.match(home, /<h2 class="sr-only" id="archive-heading">Earlier work<\/h2>/);
 assert.strictEqual(count(home, /https:\/\/fuse-catterson/g), 1);
@@ -183,7 +189,11 @@ const wrapFull = fs.readdirSync(path.join(DIST, "assets", "archive")).filter((fi
 const wrapThumbs = fs.readdirSync(path.join(DIST, "assets", "archive", "thumbs")).filter((file) => /^wrap-\d+\.webp$/.test(file));
 assert.strictEqual(wrapFull.length, 6);
 assert.strictEqual(wrapThumbs.length, 6);
-for (const file of wrapFull) {
+const sfFull = fs.readdirSync(path.join(DIST, "assets", "archive")).filter((file) => /^salesforce-\d+\.webp$/.test(file));
+const sfThumbs = fs.readdirSync(path.join(DIST, "assets", "archive", "thumbs")).filter((file) => /^salesforce-\d+\.webp$/.test(file));
+assert.strictEqual(sfFull.length, 2);
+assert.strictEqual(sfThumbs.length, 2);
+for (const file of [...wrapFull, ...sfFull]) {
   assert.deepStrictEqual(webpSize(path.join(DIST, "assets", "archive", file)), { width: 1152, height: 648 });
 }
 assert(!fs.existsSync(path.join(DIST, "assets", "resume", "ItsMeMatthew_2023_culled.pdf")));
@@ -197,4 +207,4 @@ for (const file of ["home.jpg", "agent-debrief.jpg", "editorial.jpg", "steering.
   assert.deepStrictEqual(jpegSize(socialFile), { width: 1200, height: 630 });
 }
 
-console.log("Static checks passed: 6 pages, 136 archive tiles, 0 missing local targets.");
+console.log("Static checks passed: 6 pages, 138 archive tiles, 0 missing local targets.");
