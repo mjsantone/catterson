@@ -20,4 +20,6 @@ BUILD: lead = persona-picker flow video (pick persona -> whole prototype reshape
 
 ## INLINE STORY
 
-My team needed a place to start. Not a finished app to bend to a new idea, but a foundation that could stand one up fast. I made a persona system that lets a designer pick a realistic synthetic person and watch the whole prototype become theirs: greeting, suggestions, manager, files, and search tools. The hard part was keeping that useful system from turning the starter kit into my app. It falls back to mock data, ships live connections off by default, and runs with zero setup or credentials. The restraint is the design.
+My team needed a place to start. Not a finished app to bend to a new idea, but a foundation to stand one up fast. I made a persona system that lets a designer pick a synthetic person and watch the whole prototype become theirs: greeting, suggestions, manager, files, and search.
+
+The hard part was keeping that from turning the kit into my app. It falls back to mock data, ships live connections off by default, and runs with no setup and no credentials. The restraint is the design.

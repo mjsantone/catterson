@@ -6,9 +6,9 @@ Note: craft at the detail level. Interactivity: none. The merged changes are the
 
 ---
 
-# Nobody assigns a designer the double scrollbar
+# Craft bugs sit at the bottom of the backlog. I started fixing them myself.
 
-## Twenty-nine changes merged to production code in nine months: defects too small for anyone to file, and the larger ones that took out my own components and put the shared design system in their place.
+## Twenty-nine changes merged to production code in nine months. Most were defects too small for anyone to prioritise, the kind that sit in an engineering backlog until they become the way the product looks.
 
 A design review produces a list, and then someone else decides what happens to it. The gap between what I noticed and what shipped was always the same gap. So I closed it from the other side and opened the pull request myself.
 
@@ -25,4 +25,6 @@ BUILD: lead = the visual regression diff from a pull request, cropped to the ove
 
 ## INLINE STORY
 
-Design feedback is easy to send and easy to ignore. Over nine months I sent twenty-nine pull requests instead: a dropdown that produced two scrollbars, a loading skeleton whose label did not match the one that replaced it, a title that drifted off center at narrow widths, an input inset that was symmetric in the spec and not in the build. The larger ones took out components I had made myself, a custom title, a hand-rolled carousel, a bespoke tab list, and put the shared design system in their place. Every one of them merged to production.
+Design feedback is easy to send and easy to ignore, and a defect this small never reaches the top of anyone's queue. Over nine months I opened twenty-nine pull requests instead: a dropdown that produced two scrollbars, a loading skeleton whose label did not match the one that replaced it, a title that drifted off center at narrow widths, an input inset that was symmetric in the spec and not in the build.
+
+The larger changes retired components I had made myself and put the shared design system in their place: a custom title, a hand-rolled carousel, a bespoke tab list. All twenty-nine merged.

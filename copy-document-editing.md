@@ -23,4 +23,6 @@ BUILD: one unbroken recording of select text, Ask, streamed tracked changes, and
 
 ## INLINE STORY
 
-Normal handoff turns an interaction into a translation of a translation. This one could not survive that route: select text inside an AI-generated document; a toolbar follows with Ask, Comment, and Copy; Ask streams a proposed edit back as tracked changes to accept or reject, with comments anchored to the words they touch. I made the interaction work instead of describing it, down to fixing a stale closure that sent only the first selected passage and choosing one bundled stream so parallel calls could not race shared document state. Engineering used the working prototype as the specification for production. I made the prototype. They built the product.
+Normal handoff turns an interaction into a translation of a translation. This one could not survive that route. Select text inside an AI-generated document and a toolbar follows with Ask, Comment, and Copy. Ask streams a proposed edit back as tracked changes to accept or reject, with comments anchored to the words they touch.
+
+I made it work instead of describing it, down to fixing a stale closure that sent only the first selected passage. Engineering used the working prototype as the specification. I made the prototype. They built the product.
