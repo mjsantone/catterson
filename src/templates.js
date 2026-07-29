@@ -335,7 +335,7 @@ ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
   // backfills the gaps that leaves.
   const archiveLarge = new Set((site.archive && site.archive.large) || []);
   const archiveGrid = archive.length && site.archive
-    ? `<div class="relative left-1/2 mt-[clamp(2.5rem,7vh,4.5rem)] mb-16 grid w-screen -translate-x-1/2 grid-cols-5 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_4px)/5*9/16)]">
+    ? `<div class="relative left-1/2 mt-[clamp(2.5rem,7vh,4.5rem)] mb-16 grid w-screen -translate-x-1/2 grid-cols-8 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_7px)/8*9/16)]">
 ${archive.map((file) => {
   const page = parseInt((file.match(/(\d+)/) || [])[1], 10);
   const big = archiveLarge.has(page);
