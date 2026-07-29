@@ -57,8 +57,10 @@ const DROP_CAP =
 const DETAIL_HEADLINE = `${DISPLAY} mt-6 text-[48px] leading-[1.02] sm:text-[64px]`;
 const DETAIL_STANDFIRST =
   "mt-6 max-w-[44rem] text-[28px] leading-[1.4] font-normal text-pretty text-ink-soft italic sm:text-[32px]";
-const BODY_LARGE = "max-w-[44rem] text-[24px] leading-[1.7] text-pretty";
-const BODY_MEDIUM = "max-w-[44rem] text-[20px] leading-[1.7] text-pretty";
+// Text sits on a narrower measure than the figures beside it. At the old 44rem
+// the 20px middles ran to 82 characters; 38rem brings them to about 70.
+const BODY_LARGE = "max-w-[38rem] text-[24px] leading-[1.7] text-pretty";
+const BODY_MEDIUM = "max-w-[38rem] text-[20px] leading-[1.7] text-pretty";
 
 function bodyParagraph(text, index, total) {
   const size = index === 0 || index === total - 1 ? BODY_LARGE : BODY_MEDIUM;
@@ -192,7 +194,7 @@ ${cap}
       : "";
     const stillsCap = asset.caption
       ? asset.fullView
-        ? `<figcaption class="mt-3.5 flex max-w-[44rem] flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint"><span>${esc(asset.caption)}</span><a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${fullViewSrc}" target="_blank" rel="noopener">Open full size <span aria-hidden="true">↗</span></a></figcaption>`
+        ? `<figcaption class="mt-3.5 flex max-w-[44rem] flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint"><span>${esc(asset.caption)}</span><a class="tap-target shrink-0 text-ink no-underline hover:text-oxblood" href="${fullViewSrc}" target="_blank" rel="noopener">Open full size <span aria-hidden="true">↗</span></a></figcaption>`
         : cap
       : "";
     return `<figure ${media}><div class="${layout}">
@@ -219,7 +221,7 @@ ${imgs}
       <div class="document-carousel__frame">${posterImage}<iframe class="document-carousel__viewer block h-full w-full border-0 bg-paper" data-src="${esc(src)}" title="${esc(title)}" sandbox="allow-same-origin" data-document-viewer tabindex="-1"></iframe></div>
 <div class="document-carousel__caption">
 <span>${esc(title)}</span>
-      <a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${active ? "" : ' tabindex="-1"'}>Open full view <span aria-hidden="true">↗</span></a>
+      <a class="tap-target shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${active ? "" : ' tabindex="-1"'}>Open full view <span aria-hidden="true">↗</span></a>
  </div>
 </div>`;
       })
@@ -267,16 +269,16 @@ function placeholder(kindLabel, desc, expectedPath) {
 
 function header(site, root, right) {
   return `<header class="flex items-baseline justify-between border-b border-line py-7">
-<a class="meta text-ink no-underline hover:text-oxblood" href="${root || "./"}">${esc(site.name)}</a>
+<a class="meta tap-target text-ink no-underline hover:text-oxblood" href="${root || "./"}">${esc(site.name)}</a>
 ${right ? `<span class="${META}">${right}</span>` : ""}
 </header>`;
 }
 
 function footer(site, { clip, narrow, center, rule = true } = {}) {
   return `<footer class="mt-16 flex items-center justify-between gap-4 py-10${rule ? " border-t border-line" : ""}${narrow ? " max-w-[44rem]" : ""}${center ? " mx-auto w-full" : ""}">
-<a class="${META} no-underline hover:text-oxblood" href="mailto:${esc(site.email)}" title="${esc(site.email)}">Message me</a>
+<a class="${META} tap-target no-underline hover:text-oxblood" href="mailto:${esc(site.email)}" title="${esc(site.email)}">Message me</a>
 <span class="flex items-center gap-4">
-${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,color] duration-200 hover:-rotate-8 hover:text-oxblood motion-reduce:hover:rotate-0" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
+${clip ? `<a class="tap-target p-1.5 leading-none text-ink-faint transition-[transform,color] duration-200 hover:-rotate-8 hover:text-oxblood motion-reduce:hover:rotate-0" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
 </span>
 </footer>`;
 }
@@ -385,7 +387,7 @@ ${archive.map((file) => {
 <header class="pt-[clamp(4rem,16vh,9rem)] pb-[clamp(2.5rem,7vh,4.5rem)]">
 <h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.7rem,7.4vw,5.8rem)] leading-[1.0]" aria-label="${esc(site.name)}">${ransomName(site.name)}</h1>
 <p class="meta mt-6 text-ink-soft">${esc(site.tagline)}</p>
-${introParagraphs.length ? `<div class="mt-8 max-w-[34em] space-y-[1em] text-[1.2rem] leading-[1.6] text-pretty">
+${introParagraphs.length ? `<div class="mt-8 max-w-[29em] space-y-[1em] text-[1.2rem] leading-[1.6] text-pretty">
 ${introParagraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 </div>` : ""}
 </header>
@@ -605,7 +607,7 @@ function editorialPage({ site, piece, copy, resolved, prev, next, cyclePrev, cyc
   const playableArtifact = figure(piece.lead, resolved.lead, root, piece.slug, { flush: true });
 
   const READING =
-    "reading mx-auto max-w-[44rem] space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]";
+    "reading mx-auto max-w-[38rem] space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]";
   const paras = copy.body.map((p, i) => bodyParagraph(p, i, copy.body.length));
   const pull = piece.pullQuote
     ? `<blockquote class="mx-auto max-w-[35em] border-y border-line py-[1.8em]"><p class="font-display text-center text-[clamp(1.7rem,3.4vw,2.3rem)] leading-[1.25] text-balance italic">${esc(piece.pullQuote.text)}</p></blockquote>`
