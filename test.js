@@ -67,6 +67,22 @@ function jpegSize(file) {
   throw new Error(`Could not read JPEG dimensions: ${file}`);
 }
 
+// Lossy WebP only: VP8 keyframe header carries the 14-bit dimensions.
+function webpSize(file) {
+  const bytes = fs.readFileSync(file);
+  const chunk = bytes.toString("ascii", 12, 16);
+  if (chunk === "VP8 ") {
+    return { width: bytes.readUInt16LE(26) & 0x3fff, height: bytes.readUInt16LE(28) & 0x3fff };
+  }
+  if (chunk === "VP8X") {
+    return {
+      width: 1 + bytes.readUIntLE(24, 3),
+      height: 1 + bytes.readUIntLE(27, 3),
+    };
+  }
+  throw new Error(`Unsupported WebP variant in ${file}: ${chunk}`);
+}
+
 const build = spawnSync(process.execPath, ["build.js"], {
   cwd: ROOT,
   encoding: "utf8",
@@ -116,8 +132,11 @@ assert.deepStrictEqual(missing, []);
 const home = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
 assert.match(home, /Principal product designer\. I think by making\./);
 assert.doesNotMatch(home, /My work spans AI/);
-assert.strictEqual(count(home, /class="archive-tile\b/g), 130);
+assert.strictEqual(count(home, /class="archive-tile\b/g), 136);
 assert.strictEqual(count(home, /assets\/archive\/thumbs\/slide-\d+\.webp 384w/g), 130);
+assert.strictEqual(count(home, /assets\/archive\/thumbs\/wrap-\d+\.webp 384w/g), 6);
+// The appended screens reuse low numbers that appear in the deck's large-tile list.
+assert.doesNotMatch(home, /wrap-\d+\.webp[^>]*col-span-2/);
 assert.match(home, /<section[^>]+aria-labelledby="archive-heading"/);
 assert.match(home, /<h2 class="sr-only" id="archive-heading">Earlier work<\/h2>/);
 assert.strictEqual(count(home, /https:\/\/fuse-catterson/g), 1);
@@ -160,6 +179,13 @@ const archiveFull = fs.readdirSync(path.join(DIST, "assets", "archive")).filter(
 const archiveThumbs = fs.readdirSync(path.join(DIST, "assets", "archive", "thumbs")).filter((file) => /^slide-\d+\.webp$/.test(file));
 assert.strictEqual(archiveFull.length, 130);
 assert.strictEqual(archiveThumbs.length, 130);
+const wrapFull = fs.readdirSync(path.join(DIST, "assets", "archive")).filter((file) => /^wrap-\d+\.webp$/.test(file));
+const wrapThumbs = fs.readdirSync(path.join(DIST, "assets", "archive", "thumbs")).filter((file) => /^wrap-\d+\.webp$/.test(file));
+assert.strictEqual(wrapFull.length, 6);
+assert.strictEqual(wrapThumbs.length, 6);
+for (const file of wrapFull) {
+  assert.deepStrictEqual(webpSize(path.join(DIST, "assets", "archive", file)), { width: 1152, height: 648 });
+}
 assert(!fs.existsSync(path.join(DIST, "assets", "resume", "ItsMeMatthew_2023_culled.pdf")));
 for (const name of ["06 - Show us.webp", "06 - Show us-2.webp", "06 - Show us-3.webp"]) {
   assert(!fs.existsSync(path.join(DIST, "assets", "agent-debrief", "images", name)));
@@ -171,4 +197,4 @@ for (const file of ["home.jpg", "agent-debrief.jpg", "editorial.jpg", "steering.
   assert.deepStrictEqual(jpegSize(socialFile), { width: 1200, height: 630 });
 }
 
-console.log("Static checks passed: 6 pages, 130 archive tiles, 0 missing local targets.");
+console.log("Static checks passed: 6 pages, 136 archive tiles, 0 missing local targets.");

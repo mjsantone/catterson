@@ -52,7 +52,7 @@ const site = {
     dir: "archive",
     thumbDir: "archive/thumbs",
     label: "Earlier work",
-    description: "One hundred thirty pages from a 2023 portfolio deck, shown as a visual archive.",
+    description: "One hundred thirty pages from a 2023 portfolio deck, followed by six screens from Wrap, shown as a visual archive.",
     // The deck's own thesis, printed on page five over a mosaic of the work.
     // It reads here as the caption the wall of tiles otherwise lacks.
     statement: "I make complex systems more accessible, so people become more capable than their formal training alone.",

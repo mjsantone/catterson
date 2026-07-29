@@ -359,7 +359,8 @@ ${site.archive.statement ? `<div class="mx-auto max-w-[62rem] px-[clamp(1.25rem,
 <div class="grid grid-cols-8 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_7px)/8*9/16)]">
 ${archive.map((file) => {
   const page = parseInt((file.match(/(\d+)/) || [])[1], 10);
-  const big = archiveLarge.has(page);
+  // Only deck pages take double tiles; the appended screens share their numbering.
+  const big = /^slide-/.test(file) && archiveLarge.has(page);
   const fullSrc = `assets/${site.archive.dir}/${file}`;
   const responsive = site.archive.thumbDir
     ? ` srcset="assets/${esc(site.archive.thumbDir)}/${esc(file)} 384w, ${esc(fullSrc)} 1152w" sizes="${big ? "25vw" : "12.5vw"}"`
