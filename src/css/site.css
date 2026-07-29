@@ -13,9 +13,9 @@
   --color-ink-soft: #55504a;
   --color-ink-faint: #756e66;
   --color-line: #ddd6cc;
-  /* Cobalt on warm paper. Named for its role, not its hue, so a future
-     change does not leave the token lying about itself. */
-  --color-accent: #0b4fd8;
+  /* Violet-leaning cobalt on warm paper. Named for its role, not its hue, so a
+     future change does not leave the token lying about itself. */
+  --color-accent: #0b26d8;
 
   --font-serif: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
   --font-display: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman", serif;
