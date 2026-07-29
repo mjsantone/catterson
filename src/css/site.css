@@ -140,20 +140,28 @@ html.site-locked {
   overflow-x: clip;
 }
 
-/* Archive tiles sit grey and come back on hover. Only where hovering exists:
-   on touch there is no way to bring the colour back, so it never leaves. */
+/* Archive tiles sit grey and faded, and come back on hover. Only where hovering
+   exists: on touch there is no way to bring the colour back, so it never leaves.
+   The durations are deliberately lopsided. A transition declared on the base
+   rule is the one that runs on the way out, so colour arrives almost at once
+   and takes nearly a second to drain, and a cursor dragged across the grid
+   leaves a trail behind it. */
 @media (hover: hover) {
   .archive-tile {
     filter: grayscale(1);
-    transition: filter 300ms ease;
+    opacity: 0.55;
+    transition: filter 900ms ease, opacity 900ms ease;
   }
   .archive-tile:hover {
     filter: grayscale(0);
+    opacity: 1;
+    transition: filter 120ms ease, opacity 120ms ease;
   }
 }
 
 @media (hover: hover) and (prefers-reduced-motion: reduce) {
-  .archive-tile {
+  .archive-tile,
+  .archive-tile:hover {
     transition: none;
   }
 }
