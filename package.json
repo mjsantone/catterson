@@ -4,7 +4,8 @@
   "description": "A lean, static portfolio. Paper and ink, one serif, three main stories and an archive.",
   "scripts": {
     "build": "node build.js",
-    "test": "node test.js"
+    "test": "node test.js",
+    "cards": "node tools/make-social-cards.js"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.2",

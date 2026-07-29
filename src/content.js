@@ -203,7 +203,7 @@ const pieces = [
     kicker: "Judgment and pull",
     social: {
       image: "assets/social/editorial.jpg",
-      alt: "I codified the house style, and teams started coming to me for it.",
+      alt: "I codified the house style, and other teams made it their standard.",
     },
     copy: "copy-editorial.md",
     // The only approved pull-quote on the site (CONTENT-SPEC.md). Rendered as an
