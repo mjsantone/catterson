@@ -12,19 +12,13 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
-const RANSOM_FONTS = [
-  "Abril Fatface",
-  "Bebas Neue",
-  "Bungee Shade",
-  "DM Serif Display",
-  "Alfa Slab One",
-  "Fredericka the Great",
-  "Lobster",
-  "Monoton",
-  "Pacifico",
-  "Playfair Display",
-  "Rye",
-  "Rubik Mono One",
+const RANSOM_STYLES = [
+  { font: "Fraunces", weight: 900, style: "normal", scale: 1.05, turn: "-2deg" },
+  { font: "Newsreader", weight: 800, style: "italic", scale: 1.1, turn: "1deg" },
+  { font: "Fraunces", weight: 300, style: "italic", scale: 0.94, turn: "2deg" },
+  { font: "Newsreader", weight: 600, style: "normal", scale: 1.02, turn: "-1deg" },
+  { font: "Fraunces", weight: 700, style: "normal", scale: 0.98, turn: "1deg" },
+  { font: "Newsreader", weight: 400, style: "italic", scale: 1.08, turn: "-2deg" },
 ];
 const RANSOM_CLUSTERS = ["Sa", "to"];
 
@@ -42,9 +36,9 @@ function ransomName(name) {
   let index = 0;
   const words = name.split(" ").map((word) => {
     const letters = ransomClusters(word).map((letter) => {
-      const font = RANSOM_FONTS[index % RANSOM_FONTS.length];
+      const style = RANSOM_STYLES[index % RANSOM_STYLES.length];
       index++;
-      return `<span class="home-name__letter" data-letter="${esc(letter)}" style="--ransom-font: '${font}'" aria-hidden="true"><span class="home-name__base">${esc(letter)}</span></span>`;
+      return `<span class="home-name__letter" data-letter="${esc(letter)}" style="--ransom-font:'${style.font}';--ransom-weight:${style.weight};--ransom-style:${style.style};--ransom-scale:${style.scale};--ransom-turn:${style.turn}" aria-hidden="true"><span class="home-name__base">${esc(letter)}</span></span>`;
     });
     return `<span class="home-name__word">${letters.join("")}</span>`;
   });
@@ -82,7 +76,9 @@ const SHOW_PLACEHOLDERS = false;
 const PASSWORD_GATE = false;
 
 // root is "" on the home page and "../" on subpages, so the site works from any base path.
-function shell({ site, root, title, description, url, ogType, noindex, body }) {
+function shell({ site, root, title, description, url, ogType, noindex, social, body }) {
+  const socialImage = social && social.image ? new URL(social.image, site.url).href : "";
+  const socialAlt = social && social.alt ? social.alt : title;
   return `<!doctype html>
 <html lang="en"${PASSWORD_GATE ? ' class="site-locked"' : ""}>
 <head>
@@ -96,7 +92,13 @@ ${noindex ? `<meta name="robots" content="noindex">\n` : ""}<link rel="canonical
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${esc(url)}">
 <meta property="og:site_name" content="${esc(site.name)}">
-<meta name="twitter:card" content="summary">
+${socialImage ? `<meta property="og:image" content="${esc(socialImage)}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(socialAlt)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${esc(socialImage)}">
+<meta name="twitter:image:alt" content="${esc(socialAlt)}">` : `<meta name="twitter:card" content="summary">`}
 <meta name="theme-color" content="#faf8f4">
 ${PASSWORD_GATE ? `<script>try{if(localStorage.getItem("catterson.access.v1")==="open")document.documentElement.className="site-unlocked"}catch(e){}try{if(sessionStorage.getItem("catterson.access.v1")==="open")document.documentElement.className="site-unlocked"}catch(e){}</script>
 ` : ""}<link rel="icon" href="${root}favicon.svg" type="image/svg+xml">
@@ -172,7 +174,10 @@ ${cap}
           const alt = resolved.files.length === 1
             ? asset.caption
             : `${asset.caption} Still ${i + 1} of ${resolved.files.length}.`;
-          const image = `<img class="block h-auto w-full rounded-[32px] bg-paper-deep" src="${src}" alt="${esc(alt)}" loading="${opts && opts.lead ? "eager" : "lazy"}" decoding="async"${opts && opts.lead ? ' fetchpriority="high"' : ""}>`;
+          const dimensions = asset.width && asset.height
+            ? ` width="${asset.width}" height="${asset.height}"`
+            : "";
+          const image = `<img class="block h-auto w-full rounded-[32px] bg-paper-deep" src="${src}" alt="${esc(alt)}"${dimensions} loading="${opts && opts.lead ? "eager" : "lazy"}" decoding="async"${opts && opts.lead ? ' fetchpriority="high"' : ""}>`;
           return asset.fullView
             ? `<a class="block cursor-zoom-in" href="${src}" target="_blank" rel="noopener" aria-label="View full-size image: ${esc(asset.caption)}" title="Open full size">${image}</a>`
             : image;
@@ -200,16 +205,21 @@ ${imgs}
       return placeholder("Document placeholder", "Editorial outputs", dir + "*.html");
     }
     const slides = resolved.files
-      .map(({ file, title }, index) => {
+      .map(({ file, poster, title }, index) => {
         const src = `${root}${dir}${file.split("/").map(encodeURIComponent).join("/")}`;
+        const posterSrc = poster
+          ? `${root}${dir}${poster.split("/").map(encodeURIComponent).join("/")}`
+          : "";
         const active = index === resolved.featuredIndex;
         const inactiveAttrs = active ? "" : ` aria-hidden="true"`;
-        const inactiveTab = active ? "" : ` tabindex="-1"`;
+        const posterImage = posterSrc
+          ? `<img class="document-carousel__poster" src="${esc(posterSrc)}" alt="" width="896" height="504" loading="eager" decoding="async">`
+          : "";
         return `<div class="document-carousel__slide" data-carousel-slide data-active="${active}"${inactiveAttrs}>
-      <div class="document-carousel__frame"><iframe class="block h-full w-full border-0 bg-paper" src="${esc(src)}" title="${esc(title)}" loading="eager" sandbox="allow-same-origin" data-document-viewer${inactiveTab}></iframe></div>
+      <div class="document-carousel__frame">${posterImage}<iframe class="document-carousel__viewer block h-full w-full border-0 bg-paper" data-src="${esc(src)}" title="${esc(title)}" sandbox="allow-same-origin" data-document-viewer tabindex="-1"></iframe></div>
 <div class="document-carousel__caption">
 <span>${esc(title)}</span>
-      <a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${inactiveTab}>Open full view <span aria-hidden="true">↗</span></a>
+      <a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${active ? "" : ' tabindex="-1"'}>Open full view <span aria-hidden="true">↗</span></a>
  </div>
 </div>`;
       })
@@ -272,8 +282,6 @@ ${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,colo
 }
 
 function home({ site, pieces, copies, inlineStories, archive = [] }) {
-  const ransomFontQuery = RANSOM_FONTS.map((font) => `family=${font.replace(/ /g, "+")}`).join("&");
-  const ransomFontText = encodeURIComponent(site.name.replace(/\s+/g, ""));
   const entries = pieces
     .map(
       (p) => `<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
@@ -306,13 +314,15 @@ ${storyBody.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
     : "";
   const externalPreview = site.homeExternalPreview
     ? `<figure class="mb-16 border-t border-line pt-[clamp(2.5rem,7vh,4.5rem)]">
-<a class="block overflow-hidden rounded-[32px] bg-ink no-underline" href="${esc(site.homeExternalPreview.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(site.homeExternalPreview.title)} live tool">
+<a class="group block no-underline" href="${esc(site.homeExternalPreview.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(site.homeExternalPreview.title)} live tool">
+<span class="block overflow-hidden rounded-[32px] bg-ink">
 <img class="block aspect-video h-auto w-full object-cover" src="${esc(site.homeExternalPreview.image)}" alt="${esc(site.homeExternalPreview.alt)}" loading="lazy" decoding="async">
-</a>
+</span>
 <figcaption class="mt-3.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint">
 <span><span class="text-ink">${esc(site.homeExternalPreview.title)}</span> · ${esc(site.homeExternalPreview.description)}</span>
-<a class="shrink-0 text-ink no-underline hover:text-oxblood" href="${esc(site.homeExternalPreview.url)}" target="_blank" rel="noopener">Open ${esc(site.homeExternalPreview.label.toLowerCase())} <span aria-hidden="true">↗</span></a>
+<span class="shrink-0 text-ink group-hover:text-oxblood">Open ${esc(site.homeExternalPreview.label.toLowerCase())} <span aria-hidden="true">↗</span></span>
 </figcaption>
+</a>
 </figure>`
     : "";
 
@@ -335,13 +345,21 @@ ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
   // backfills the gaps that leaves.
   const archiveLarge = new Set((site.archive && site.archive.large) || []);
   const archiveGrid = archive.length && site.archive
-    ? `<div class="relative left-1/2 mt-[clamp(5rem,14vh,9rem)] grid w-screen -translate-x-1/2 grid-cols-8 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_7px)/8*9/16)]">
+    ? `<section class="relative left-1/2 mt-[clamp(5rem,14vh,9rem)] w-screen -translate-x-1/2" aria-labelledby="archive-heading">
+<h2 class="sr-only" id="archive-heading">${esc(site.archive.label)}</h2>
+<p class="sr-only">${esc(site.archive.description)}</p>
+<div class="grid grid-cols-8 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_7px)/8*9/16)]">
 ${archive.map((file) => {
   const page = parseInt((file.match(/(\d+)/) || [])[1], 10);
   const big = archiveLarge.has(page);
-  return `<img class="archive-tile block h-full w-full bg-paper-deep object-cover${big ? " col-span-2 row-span-2" : ""}" src="assets/${esc(site.archive.dir)}/${esc(file)}" alt="" width="1152" height="648" loading="lazy" decoding="async">`;
+  const fullSrc = `assets/${site.archive.dir}/${file}`;
+  const responsive = site.archive.thumbDir
+    ? ` srcset="assets/${esc(site.archive.thumbDir)}/${esc(file)} 384w, ${esc(fullSrc)} 1152w" sizes="${big ? "25vw" : "12.5vw"}"`
+    : "";
+  return `<img class="archive-tile block h-full w-full bg-paper-deep object-cover${big ? " col-span-2 row-span-2" : ""}" src="${esc(fullSrc)}"${responsive} alt="" width="1152" height="648" loading="lazy" decoding="async">`;
 }).join("\n")}
-</div>`
+</div>
+</section>`
     : "";
 
   // No rules between these: they are four short statements, not an index.
@@ -352,12 +370,11 @@ ${site.capabilities.map((item) => `<li class="text-[1.15rem] leading-[1.45] text
     : "";
 
   const body = `<style>
-@import url("https://fonts.googleapis.com/css2?${ransomFontQuery}&text=${ransomFontText}&display=swap");
 .home-name__word{position:relative;display:inline-block;white-space:nowrap;isolation:isolate}
 .home-name__word+.home-name__word{margin-left:.22em}
 .home-name__letter{position:relative;z-index:0;display:inline-block}
 .home-name__base{transition:opacity 80ms linear}
-.home-name__letter::after{content:attr(data-letter);position:absolute;left:50%;top:50%;opacity:0;font-family:var(--ransom-font);font-size:.92em;font-weight:400;line-height:1;white-space:nowrap;transform:translate(-50%,-48%);transition:opacity 80ms linear;color:var(--color-oxblood);pointer-events:none}
+.home-name__letter::after{content:attr(data-letter);position:absolute;left:50%;top:50%;opacity:0;font-family:var(--ransom-font);font-size:.92em;font-weight:var(--ransom-weight);font-style:var(--ransom-style);line-height:1;white-space:nowrap;transform:translate(-50%,-48%) rotate(var(--ransom-turn)) scale(var(--ransom-scale));transition:opacity 80ms linear;color:var(--color-oxblood);pointer-events:none}
 @media (hover:hover){
   .home-name__letter:hover{z-index:2}
   .home-name__letter:hover .home-name__base{opacity:0}
@@ -370,12 +387,12 @@ ${site.capabilities.map((item) => `<li class="text-[1.15rem] leading-[1.45] text
 <h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.7rem,7.4vw,5.8rem)] leading-[1.0]" aria-label="${esc(site.name)}">${ransomName(site.name)}</h1>
 <p class="meta mt-6 text-ink-soft">${esc(site.tagline)}</p>
 ${site.intro ? `<p class="mt-8 max-w-[34em] text-[1.2rem] leading-[1.6] text-pretty">${esc(site.intro)}</p>` : ""}
-${capabilities}
 </header>
 <main id="main" class="flex-1">
 <nav class="border-b border-line" aria-label="Main stories">
 ${entries}
 </nav>
+${capabilities}
 ${inlineStoryMarkup}
 ${externalPreview}
 ${writingList}
@@ -390,6 +407,7 @@ ${footer(site, { clip: true, rule: !archiveGrid })}
     title: site.name,
     description: site.tagline,
     url: site.url,
+    social: site.social,
     body,
   });
 }
@@ -451,7 +469,7 @@ ${header(site, root)}
 <header class="max-w-[44rem] pt-[clamp(3rem,9vh,5.5rem)]">
 <p class="${META}">${esc(piece.kicker)}</p>
 <h1 class="${DETAIL_HEADLINE}">${esc(copy.headline)}</h1>
-<h2 class="${DETAIL_STANDFIRST}">${esc(copy.standfirst)}</h2>
+<p class="${DETAIL_STANDFIRST}">${esc(copy.standfirst)}</p>
 </header>
 ${leadFigure}
 ${bodyBlocks.join("\n")}
@@ -468,6 +486,7 @@ ${footer(site, { narrow: true })}
     description: copy.standfirst,
     url: `${site.url}${piece.slug}/`,
     ogType: "article",
+    social: piece.social,
     body,
   });
 }
@@ -478,7 +497,7 @@ ${footer(site, { narrow: true })}
 // the composition logic that applies them is not shown.
 const FOLIO_SYS = `<div class="py-[clamp(0.75rem,2vh,1.25rem)]">
 <style>
-.folio-sys{--f-paper:#f4f2ee;--f-panel:#1b1917;--f-panel-ink:#e9e5dd;--f-panel-faint:#8f8880;--f-ink:#1f1c1a;--f-muted:#6f6862;--f-faint:#9a938b;--f-line:#e2ddd4;--f-line-2:#cfc8bd;--f-accent:#7a2e24;--f-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+.folio-sys{--f-paper:#f4f2ee;--f-panel:#1b1917;--f-panel-ink:#e9e5dd;--f-panel-faint:#8f8880;--f-ink:#1f1c1a;--f-muted:#6f6862;--f-faint:#6f6862;--f-line:#e2ddd4;--f-line-2:#cfc8bd;--f-accent:#7a2e24;--f-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
   container:folioSys / inline-size;font-family:var(--f-mono);color:var(--f-ink);font-size:14px;line-height:1.6}
 .folio-sys *{box-sizing:border-box}
 .folio-sys .fs-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--f-line-2);padding-bottom:14px}
@@ -505,7 +524,7 @@ const FOLIO_SYS = `<div class="py-[clamp(0.75rem,2vh,1.25rem)]">
 .folio-sys .fs-badge{margin-left:auto;font-size:10px;letter-spacing:.14em;text-transform:uppercase}
 .folio-sys .fs-code{background:var(--f-panel);color:var(--f-panel-ink);counter-reset:ln;padding:14px 0;font-size:12.5px;line-height:1.9}
 .folio-sys .fs-code .l{display:block;padding:0 16px 0 52px;position:relative;white-space:pre-wrap;word-break:break-word}
-.folio-sys .fs-code .l::before{counter-increment:ln;content:counter(ln);position:absolute;left:0;width:36px;text-align:right;color:#514b44;font-size:11px}
+.folio-sys .fs-code .l::before{counter-increment:ln;content:counter(ln);position:absolute;left:0;width:36px;text-align:right;color:var(--f-panel-faint);font-size:11px}
 .folio-sys .fs-code .c{color:#7c766c;font-style:italic}
 .folio-sys .fs-code .p{color:#9ec1b6}
 .folio-sys .fs-code .v{color:#cbb48f}
@@ -583,6 +602,7 @@ function editorialPage({ site, piece, copy, resolved, prev, next, cyclePrev, cyc
     )
     .filter(Boolean)
     .join("\n");
+  const playableArtifact = figure(piece.lead, resolved.lead, root, piece.slug, { flush: true });
 
   const READING =
     "reading mx-auto max-w-[44rem] space-y-[1.35em] [font-variant-numeric:oldstyle-nums] [hanging-punctuation:first_last]";
@@ -596,7 +616,7 @@ function editorialPage({ site, piece, copy, resolved, prev, next, cyclePrev, cyc
   const runB = paras[3] ? `<div class="${READING}">${paras[3]}</div>` : "";
   const runC = paras[4] ? `<div class="${READING}">${paras.slice(4).join("\n")}</div>` : "";
 
-  const flow = [runA, FOLIO_SYS, runB, supportingMedia, runC].filter(Boolean).join("\n");
+  const flow = [runA, FOLIO_SYS, runB, playableArtifact, supportingMedia, runC].filter(Boolean).join("\n");
 
   const flipLink = (href, label, title, right) =>
     `<a class="group flex flex-col gap-2 no-underline${right ? " ml-auto text-right" : ""}" href="${href}"><span class="${META}">${label}</span><span class="${HOVER_TITLE} font-display text-[1.5rem]">${esc(title)}</span></a>`;
@@ -613,7 +633,7 @@ ${header(site, root)}
 <header class="mx-auto max-w-[44rem] pt-[clamp(3rem,9vh,5.5rem)]">
 <p class="${META}">${esc(piece.kicker)}</p>
 <h1 class="${DETAIL_HEADLINE}">${esc(copy.headline)}</h1>
-<h2 class="${DETAIL_STANDFIRST}">${esc(copy.standfirst)}</h2>
+<p class="${DETAIL_STANDFIRST}">${esc(copy.standfirst)}</p>
 </header>
 ${leadOutput}
 <div class="mt-[clamp(2.25rem,7vh,3.75rem)] space-y-[clamp(2.25rem,6.5vh,3.6rem)]">
@@ -632,6 +652,7 @@ ${footer(site, { narrow: true, center: true })}
     description: copy.standfirst,
     url: `${site.url}${piece.slug}/`,
     ogType: "article",
+    social: piece.social,
     body,
   });
 }

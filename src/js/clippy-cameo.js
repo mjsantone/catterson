@@ -6,7 +6,7 @@
   if (document.documentElement.classList.contains("site-locked")) return;
 
   var script = document.currentScript;
-  var homeNav = document.querySelector('nav[aria-label="Pieces"]');
+  var homeNav = document.querySelector('nav[aria-label="Main stories"]');
   var detailNav = document.querySelector('nav[aria-label="More pieces"]');
   if (!script || !script.src || (!homeNav && !detailNav)) return;
 

@@ -208,14 +208,44 @@
 
     if (!viewport || !slides.length || !previous || !next) return;
 
+    function loadSlide(slide) {
+      var viewer = slide.querySelector("iframe[data-document-viewer]");
+      if (!viewer || viewer.hasAttribute("src")) return;
+      viewer.setAttribute("src", viewer.dataset.src);
+    }
+
+    function unloadSlide(slide) {
+      var viewer = slide.querySelector("iframe[data-document-viewer]");
+      if (!viewer || !viewer.hasAttribute("src")) return;
+      viewer.removeAttribute("src");
+      viewer.removeAttribute("data-loaded");
+      viewer.setAttribute("tabindex", "-1");
+    }
+
+    slides.forEach(function (slide) {
+      var viewer = slide.querySelector("iframe[data-document-viewer]");
+      if (!viewer) return;
+      viewer.addEventListener("load", function () {
+        if (!viewer.hasAttribute("src")) {
+          viewer.removeAttribute("data-loaded");
+          return;
+        }
+        viewer.dataset.loaded = "true";
+        if (slide.dataset.active === "true") viewer.removeAttribute("tabindex");
+      });
+    });
+
     function setActive(index) {
       current = (index + slides.length) % slides.length;
       slides.forEach(function (slide, slideIndex) {
         var active = slideIndex === current;
         slide.dataset.active = active ? "true" : "false";
         slide.toggleAttribute("aria-hidden", !active);
+        if (active) loadSlide(slide);
+        else unloadSlide(slide);
         slide.querySelectorAll("iframe, a").forEach(function (element) {
-          if (active) element.removeAttribute("tabindex");
+          var viewerReady = element.matches("iframe") && element.dataset.loaded === "true";
+          if (active && (!element.matches("iframe") || viewerReady)) element.removeAttribute("tabindex");
           else element.setAttribute("tabindex", "-1");
         });
       });

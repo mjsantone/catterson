@@ -11,7 +11,7 @@
   --color-paper-deep: #f2eee7;
   --color-ink: #1b1917;
   --color-ink-soft: #55504a;
-  --color-ink-faint: #8d867d;
+  --color-ink-faint: #756e66;
   --color-line: #ddd6cc;
   --color-oxblood: #7a2e24;
 
@@ -325,12 +325,33 @@ html.site-unlocked .password-gate {
 }
 
 .document-carousel__frame {
+  position: relative;
   contain: paint;
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--color-line);
   border-radius: 32px;
   background: var(--color-ink);
+}
+
+.document-carousel__poster,
+.document-carousel__viewer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.document-carousel__poster {
+  object-fit: cover;
+}
+
+.document-carousel__viewer {
+  opacity: 0;
+}
+
+.document-carousel__viewer[data-loaded="true"] {
+  opacity: 1;
 }
 
 .document-carousel__caption {

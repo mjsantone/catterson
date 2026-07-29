@@ -8,6 +8,26 @@ This backlog tracks the next work that materially raises proof, polish, and scre
 - **READY: COPILOT**: No new source asset is required. Copilot can implement and verify it.
 - **DECISION NEEDED: MATTHEW**: A product or editorial choice is required before work starts.
 
+## 2026-07-29 Code And Experience Audit
+
+All items below are **READY: COPILOT**. They are ordered by measured user impact, then hardening and polish.
+
+- [x] Reserve intrinsic space for Home stills and reduce measured mobile CLS from 0.399 to less than 0.1. Verified at 0.000.
+- [x] Replace denylist-based asset copying with an explicit publish manifest; stop shipping the three unreferenced Agent Debrief stills.
+- [x] Bring global metadata and the Folio exhibit's small text to WCAG AA contrast. Verified at 4.74:1 to 5.01:1.
+- [x] Put the main-story index before the four capability statements on Home so work appears in the first mobile viewport. First story now begins at 650px on a 390x844 viewport.
+- [x] Generate responsive archive thumbnails and use `srcset` so mobile does not decode 97 million source pixels. Mobile now selects the 384px derivatives.
+- [x] Defer inactive Editorial report iframes without removing their visual context. Static posters preserve the neighboring reports while only the active iframe runs.
+- [x] Render detail standfirsts as paragraphs rather than section headings.
+- [x] Fail the build for missing required media; mark the six intentionally empty slots optional and report their names.
+- [x] Add route-specific Open Graph and Twitter preview images.
+- [x] Repair the Home Clippy cameo selector and add a regression check.
+- [x] Give the visual archive a screen-reader-only heading and summary.
+- [x] Collapse the two Fuse links into one keyboard stop.
+- [x] Remove the twelve-request external font waterfall from the Home name hover.
+
+**Done when:** `npm test` covers the static contracts, all published routes pass browser regression checks at mobile and desktop widths, and the production Pages build is verified after deployment.
+
 ## Asset Queue
 
 | Priority | Asset needed from Matthew | Target path | Capture brief |

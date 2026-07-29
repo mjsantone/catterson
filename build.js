@@ -4,8 +4,9 @@
 //
 // The words come straight from the copy-*.md files: this script parses each file's
 // headline (# ), standfirst (## ), and body paragraphs, so the rendered copy is
-// verbatim by construction. Assets are looked up on disk; anything missing renders
-// as a labeled placeholder. The build fails on an em dash or a redaction miss.
+// verbatim by construction. Required assets are declared and must exist; optional
+// slots render nothing until their files land. The build fails on an em dash or a
+// redaction miss.
 "use strict";
 
 const fs = require("fs");
@@ -106,7 +107,13 @@ function resolveAsset(slug, asset) {
       ? (requested.length ? requested : fs.readdirSync(dir).sort())
           .filter((file) => HTML_RE.test(file) && !excluded.has(file))
           .filter((file) => fs.existsSync(path.join(dir, file)))
-          .map((file) => ({ file, title: documentTitle(path.join(dir, file)) }))
+          .map((file) => {
+            const poster = asset.posters && asset.posters[file];
+            if (poster && !fs.existsSync(path.join(dir, poster))) {
+              throw new Error(`Missing required document poster: ${slug}/${poster}`);
+            }
+            return { file, poster, title: documentTitle(path.join(dir, file)) };
+          })
       : [];
     return {
       files,
@@ -209,11 +216,37 @@ const MASTERS = [
   /^steering[/\\]r\d+[/\\]/i,
   /^resume[/\\]/i,
 ];
-copyDir(ASSETS, path.join(DIST, "assets"), (name, src) => {
-  if (name.endsWith(".md")) return false;
-  const rel = path.relative(ASSETS, src);
-  return !MASTERS.some((pattern) => pattern.test(rel));
-});
+
+function normalizeAssetPath(rel) {
+  return rel.replace(/^assets[/\\]/, "").split(path.sep).join("/");
+}
+
+function assetPresent(resolved) {
+  return resolved.files ? resolved.files.length > 0 : resolved.exists;
+}
+
+function assetLabel(slug, asset) {
+  if (asset.file) return `${slug}/${asset.file}`;
+  if (asset.files) return `${slug}/${asset.files.join(", ")}`;
+  return `${slug}/${asset.prefix || asset.kind}`;
+}
+
+function addAssetToManifest(files, directories, slug, asset, resolved) {
+  if (resolved.files) {
+    resolved.files.forEach((entry) => {
+      const file = typeof entry === "string" ? entry : entry.file;
+      files.add(normalizeAssetPath(`${slug}/${file}`));
+      if (entry.poster) files.add(normalizeAssetPath(`${slug}/${entry.poster}`));
+    });
+  } else if (resolved.exists) {
+    files.add(normalizeAssetPath(`${slug}/${asset.file}`));
+  }
+  if (resolved.poster) files.add(normalizeAssetPath(`${slug}/${asset.poster}`));
+  if (asset.bundle && asset.file) {
+    const bundleDir = normalizeAssetPath(`${slug}/${path.dirname(asset.file)}`);
+    directories.add(bundleDir === `${slug}/.` ? `${slug}/` : `${bundleDir}/`);
+  }
+}
 
 const copies = {};
 for (const piece of pieces) copies[piece.slug] = parseCopy(piece.copy);
@@ -241,13 +274,72 @@ const archiveFiles = archiveDir && fs.existsSync(archiveDir)
   ? fs.readdirSync(archiveDir).filter((file) => IMG_RE.test(file)).sort()
   : [];
 
+const publishedFiles = new Set();
+const publishedDirectories = new Set();
+const resolvedPieces = new Map();
+const optionalEmpty = [];
+let found = 0;
+
+pieces.forEach((piece) => {
+  const resolved = resolvePiece(piece);
+  resolvedPieces.set(piece.slug, resolved);
+  const slots = [
+    { asset: piece.lead, resolved: resolved.lead },
+    ...(piece.supporting || []).map((asset, index) => ({
+      asset,
+      resolved: resolved.supporting[index],
+    })),
+  ];
+  slots.forEach((slot) => {
+    if (assetPresent(slot.resolved)) found++;
+    else if (slot.asset.optional) optionalEmpty.push(assetLabel(piece.slug, slot.asset));
+    else throw new Error(`Missing required asset: ${assetLabel(piece.slug, slot.asset)}`);
+    addAssetToManifest(publishedFiles, publishedDirectories, piece.slug, slot.asset, slot.resolved);
+  });
+});
+
+const clippyResolved = { lead: resolveAsset(clippy.slug, clippy.lead) };
+if (!assetPresent(clippyResolved.lead)) {
+  throw new Error(`Missing required asset: ${assetLabel(clippy.slug, clippy.lead)}`);
+}
+found++;
+addAssetToManifest(publishedFiles, publishedDirectories, clippy.slug, clippy.lead, clippyResolved.lead);
+
+if (site.homeExternalPreview && site.homeExternalPreview.image) {
+  publishedFiles.add(normalizeAssetPath(site.homeExternalPreview.image));
+}
+[site, ...pieces].forEach((entry) => {
+  if (entry.social && entry.social.image) {
+    publishedFiles.add(normalizeAssetPath(entry.social.image));
+  }
+});
+archiveFiles.forEach((file) => {
+  publishedFiles.add(normalizeAssetPath(`${site.archive.dir}/${file}`));
+  if (site.archive.thumbDir) {
+    const thumbnail = normalizeAssetPath(`${site.archive.thumbDir}/${file}`);
+    if (!fs.existsSync(path.join(ASSETS, thumbnail))) {
+      throw new Error(`Missing required archive thumbnail: ${thumbnail}`);
+    }
+    publishedFiles.add(thumbnail);
+  }
+});
+(site.publishedAssets || []).forEach((file) => {
+  publishedFiles.add(normalizeAssetPath(file));
+});
+
+copyDir(ASSETS, path.join(DIST, "assets"), (name, src) => {
+  if (name.endsWith(".md")) return false;
+  const rel = normalizeAssetPath(path.relative(ASSETS, src));
+  const declared = publishedFiles.has(rel)
+    || Array.from(publishedDirectories).some((directory) => rel.startsWith(directory));
+  return declared && !MASTERS.some((pattern) => pattern.test(rel));
+});
+
 writePage("index.html", t.home({ site, pieces: publishedPieces, copies, inlineStories, archive: archiveFiles }));
 
-let placeholders = 0;
-let found = 0;
 pieces.forEach((piece, i) => {
   if (inlineStorySlugs.includes(piece.slug)) return;
-  const resolved = resolvePiece(piece);
+  const resolved = resolvedPieces.get(piece.slug);
   const publishedIndex = publishedPieces.indexOf(piece);
   const cyclePrev = publishedIndex >= 0
     ? publishedPieces[(publishedIndex - 1 + publishedPieces.length) % publishedPieces.length]
@@ -255,11 +347,6 @@ pieces.forEach((piece, i) => {
   const cycleNext = publishedIndex >= 0
     ? publishedPieces[(publishedIndex + 1) % publishedPieces.length]
     : null;
-  const slots = [resolved.lead, ...resolved.supporting];
-  slots.forEach((r) => {
-    if (r.files ? r.files.length : r.exists) found++;
-    else placeholders++;
-  });
   const renderPage = piece.slug === "editorial" ? t.editorialPage : t.piecePage;
   writePage(
     `${piece.slug}/index.html`,
@@ -278,9 +365,6 @@ pieces.forEach((piece, i) => {
   );
 });
 
-const clippyResolved = { lead: resolveAsset(clippy.slug, clippy.lead) };
-if (clippyResolved.lead.exists) found++;
-else placeholders++;
 writePage("clippy/index.html", t.clippyPage({ site, clippy, resolved: clippyResolved }));
 writePage("404.html", t.notFound({ site }));
 
@@ -299,5 +383,10 @@ if (!css.includes("../fonts/newsreader-latin.woff2")) {
 
 shipChecks();
 
-console.log(`Built ${pieces.length + 2} pages to dist/`);
-console.log(`Assets: ${found} present, ${placeholders} slot${placeholders === 1 ? "" : "s"} empty`);
+const generatedPages = walk(DIST).filter((file) => {
+  const rel = path.relative(DIST, file);
+  return /(?:^|[/\\])(?:index|404)\.html$/.test(rel) && !/^assets[/\\]/.test(rel);
+});
+console.log(`Built ${generatedPages.length} pages to dist/`);
+console.log(`Assets: ${found} present, ${optionalEmpty.length} optional slot${optionalEmpty.length === 1 ? "" : "s"} empty`);
+if (optionalEmpty.length) console.log(`Optional slots: ${optionalEmpty.join(", ")}`);

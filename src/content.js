@@ -9,13 +9,17 @@
 const site = {
   name: "Matthew Santone",
   tagline: "Principal design architect. I think by making.",
-  // Renders under the tagline on Home only. Picks up "twenty years" from the
-  // tagline rather than restating it, so the time marker lands once.
+  // Renders under the tagline on Home only. The main-story index follows before
+  // the four supporting statements, so the work stays in the first viewport.
   intro:
     "I have made developer tools, machine learning platforms, mixed reality, a satellite radio service, and the design systems underneath them. I design, I write the production code, and I publish. The range is not a detour. Most of what a hard problem needs sits outside the discipline that owns it, and somebody has to have been in both rooms.",
   // Change this if the site moves to a custom domain. Used for canonical + OG URLs.
   url: "https://mjsantone.github.io/catterson/",
   email: "matthewsantone@gmail.com",
+  social: {
+    image: "assets/social/home.jpg",
+    alt: "Matthew Santone, principal design architect. I think by making.",
+  },
   homeExternalPreview: {
     title: "Fuse",
     label: "Live tool",
@@ -49,10 +53,13 @@ const site = {
     },
   ],
   // A 2023 portfolio deck, one tile per page, discovered on disk at build time.
-  // No heading or caption: at this size the tiles are texture, and the grid
-  // says "there is a lot of history here" without being told to.
+  // No visible heading or caption: at this size the tiles are texture. A hidden
+  // heading and summary give the archive a name for assistive technology.
   archive: {
     dir: "archive",
+    thumbDir: "archive/thumbs",
+    label: "Earlier work",
+    description: "One hundred thirty pages from a 2023 portfolio deck, shown as a visual archive.",
     // The deck's own chapter openers, which are the pages that carry no page
     // number. They take the double tiles. Their spacing is uneven, which is
     // the point: a fixed interval lands every large tile in the same column.
@@ -74,6 +81,8 @@ const pieces = [
     lead: {
       kind: "stills",
       files: ["images/confirm.webp"],
+      width: 1600,
+      height: 900,
       layout: "sequence",
       caption: "A proposed edit arrives as tracked changes, ready to accept or reject.",
     },
@@ -87,6 +96,8 @@ const pieces = [
     lead: {
       kind: "stills",
       files: ["images/landing.webp"],
+      width: 1600,
+      height: 900,
       layout: "sequence",
       caption: "The empty state: one input, a few starting points, nothing else.",
     },
@@ -94,6 +105,7 @@ const pieces = [
       {
         kind: "stills",
         prefix: "restraint-",
+        optional: true,
         caption: "The details where the line held.",
       },
     ],
@@ -106,6 +118,8 @@ const pieces = [
     lead: {
       kind: "stills",
       files: ["images/diff.webp"],
+      width: 604,
+      height: 340,
       layout: "sequence",
       caption: "A visual diff of one component, before and after, showing exactly where the layout moved.",
     },
@@ -115,6 +129,10 @@ const pieces = [
     slug: "steering",
     title: "Steering",
     kicker: "The learning loop",
+    social: {
+      image: "assets/social/steering.jpg",
+      alt: "An assistant that learns you, and knows when to stop watching.",
+    },
     copy: "copy-steering.md",
     lead: {
       kind: "video",
@@ -140,6 +158,7 @@ const pieces = [
       {
         kind: "stills",
         prefix: "state-",
+        optional: true,
         caption: "States of the loop: create, refine, codify, reuse, update.",
       },
     ],
@@ -148,6 +167,10 @@ const pieces = [
     slug: "agent-debrief",
     title: "Agent debrief",
     kicker: "Accountability",
+    social: {
+      image: "assets/social/agent-debrief.jpg",
+      alt: "An agent that accounts for itself.",
+    },
     copy: "copy-agent-debrief.md",
     lead: {
       kind: "video",
@@ -176,6 +199,10 @@ const pieces = [
     slug: "editorial",
     title: "Editorial",
     kicker: "Judgment and pull",
+    social: {
+      image: "assets/social/editorial.jpg",
+      alt: "I codified the house style, and teams started coming to me for it.",
+    },
     copy: "copy-editorial.md",
     // The only approved pull-quote on the site (CONTENT-SPEC.md). Rendered as an
     // aside after the given body paragraph, never inserted into the prose itself.
@@ -186,6 +213,7 @@ const pieces = [
     lead: {
       kind: "iframe",
       file: "bolt-dodger.html",
+      optional: true,
       title: "Bolt Dodger, a playable artifact",
       caption: "Bolt Dodger. A playable artifact, embedded live.",
     },
@@ -197,6 +225,11 @@ const pieces = [
           "Liebeck v McDonalds  Myth vs the Record.html",
           "The Rule Against Perpetuities.html",
         ],
+        posters: {
+          "Folio System Storybook.html": "posters/folio.webp",
+          "Liebeck v McDonalds  Myth vs the Record.html": "posters/liebeck.webp",
+          "The Rule Against Perpetuities.html": "posters/perpetuities.webp",
+        },
         featured: "Liebeck v McDonalds  Myth vs the Record.html",
         exclude: [
           "bolt-dodger.html",
@@ -205,16 +238,19 @@ const pieces = [
       {
         kind: "video",
         file: "scroll-header.mp4",
+        optional: true,
         caption: "The scroll-story glass header.",
       },
       {
         kind: "video",
         file: "gallery-hover.mp4",
+        optional: true,
         caption: "The gallery's cursor-spotlight hover.",
       },
       {
         kind: "video",
         file: "generation-speedrun.mp4",
+        optional: true,
         caption: "A full report generating, sped up.",
       },
     ],
@@ -239,6 +275,7 @@ const clippy = {
     title: "Clippy, a playable side-scroller",
     sandbox: "allow-scripts allow-pointer-lock allow-same-origin",
     fullscreen: true,
+    bundle: true,
     caption: "",
   },
 };
