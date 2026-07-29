@@ -344,10 +344,10 @@ ${archive.map((file) => {
 </div>`
     : "";
 
-  // Same hairline rows as the story index, without the metadata column.
+  // No rules between these: they are four short statements, not an index.
   const capabilities = site.capabilities && site.capabilities.length
-    ? `<ul class="mt-[clamp(2.25rem,6vh,3.5rem)] list-none p-0">
-${site.capabilities.map((item) => `<li class="border-t border-line py-3.5 text-[1.15rem] leading-[1.45] text-pretty">${esc(item)}</li>`).join("\n")}
+    ? `<ul class="mt-[clamp(2.25rem,6vh,3.5rem)] list-none space-y-3 p-0">
+${site.capabilities.map((item) => `<li class="text-[1.15rem] leading-[1.45] text-pretty">${esc(item)}</li>`).join("\n")}
 </ul>`
     : "";
 
