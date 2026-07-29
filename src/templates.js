@@ -262,8 +262,8 @@ ${right ? `<span class="${META}">${right}</span>` : ""}
 </header>`;
 }
 
-function footer(site, { clip, narrow, center } = {}) {
-  return `<footer class="mt-16 flex items-center justify-between gap-4 border-t border-line py-10${narrow ? " max-w-[44rem]" : ""}${center ? " mx-auto w-full" : ""}">
+function footer(site, { clip, narrow, center, rule = true } = {}) {
+  return `<footer class="mt-16 flex items-center justify-between gap-4 py-10${rule ? " border-t border-line" : ""}${narrow ? " max-w-[44rem]" : ""}${center ? " mx-auto w-full" : ""}">
 <a class="${META} no-underline hover:text-oxblood" href="mailto:${esc(site.email)}" title="${esc(site.email)}">Message me</a>
 <span class="flex items-center gap-4">
 ${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,color] duration-200 hover:-rotate-8 hover:text-oxblood motion-reduce:hover:rotate-0" href="clippy/" aria-label="A paperclip"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.7 8.7a5.9 5.9 0 0 1-8.4-8.4l9.2-9.2a3.9 3.9 0 0 1 5.6 5.6l-8.8 8.8a2 2 0 0 1-2.8-2.8l7.9-7.9"/></svg></a>` : ""}
@@ -335,7 +335,7 @@ ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
   // backfills the gaps that leaves.
   const archiveLarge = new Set((site.archive && site.archive.large) || []);
   const archiveGrid = archive.length && site.archive
-    ? `<div class="relative left-1/2 mt-[clamp(2.5rem,7vh,4.5rem)] mb-16 grid w-screen -translate-x-1/2 grid-cols-8 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_7px)/8*9/16)]">
+    ? `<div class="relative left-1/2 mt-[clamp(2.5rem,7vh,4.5rem)] grid w-screen -translate-x-1/2 grid-cols-8 gap-px bg-line [grid-auto-flow:dense] [grid-auto-rows:calc((100vw_-_7px)/8*9/16)]">
 ${archive.map((file) => {
   const page = parseInt((file.match(/(\d+)/) || [])[1], 10);
   const big = archiveLarge.has(page);
@@ -381,7 +381,7 @@ ${externalPreview}
 ${writingList}
 ${archiveGrid}
 </main>
-${footer(site, { clip: true })}
+${footer(site, { clip: true, rule: !archiveGrid })}
 </div>`;
 
   return shell({
