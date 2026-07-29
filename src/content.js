@@ -24,14 +24,14 @@ const site = {
     image: "assets/fuse/fuse-preview.webp",
     url: "https://fuse-catterson-gcakeab6etetcaaq.westus2-01.azurewebsites.net",
   },
-  // The four facets from the 2023 deck, inverted. There the label carried a
-  // paragraph of qualities; here it carries one thing that happened, so the
-  // label is the claim and the sentence is the receipt.
+  // Four things that happened, under the intro. No labels: naming the quality
+  // was doing the deck's job of asserting it, and the sentences carry it alone.
+  // Each one is corroborated further down the same page.
   capabilities: [
-    { claim: "I argued in print for letting a model wander, then spent a year making systems that will not.", evidence: "Storyteller" },
-    { claim: "I sketched most of what I make now three years before I made any of it.", evidence: "Designer" },
-    { claim: "I put the shared design system in place of components I had made myself.", evidence: "Amplifier" },
-    { claim: "Twenty years in, I learned to ship production code.", evidence: "Forever student" },
+    "I argued in print for letting a model wander, then spent a year making systems that will not.",
+    "I sketched most of what I make now three years before I made any of it.",
+    "I set the bar for what a generated report should look like, then made it something other teams could pick up. One did without being asked.",
+    "Twenty years in, I learned to ship production code.",
   ],
   // Published elsewhere, newest first. Titles and outlets are as printed.
   writing: [

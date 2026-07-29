@@ -344,15 +344,11 @@ ${archive.map((file) => {
 </div>`
     : "";
 
-  // Same row grammar as the story index and the writing list, at body size so
-  // it stays subordinate to the headlines below it.
+  // Same hairline rows as the story index, without the metadata column.
   const capabilities = site.capabilities && site.capabilities.length
-    ? `<dl class="mt-[clamp(2.25rem,6vh,3.5rem)]">
-${site.capabilities.map((item) => `<div class="grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-3.5 max-sm:grid-cols-1 max-sm:gap-1">
-<dt class="text-[1.15rem] leading-[1.35]">${esc(item.claim)}</dt>
-<dd class="${META} m-0 justify-self-end text-right max-sm:justify-self-start max-sm:text-left">${esc(item.evidence)}</dd>
-</div>`).join("\n")}
-</dl>`
+    ? `<ul class="mt-[clamp(2.25rem,6vh,3.5rem)] list-none p-0">
+${site.capabilities.map((item) => `<li class="border-t border-line py-3.5 text-[1.15rem] leading-[1.45] text-pretty">${esc(item)}</li>`).join("\n")}
+</ul>`
     : "";
 
   const body = `<style>
