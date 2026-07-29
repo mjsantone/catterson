@@ -8,17 +8,19 @@
 
 const site = {
   name: "Matthew Santone",
-  tagline: "Principal design architect. I think by making.",
-  // Renders under the tagline on Home only. The main-story index follows before
-  // the four supporting statements, so the work stays in the first viewport.
-  intro:
-    "I have made developer tools, machine learning platforms, mixed reality, a satellite radio service, and the design systems underneath them. I design, I write the production code, and I publish. The range is not a detour. Most of what a hard problem needs sits outside the discipline that owns it, and somebody has to have been in both rooms.",
+  tagline: "Principal designer. I think by making.",
+  // The first paragraph says who Matthew is; the second establishes the breadth
+  // of an ongoing practice. Both stay in present tense.
+  intro: [
+    "I design software that makes complicated things easier to understand and use.",
+    "My work spans AI, developer tools, machine learning platforms, mixed reality, and consumer products. I move between product strategy, interaction design, prototyping, design systems, writing, and production code because the hardest problems rarely belong to one discipline.",
+  ],
   // Change this if the site moves to a custom domain. Used for canonical + OG URLs.
   url: "https://mjsantone.github.io/catterson/",
   email: "matthewsantone@gmail.com",
   social: {
     image: "assets/social/home.jpg",
-    alt: "Matthew Santone, principal design architect. I think by making.",
+    alt: "Matthew Santone, principal designer. I think by making.",
   },
   homeExternalPreview: {
     title: "Fuse",

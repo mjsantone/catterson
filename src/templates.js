@@ -282,6 +282,11 @@ ${clip ? `<a class="p-1.5 leading-none text-ink-faint transition-[transform,colo
 }
 
 function home({ site, pieces, copies, inlineStories, archive = [] }) {
+  const introParagraphs = Array.isArray(site.intro)
+    ? site.intro
+    : site.intro
+      ? [site.intro]
+      : [];
   const entries = pieces
     .map(
       (p) => `<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
@@ -386,7 +391,9 @@ ${site.capabilities.map((item) => `<li class="text-[1.15rem] leading-[1.45] text
 <header class="pt-[clamp(4rem,16vh,9rem)] pb-[clamp(2.5rem,7vh,4.5rem)]">
 <h1 class="${DISPLAY} max-w-[12em] text-[clamp(2.7rem,7.4vw,5.8rem)] leading-[1.0]" aria-label="${esc(site.name)}">${ransomName(site.name)}</h1>
 <p class="meta mt-6 text-ink-soft">${esc(site.tagline)}</p>
-${site.intro ? `<p class="mt-8 max-w-[34em] text-[1.2rem] leading-[1.6] text-pretty">${esc(site.intro)}</p>` : ""}
+${introParagraphs.length ? `<div class="mt-8 max-w-[34em] space-y-[1em] text-[1.2rem] leading-[1.6] text-pretty">
+${introParagraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
+</div>` : ""}
 </header>
 <main id="main" class="flex-1">
 <nav class="border-b border-line" aria-label="Main stories">
