@@ -154,6 +154,9 @@ assert.strictEqual(count(home, /\brule-draw\b/g), 5);
 // Main stories outrank the smaller ones at every width, so both scale fluidly
 // and the main floor clears the mini ceiling.
 assert.match(home, /text-\[clamp\(2\.3rem,4\.15vw,3\.05rem\)\]/);
+// A measure on the index titles: without it the line counts run 1, 3, 2 and
+// change with the window. At 13em they hold at 2, 3, 3 from 768px up.
+assert.strictEqual(count(home, /max-w-\[13em\]/g), 3);
 assert.match(home, /text-\[clamp\(1\.55rem,3vw,2\.1rem\)\]/);
 assert.doesNotMatch(home, /sm:text-\[40px\]/);
 // Neither hover nor scroll may reflow a headline: Fraunces italic refits the
