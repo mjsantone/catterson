@@ -57,6 +57,18 @@ const site = {
     // number. They take the double tiles. Their spacing is uneven, which is
     // the point: a fixed interval lands every large tile in the same column.
     large: [1, 6, 49, 64, 67, 76, 77, 94, 102, 123],
+    // Page five is the mosaic the rest of this site was drawn from, so it is
+    // the one tile that opens itself.
+    origin: {
+      file: "slide-005.webp",
+      label: "Open the mosaic this site was drawn from, full size",
+    },
+    // Shown once, only to someone who reaches the last row.
+    reward: {
+      text: "It looks like you're trying to see everything.",
+      linkText: "So was the paperclip",
+      url: "clippy/",
+    },
   },
 };
 

@@ -292,7 +292,7 @@ function home({ site, pieces, copies, inlineStories, archive = [] }) {
   // The kicker springs left on hover and the arrow lands in the space it leaves.
   const entries = pieces
     .map(
-      (p) => `<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
+      (p) => `<a class="group rule-draw grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
 <span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.6rem,3.7vw,2.7rem)] leading-[1.08] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
 <span class="relative justify-self-end pr-0 text-right max-sm:w-full max-sm:justify-self-start max-sm:text-left">
 <span class="${META} inline-block transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] sm:group-hover:-translate-x-7 sm:group-focus-visible:-translate-x-7 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0">${esc(p.kicker)}</span>
@@ -342,7 +342,7 @@ ${storyBody.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 <h2 class="${META}" id="writing-heading">Writing</h2>
 <ul class="mt-6 list-none p-0">
 ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
-<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 py-5 no-underline max-sm:grid-cols-1 max-sm:gap-1.5" href="${esc(item.url)}" target="_blank" rel="noopener">
+<a class="group rule-draw grid grid-cols-[1fr_auto] items-baseline gap-4 py-5 no-underline max-sm:grid-cols-1 max-sm:gap-1.5" href="${esc(item.url)}" target="_blank" rel="noopener">
 <span class="${HOVER_TITLE} font-display text-[1.35rem] leading-[1.2] transition-colors duration-150">${esc(item.title)}</span>
 <span class="relative justify-self-end text-right max-sm:w-full max-sm:justify-self-start max-sm:text-left">
 <span class="${META} inline-block transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] sm:group-hover:-translate-x-7 sm:group-focus-visible:-translate-x-7 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0">${esc(item.publication)} · ${esc(item.year)}</span>
@@ -371,9 +371,19 @@ ${archive.map((file) => {
   const responsive = site.archive.thumbDir
     ? ` srcset="assets/${esc(site.archive.thumbDir)}/${esc(file)} 384w, ${esc(fullSrc)} 1152w" sizes="${big ? "25vw" : "12.5vw"}"`
     : "";
-  return `<img class="archive-tile block h-full w-full bg-paper-deep object-cover${big ? " col-span-2 row-span-2" : ""}" src="${esc(fullSrc)}"${responsive} alt="" width="1152" height="648" loading="lazy" decoding="async">`;
+  const tile = `<img class="archive-tile block h-full w-full bg-paper-deep object-cover${big ? " col-span-2 row-span-2" : ""}" src="${esc(fullSrc)}"${responsive} alt="" width="1152" height="648" loading="lazy" decoding="async">`;
+  const origin = site.archive.origin;
+  return origin && origin.file === file
+    ? `<a class="archive-origin block h-full w-full cursor-zoom-in" href="${esc(fullSrc)}" target="_blank" rel="noopener" aria-label="${esc(origin.label)}">${tile}</a>`
+    : tile;
 }).join("\n")}
 </div>
+${site.archive.reward ? `<div class="mx-auto max-w-[62rem] px-[clamp(1.25rem,5vw,3rem)]">
+<p class="archive-reward mt-7 flex flex-wrap items-baseline gap-x-4 gap-y-1" data-archive-reward>
+<span class="${META} text-ink-faint">${esc(site.archive.reward.text)}</span>
+<a class="${META} tap-target text-ink no-underline hover:text-accent" href="${esc(site.archive.reward.url)}">${esc(site.archive.reward.linkText)} <span aria-hidden="true">→</span></a>
+</p>
+</div>` : ""}
 </section>`
     : "";
 

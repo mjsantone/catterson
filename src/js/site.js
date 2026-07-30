@@ -336,3 +336,99 @@
     observer.observe(row);
   });
 })();
+
+/* Index rules draw in as each row arrives. Drawn once, never undone.
+   Swept on scroll rather than observed: an element that jumps from below the
+   fold to above it never intersects, so an observer would leave it ruleless. */
+(function drawIndexRules() {
+  var rows = Array.prototype.slice.call(document.querySelectorAll(".rule-draw"));
+  if (!rows.length) return;
+
+  function draw(row) {
+    row.setAttribute("data-drawn", "true");
+  }
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    rows.forEach(draw);
+    return;
+  }
+
+  var ticking = false;
+  function sweep() {
+    ticking = false;
+    var limit = window.innerHeight * 0.88;
+    rows = rows.filter(function (row) {
+      if (row.getBoundingClientRect().top > limit) return true;
+      draw(row);
+      return false;
+    });
+    if (!rows.length) {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    }
+  }
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(sweep);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  sweep();
+})();
+
+/* The archive reward waits for the last tile, so only a full scroll earns it. */
+(function archiveReward() {
+  var reward = document.querySelector("[data-archive-reward]");
+  var tiles = document.querySelectorAll(".archive-tile");
+  if (!reward || !tiles.length || !("IntersectionObserver" in window)) {
+    if (reward) reward.setAttribute("data-revealed", "true");
+    return;
+  }
+  var last = tiles[tiles.length - 1];
+  var observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        reward.setAttribute("data-revealed", "true");
+        observer.disconnect();
+      });
+    },
+    { threshold: 0.6 }
+  );
+  observer.observe(last);
+})();
+
+/* A rule in the margin of the long pieces, filling as the article is read. */
+(function readingProgress() {
+  var article = document.querySelector("main article");
+  if (!article || document.querySelector('nav[aria-label="Main stories"]')) return;
+
+  var rule = document.createElement("div");
+  rule.className = "reading-rule";
+  rule.setAttribute("aria-hidden", "true");
+  var fill = document.createElement("span");
+  fill.className = "reading-rule__fill";
+  rule.appendChild(fill);
+  document.body.appendChild(rule);
+
+  var ticking = false;
+  function update() {
+    ticking = false;
+    var box = article.getBoundingClientRect();
+    var scrolled = -box.top;
+    var runway = box.height - window.innerHeight;
+    var progress = runway > 0 ? scrolled / runway : 0;
+    progress = Math.max(0, Math.min(1, progress));
+    fill.style.setProperty("--reading-progress", progress.toFixed(4));
+    rule.setAttribute("data-visible", scrolled > 40 ? "true" : "false");
+  }
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(update);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  update();
+})();
