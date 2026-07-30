@@ -156,7 +156,9 @@ assert.strictEqual(count(home, /\brule-draw\b/g), 5);
 assert.match(home, /text-\[clamp\(2\.3rem,4\.15vw,3\.05rem\)\]/);
 assert.match(home, /text-\[clamp\(1\.55rem,3vw,2\.1rem\)\]/);
 assert.doesNotMatch(home, /sm:text-\[40px\]/);
-// The scroll-driven state must not reflow text under a moving page.
+// Neither hover nor scroll may reflow a headline: Fraunces italic refits the
+// line and drops long titles a whole line, jumping everything below them.
+assert.doesNotMatch(home, /group-hover:italic|group-focus-visible:italic/);
 assert.doesNotMatch(
   fs.readFileSync(path.join(ROOT, "src", "css", "site.css"), "utf8"),
   /a\[data-active="true"\][^}]*font-style/

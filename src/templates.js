@@ -49,7 +49,9 @@ function ransomName(name) {
 const META = "meta text-ink-faint";
 const PAGE = "mx-auto flex min-h-svh max-w-[62rem] flex-col px-[clamp(1.25rem,5vw,3rem)]";
 const DISPLAY = "font-display [font-weight:440] tracking-[-0.01em] text-balance";
-const HOVER_TITLE = "group-hover:italic group-hover:text-accent group-focus-visible:italic group-focus-visible:text-accent";
+// Colour only. Fraunces italic is narrower, so swapping to it refits the line
+// and drops long headlines from three lines to two, jumping the page 53px.
+const HOVER_TITLE = "group-hover:text-accent group-focus-visible:text-accent";
 const CAPTION =
   "mt-3.5 max-w-[35em] font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint";
 const DROP_CAP =
