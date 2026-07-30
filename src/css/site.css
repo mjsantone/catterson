@@ -129,10 +129,11 @@
 }
 
 /* A touch screen never hovers, so scroll position marks the row instead. Set
-   here rather than as a utility variant: the generated one would not win. */
+   here rather than as a utility variant: the generated one would not win.
+   Colour only: hover can afford to reflow into italic because a person asked
+   for it, but this fires while the page is moving under them. */
 a[data-active="true"] > span:first-child {
   color: var(--color-accent);
-  font-style: italic;
 }
 
 /* Index rules draw themselves in as the row arrives, so the list reads as

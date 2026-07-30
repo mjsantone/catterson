@@ -293,7 +293,7 @@ function home({ site, pieces, copies, inlineStories, archive = [] }) {
   const entries = pieces
     .map(
       (p) => `<a class="group rule-draw grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
-<span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.6rem,3.7vw,2.7rem)] leading-[1.08] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
+<span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(2.05rem,3.7vw,2.7rem)] leading-[1.08] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
 <span class="relative justify-self-end pr-0 text-right max-sm:w-full max-sm:justify-self-start max-sm:text-left">
 <span class="${META} inline-block transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] sm:group-hover:-translate-x-7 sm:group-focus-visible:-translate-x-7 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0">${esc(p.kicker)}</span>
 <span class="absolute top-1/2 right-0 -translate-y-1/2 text-[1.1rem] leading-none text-accent opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 [@media(hover:none)]:opacity-100" aria-hidden="true">→</span>
@@ -312,7 +312,7 @@ ${inlineStories.map(({ piece, copy, body: storyBody, resolved }, storyIndex) => 
 <div class="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,25rem)] md:gap-12">
 <header>
 <p class="${META}"><span>${esc(piece.title)}</span><span class="max-sm:hidden" aria-hidden="true"> · </span><span class="max-sm:block">${esc(piece.kicker)}</span></p>
-<h2 class="${DISPLAY} mt-4 max-w-[18em] text-[28px] leading-[1.08] sm:text-[40px]">${esc(copy.headline)}</h2>
+<h2 class="${DISPLAY} mt-4 max-w-[18em] text-[clamp(1.55rem,3vw,2.1rem)] leading-[1.08]">${esc(copy.headline)}</h2>
 ${media ? `<div class="mt-[clamp(2rem,5vh,3rem)]">${media}</div>` : ""}
 </header>
 <div class="space-y-[1.2em] text-[1.2rem] leading-[1.65] text-pretty">
