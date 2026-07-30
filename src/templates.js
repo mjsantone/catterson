@@ -218,7 +218,7 @@ ${imgs}
           ? `<img class="document-carousel__poster" src="${esc(posterSrc)}" alt="" width="896" height="504" loading="eager" decoding="async">`
           : "";
         return `<div class="document-carousel__slide" data-carousel-slide data-active="${active}"${inactiveAttrs}>
-      <div class="document-carousel__frame">${posterImage}<iframe class="document-carousel__viewer block h-full w-full border-0 bg-paper" data-src="${esc(src)}" title="${esc(title)}" sandbox="allow-same-origin" data-document-viewer tabindex="-1"></iframe></div>
+      <div class="document-carousel__frame">${posterImage}<iframe class="document-carousel__viewer block h-full w-full border-0 bg-paper" data-src="${esc(src)}" title="${esc(title)}" sandbox="allow-same-origin" data-document-viewer tabindex="-1" inert></iframe></div>
 <div class="document-carousel__caption">
 <span>${esc(title)}</span>
       <a class="tap-target shrink-0 text-ink no-underline hover:text-accent" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${active ? "" : ' tabindex="-1"'}>Open full view <span aria-hidden="true">↗</span></a>

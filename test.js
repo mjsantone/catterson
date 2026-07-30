@@ -174,6 +174,8 @@ assert.strictEqual(count(editorial, /data-document-viewer/g), 3);
 assert.strictEqual(count(editorial, /data-src="[^\"]+\.html"/g), 3);
 assert.strictEqual(count(editorial, /class="document-carousel__poster"/g), 3);
 assert.doesNotMatch(editorial, /data-document-viewer[^>]+loading="eager"/);
+// Previews are not interactive, so keyboard focus must not fall into them.
+assert.strictEqual(count(editorial, /data-document-viewer[^>]*\binert\b/g), 3);
 
 const cameo = fs.readFileSync(path.join(DIST, "js", "clippy-cameo.js"), "utf8");
 assert.match(cameo, /aria-label="Main stories"/);
