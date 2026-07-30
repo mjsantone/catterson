@@ -232,3 +232,44 @@ Only pursue this if the spoken cadence is clearly better than the static and sil
 9. Generate route-specific social cards.
 10. Run the final performance and accessibility audit.
 11. Consider spoken Agent Debrief only after the core proof is complete.
+
+## 2026-07-29 Second Audit: Backlog
+
+Fixed in this pass and not listed here: video payload (22.5MB to 17.3MB) and
+keyboard focus falling into the folio iframes on the editorial page.
+
+Verified clean across all six routes, so nothing below concerns them: console
+errors, failed requests, duplicate ids, heading order, missing alt text,
+`target="_blank"` without `noopener`, missing `lang`, missing meta description,
+`h1` count, main landmark, focus-ring coverage outside the iframe case, and
+reduced-motion (all transitions drop to `0s`).
+
+### Medium
+
+- **READY: COPILOT** — Editorial pulls 762KB of fonts, more than the 419KB of
+  all four faces combined, because each folio iframe reloads them. Give the
+  embedded documents a font stack that inherits or preloads once.
+- **READY: COPILOT** — The home stills `confirm.webp` and `landing.webp` ship at
+  1600px and display at 448px, a 3.6x oversample. Serve a `srcset` the way the
+  archive tiles already do.
+- **READY: COPILOT** — Fraunces italic (80KB) loads on the home page at rest to
+  render the ransom-note pseudo-elements, which are invisible until hover. Load
+  it on first hover instead.
+- **DECISION NEEDED: MATTHEW** — The agent piece still ships 11.3MB of video if a
+  visitor watches all three. The clips run 15 to 33 seconds. Trimming is the only
+  remaining large lever and it is an editorial call, not a technical one.
+
+### Low
+
+- **READY: COPILOT** — 27 distinct font sizes and 12 leading values across the
+  site. Near-duplicate clusters: body serif at 17.6 / 19 / 19.2 / 20px, sans
+  furniture at 11.5 / 12 / 12.5px, body leading at 1.6 / 1.65 / 1.7. Collapse to
+  a defined scale as its own pass.
+- **READY: COPILOT** — 32 vertical spacing values. The large section gap alone is
+  defined five ways: `clamp(3rem,9vh,5.5rem)`, `clamp(4rem,10vh,7rem)`,
+  `clamp(4rem,16vh,9rem)`, `clamp(5rem,14vh,9rem)`, `clamp(3rem,8vh,5rem)`.
+- **READY: COPILOT** — The clippy sub-app registers a service worker and pulls
+  Google Fonts, so that one route breaks the site rule of no external font
+  requests. Scoped to `/clippy/`, so it does not affect the main pages.
+- **READY: COPILOT** — One home image lacks explicit `width`/`height`. Every
+  other image carries them, so this is the last CLS gap.
