@@ -378,12 +378,6 @@ ${archive.map((file) => {
     : tile;
 }).join("\n")}
 </div>
-${site.archive.reward ? `<div class="mx-auto max-w-[62rem] px-[clamp(1.25rem,5vw,3rem)]">
-<p class="archive-reward mt-7 flex flex-wrap items-baseline gap-x-4 gap-y-1" data-archive-reward>
-<span class="${META} text-ink-faint">${esc(site.archive.reward.text)}</span>
-<a class="${META} tap-target text-ink no-underline hover:text-accent" href="${esc(site.archive.reward.url)}">${esc(site.archive.reward.linkText)} <span aria-hidden="true">→</span></a>
-</p>
-</div>` : ""}
 </section>`
     : "";
 

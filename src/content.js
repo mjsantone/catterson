@@ -63,12 +63,6 @@ const site = {
       file: "slide-005.webp",
       label: "Open the mosaic this site was drawn from, full size",
     },
-    // Shown once, only to someone who reaches the last row.
-    reward: {
-      text: "It looks like you're trying to see everything.",
-      linkText: "So was the paperclip",
-      url: "clippy/",
-    },
   },
 };
 

@@ -160,16 +160,6 @@ a[data-active="true"] > span:first-child {
   transform: scaleX(1);
 }
 
-/* Only for the visitor who reaches the last row of the archive. */
-[data-archive-reward] {
-  opacity: 0;
-  transition: opacity 900ms ease-out;
-}
-
-[data-archive-reward][data-revealed="true"] {
-  opacity: 1;
-}
-
 /* A marginal rule on the long pieces, filling as the article is read. */
 .reading-rule {
   position: fixed;
@@ -200,10 +190,6 @@ a[data-active="true"] > span:first-child {
 @media (prefers-reduced-motion: reduce) {
   .rule-draw::before {
     transform: scaleX(1);
-    transition: none;
-  }
-
-  [data-archive-reward] {
     transition: none;
   }
 }

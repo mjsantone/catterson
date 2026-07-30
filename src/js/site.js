@@ -377,28 +377,6 @@
   sweep();
 })();
 
-/* The archive reward waits for the last tile, so only a full scroll earns it. */
-(function archiveReward() {
-  var reward = document.querySelector("[data-archive-reward]");
-  var tiles = document.querySelectorAll(".archive-tile");
-  if (!reward || !tiles.length || !("IntersectionObserver" in window)) {
-    if (reward) reward.setAttribute("data-revealed", "true");
-    return;
-  }
-  var last = tiles[tiles.length - 1];
-  var observer = new IntersectionObserver(
-    function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        reward.setAttribute("data-revealed", "true");
-        observer.disconnect();
-      });
-    },
-    { threshold: 0.6 }
-  );
-  observer.observe(last);
-})();
-
 /* A rule in the margin of the long pieces, filling as the article is read. */
 (function readingProgress() {
   var article = document.querySelector("main article");
