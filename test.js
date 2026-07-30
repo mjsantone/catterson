@@ -146,7 +146,7 @@ assert.strictEqual((130 - 10 + 10 * 4 + 8) % 8, 0);
 assert.match(home, /<section[^>]+aria-labelledby="archive-heading"/);
 assert.match(home, /<h2 class="sr-only" id="archive-heading">Earlier work<\/h2>/);
 // Stories and writing rows both hide an arrow that is revealed as the label springs aside.
-assert.strictEqual(count(home, /aria-hidden="true">→<\/span>/g), 3);
+assert.strictEqual(count(home, /aria-hidden="true"[^>]*>→<\/span>/g), 3);
 assert.strictEqual(count(home, /opacity-0[^"]*group-hover:opacity-100/g), 5);
 assert.strictEqual(count(home, /group-hover:-translate-x-7/g), 5);
 // Index rules draw themselves in: three stories and two writing rows.
