@@ -294,9 +294,9 @@ function home({ site, pieces, copies, inlineStories, archive = [] }) {
     .map(
       (p) => `<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
 <span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.6rem,3.7vw,2.7rem)] leading-[1.08] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
-<span class="relative justify-self-end pr-0 text-right max-sm:justify-self-start max-sm:text-left">
+<span class="relative justify-self-end pr-0 text-right max-sm:w-full max-sm:justify-self-start max-sm:text-left">
 <span class="${META} inline-block transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-x-7 group-focus-visible:-translate-x-7 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0">${esc(p.kicker)}</span>
-<span class="absolute top-1/2 right-0 -translate-y-1/2 text-[1.1rem] leading-none text-accent opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden="true">→</span>
+<span class="absolute top-1/2 right-0 -translate-y-1/2 text-[1.1rem] leading-none text-accent opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 [@media(hover:none)]:opacity-100" aria-hidden="true">→</span>
 </span>
 </a>`
     )
@@ -344,9 +344,9 @@ ${storyBody.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
 <a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 py-5 no-underline max-sm:grid-cols-1 max-sm:gap-1.5" href="${esc(item.url)}" target="_blank" rel="noopener">
 <span class="${HOVER_TITLE} font-display text-[1.35rem] leading-[1.2] transition-colors duration-150">${esc(item.title)}</span>
-<span class="relative justify-self-end text-right max-sm:justify-self-start max-sm:text-left">
+<span class="relative justify-self-end text-right max-sm:w-full max-sm:justify-self-start max-sm:text-left">
 <span class="${META} inline-block transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-x-7 group-focus-visible:-translate-x-7 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0">${esc(item.publication)} · ${esc(item.year)}</span>
-<span class="absolute top-1/2 right-0 -translate-y-1/2 text-[1.1rem] leading-none text-accent opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden="true">↗</span>
+<span class="absolute top-1/2 right-0 -translate-y-1/2 text-[1.1rem] leading-none text-accent opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 [@media(hover:none)]:opacity-100" aria-hidden="true">↗</span>
 </span>
 </a>
 </li>`).join("\n")}

@@ -312,3 +312,27 @@
     }, { once: true });
   });
 })();
+
+/* A touch screen never hovers, so the story rows had no active state at all and
+   read as plain text. Give whichever row sits across the middle of the screen
+   the same treatment a pointer would give it. */
+(function storyScrollFocus() {
+  var rows = document.querySelectorAll(
+    'nav[aria-label="Main stories"] a, [aria-labelledby="writing-heading"] li a'
+  );
+  if (!rows.length || !("IntersectionObserver" in window)) return;
+  if (window.matchMedia("(hover: hover)").matches) return;
+
+  var observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        entry.target.setAttribute("data-active", entry.isIntersecting ? "true" : "false");
+      });
+    },
+    { rootMargin: "-45% 0px -45% 0px" }
+  );
+
+  Array.prototype.forEach.call(rows, function (row) {
+    observer.observe(row);
+  });
+})();
