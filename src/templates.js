@@ -289,11 +289,15 @@ function home({ site, pieces, copies, inlineStories, archive = [] }) {
     : site.intro
       ? [site.intro]
       : [];
+  // The kicker springs left on hover and the arrow lands in the space it leaves.
   const entries = pieces
     .map(
       (p) => `<a class="group grid grid-cols-[1fr_auto] items-baseline gap-4 border-t border-line py-[clamp(1.6rem,4vh,2.4rem)] no-underline max-sm:grid-cols-1 max-sm:gap-2.5" id="${p.slug}" href="${p.slug}/">
-<span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.6rem,3.7vw,2.7rem)] leading-[1.08] transition-colors duration-150">${esc(copies[p.slug].headline)}&nbsp;<span class="inline-block text-[0.5em] not-italic text-ink-faint transition-[transform,color] duration-200 group-hover:translate-x-1 group-hover:text-accent group-focus-visible:translate-x-1 group-focus-visible:text-accent motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" aria-hidden="true">→</span></span>
-<span class="${META} justify-self-end text-right transition-colors duration-150 group-hover:text-accent group-focus-visible:text-accent max-sm:justify-self-start max-sm:text-left">${esc(p.kicker)}</span>
+<span class="${DISPLAY} ${HOVER_TITLE} text-[clamp(1.6rem,3.7vw,2.7rem)] leading-[1.08] transition-colors duration-150">${esc(copies[p.slug].headline)}</span>
+<span class="relative justify-self-end pr-0 text-right max-sm:justify-self-start max-sm:text-left">
+<span class="${META} inline-block transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-x-7 group-focus-visible:-translate-x-7 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0">${esc(p.kicker)}</span>
+<span class="absolute top-1/2 right-0 -translate-y-1/2 text-[1.1rem] leading-none text-accent opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden="true">→</span>
+</span>
 </a>`
     )
     .join("\n");
