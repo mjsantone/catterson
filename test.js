@@ -153,7 +153,7 @@ assert.strictEqual(count(home, /group-hover:-translate-x-7/g), 5);
 assert.strictEqual(count(home, /\brule-draw\b/g), 5);
 // Main stories outrank the smaller ones at every width, so both scale fluidly
 // and the main floor clears the mini ceiling.
-assert.match(home, /text-\[clamp\(2\.05rem,3\.7vw,2\.7rem\)\]/);
+assert.match(home, /text-\[clamp\(2\.3rem,4\.15vw,3\.05rem\)\]/);
 assert.match(home, /text-\[clamp\(1\.55rem,3vw,2\.1rem\)\]/);
 assert.doesNotMatch(home, /sm:text-\[40px\]/);
 // The scroll-driven state must not reflow text under a moving page.
