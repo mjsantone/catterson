@@ -136,6 +136,25 @@ a[data-active="true"] > span:first-child {
   color: var(--color-accent);
 }
 
+/* The arrow is already showing on a phone, so arrival nudges it instead of
+   revealing it. Animating transform rather than translate leaves the
+   translate that centres it vertically alone. */
+@media (hover: none) {
+  a[data-active="true"] [data-row-arrow] {
+    animation: row-arrow-nudge 640ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+@keyframes row-arrow-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  40% {
+    transform: translateX(7px);
+  }
+}
+
 /* Index rules draw themselves in as the row arrives, so the list reads as
    typeset rather than rendered. The border becomes the track. */
 .rule-draw {

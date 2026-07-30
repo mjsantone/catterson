@@ -161,6 +161,13 @@ assert.doesNotMatch(
   fs.readFileSync(path.join(ROOT, "src", "css", "site.css"), "utf8"),
   /a\[data-active="true"\][^}]*font-style/
 );
+// Arrival nudges the arrow where it is already visible. Transform, not
+// translate, or the nudge would drop the vertical centring.
+assert.strictEqual(count(home, /data-row-arrow/g), 5);
+const siteCss = fs.readFileSync(path.join(ROOT, "src", "css", "site.css"), "utf8");
+assert.match(siteCss, /@keyframes row-arrow-nudge/);
+assert.match(siteCss, /@media \(hover: none\)[\s\S]{0,160}row-arrow-nudge/);
+assert.doesNotMatch(siteCss, /@keyframes row-arrow-nudge[\s\S]{0,220}\btranslate:/);
 // Page five is the mosaic the site was drawn from, and it opens itself.
 assert.strictEqual(count(home, /class="archive-origin/g), 1);
 assert.match(home, /archive-origin[^>]+href="assets\/archive\/slide-005\.webp"/);
