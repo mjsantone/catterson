@@ -145,10 +145,12 @@ assert.doesNotMatch(home, /salesforce-01\.webp[\s\S]*slide-001\.webp/);
 assert.strictEqual((130 - 10 + 10 * 4 + 8) % 8, 0);
 assert.match(home, /<section[^>]+aria-labelledby="archive-heading"/);
 assert.match(home, /<h2 class="sr-only" id="archive-heading">Earlier work<\/h2>/);
-// Each main story hides an arrow that is revealed on hover as the kicker springs aside.
+// Stories and writing rows both hide an arrow that is revealed as the label springs aside.
 assert.strictEqual(count(home, /aria-hidden="true">→<\/span>/g), 3);
-assert.strictEqual(count(home, /opacity-0[^"]*group-hover:opacity-100/g), 3);
-assert.strictEqual(count(home, /group-hover:-translate-x-7/g), 3);
+assert.strictEqual(count(home, /opacity-0[^"]*group-hover:opacity-100/g), 5);
+assert.strictEqual(count(home, /group-hover:-translate-x-7/g), 5);
+// The writing titles no longer carry an arrow inline; theirs sits at the row edge.
+assert.doesNotMatch(home, /&nbsp;<span class="text-ink-faint" aria-hidden="true">↗/);
 assert.doesNotMatch(home, /formal training alone/);
 assert.doesNotMatch(home, /<blockquote/);
 assert.strictEqual(count(home, /https:\/\/fuse-catterson/g), 1);
