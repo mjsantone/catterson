@@ -220,14 +220,14 @@ const pieces = [
       {
         kind: "documents",
         files: [
-          "Folio System Storybook.html",
-          "Liebeck v McDonalds  Myth vs the Record.html",
           "The Rule Against Perpetuities.html",
+          "Liebeck v McDonalds  Myth vs the Record.html",
+          "The Fox and the Baseball.html",
         ],
         posters: {
-          "Folio System Storybook.html": "posters/folio.webp",
-          "Liebeck v McDonalds  Myth vs the Record.html": "posters/liebeck.webp",
           "The Rule Against Perpetuities.html": "posters/perpetuities.webp",
+          "Liebeck v McDonalds  Myth vs the Record.html": "posters/liebeck.webp",
+          "The Fox and the Baseball.html": "posters/fox.webp",
         },
         featured: "Liebeck v McDonalds  Myth vs the Record.html",
         exclude: [
