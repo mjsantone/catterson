@@ -130,7 +130,7 @@ const pieces = [
     kicker: "The learning loop",
     social: {
       image: "assets/social/steering.jpg",
-      alt: "An assistant that learns you, and knows when to stop watching.",
+      alt: "An assistant that learns you, and pauses when you ask.",
     },
     copy: "copy-steering.md",
     lead: {
@@ -200,7 +200,7 @@ const pieces = [
     kicker: "Judgment and pull",
     social: {
       image: "assets/social/editorial.jpg",
-      alt: "I codified the house style, and other teams made it their standard.",
+      alt: "I codified the house style. Other teams made it theirs.",
     },
     copy: "copy-editorial.md",
     // The only approved pull-quote on the site (CONTENT-SPEC.md). Rendered as an

@@ -3,7 +3,7 @@ Note: the learning loop. Interactivity: VIDEO (live demo = interview stretch).
 
 ---
 
-# An assistant that learns you, and knows when to stop watching
+# An assistant that learns you, and pauses when you ask
 
 ## The steps could be saved; one person's standard could not. So I made a learning loop that turns revisions into preferences, with a pause that stops new capture without forgetting what it already learned.
 
