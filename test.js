@@ -211,6 +211,20 @@ const cameo = fs.readFileSync(path.join(DIST, "js", "clippy-cameo.js"), "utf8");
 assert.match(cameo, /aria-label="Main stories"/);
 assert.doesNotMatch(cameo, /aria-label="Pieces"/);
 
+// U+2197 carries an emoji presentation, so phones draw it from the emoji font unless
+// it is pinned to text with U+FE0E. U+2192 is not an emoji codepoint and needs nothing.
+let neArrows = 0;
+for (const page of hostPages) {
+  const html = fs.readFileSync(page, "utf8").replace(/&#xFE0E;/g, "\uFE0E");
+  neArrows += count(html, /\u2197/g);
+  assert.strictEqual(
+    count(html, /\u2197(?!\uFE0E)/g),
+    0,
+    `bare U+2197 renders as an emoji on mobile: ${path.relative(DIST, page)}`
+  );
+}
+assert.strictEqual(neArrows, 6);
+
 // Phones get a 960-wide cut. Every autoplaying video must offer one, the swap must
 // stay cheap (preload="none" means nothing is fetched before src is reassigned),
 // and the small file has to actually be smaller or it is not worth shipping.

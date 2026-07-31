@@ -204,7 +204,7 @@ ${cap}
       : "";
     const stillsCap = asset.caption
       ? asset.fullView
-        ? `<figcaption class="mt-3.5 flex max-w-[44rem] flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint"><span>${esc(asset.caption)}</span><a class="tap-target shrink-0 text-ink no-underline hover:text-accent" href="${fullViewSrc}" target="_blank" rel="noopener">Open full size <span aria-hidden="true">↗</span></a></figcaption>`
+        ? `<figcaption class="mt-3.5 flex max-w-[44rem] flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint"><span>${esc(asset.caption)}</span><a class="tap-target shrink-0 text-ink no-underline hover:text-accent" href="${fullViewSrc}" target="_blank" rel="noopener">Open full size <span aria-hidden="true">↗&#xFE0E;</span></a></figcaption>`
         : cap
       : "";
     return `<figure ${media}><div class="${layout}">
@@ -231,7 +231,7 @@ ${imgs}
       <div class="document-carousel__frame">${posterImage}<iframe class="document-carousel__viewer block h-full w-full border-0 bg-paper" data-src="${esc(src)}" title="${esc(title)}" sandbox="allow-same-origin" data-document-viewer tabindex="-1" inert></iframe></div>
 <div class="document-carousel__caption">
 <span>${esc(title)}</span>
-      <a class="tap-target shrink-0 text-ink no-underline hover:text-accent" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${active ? "" : ' tabindex="-1"'}>Open full view <span aria-hidden="true">↗</span></a>
+      <a class="tap-target shrink-0 text-ink no-underline hover:text-accent" href="${esc(src)}" target="_blank" rel="noopener" aria-label="Open ${esc(title)} full view" title="Open full view"${active ? "" : ' tabindex="-1"'}>Open full view <span aria-hidden="true">↗&#xFE0E;</span></a>
  </div>
 </div>`;
       })
@@ -341,7 +341,7 @@ ${storyBody.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n")}
 </span>
 <figcaption class="mt-3.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 font-sans text-[0.78rem] tracking-[0.02em] text-ink-faint">
 <span><span class="text-ink">${esc(site.homeExternalPreview.title)}</span> · ${esc(site.homeExternalPreview.description)}</span>
-<span class="shrink-0 text-ink group-hover:text-accent">Open ${esc(site.homeExternalPreview.label.toLowerCase())} <span aria-hidden="true">↗</span></span>
+<span class="shrink-0 text-ink group-hover:text-accent">Open ${esc(site.homeExternalPreview.label.toLowerCase())} <span aria-hidden="true">↗&#xFE0E;</span></span>
 </figcaption>
 </a>
 </figure>`
@@ -356,7 +356,7 @@ ${site.writing.map((item) => `<li class="border-t border-line first:border-t-0">
 <span class="${HOVER_TITLE} font-display text-[1.35rem] leading-[1.2] transition-colors duration-150">${esc(item.title)}</span>
 <span class="relative justify-self-end text-right max-sm:w-full max-sm:justify-self-start max-sm:text-left">
 <span class="${META} inline-block transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] sm:group-hover:-translate-x-7 sm:group-focus-visible:-translate-x-7 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0">${esc(item.publication)} · ${esc(item.year)}</span>
-<span class="absolute top-1/2 right-0 -translate-y-1/2 text-[1.1rem] leading-none text-accent opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 [@media(hover:none)]:opacity-100" aria-hidden="true" data-row-arrow>↗</span>
+<span class="absolute top-1/2 right-0 -translate-y-1/2 text-[1.1rem] leading-none text-accent opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 [@media(hover:none)]:opacity-100" aria-hidden="true" data-row-arrow>↗&#xFE0E;</span>
 </span>
 </a>
 </li>`).join("\n")}
