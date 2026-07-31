@@ -19,6 +19,12 @@ ffmpeg -i movs/r1/02_rechallenge.mp4 -filter_complex \
   -pix_fmt yuv420p -r 30 -an -movflags +faststart 02_rechallenge.mp4
 ```
 - `*-poster.webp`: frame-zero posters, so each video holds `preload="none"` until it scrolls into view.
+- `*-small.mp4`: 960-wide cuts for phones, about 57 percent lighter. A phone renders these near a third of their intrinsic width, so `src/js/site.js` swaps them in below 600px before anything is fetched. Match the framerate of the full-size file beside it, not the master: `02_rechallenge.mp4` is 30fps, the rest are 60.
+
+```sh
+ffmpeg -i movs/r1/03_memo.mp4 -vf "scale=960:540:flags=lanczos" -c:v libx264 \
+  -crf 28 -preset slow -pix_fmt yuv420p -an -movflags +faststart 03_memo-small.mp4
+```
 
 Each published image opens at full resolution. The PNG captures in `images/` are local masters. The quality-92 WebP derivatives are the published assets.
 

@@ -9,6 +9,13 @@ ffmpeg -i r4/01_create.mp4 -c:v libx264 -crf 26 -preset slow -profile:v high \
   -level 4.0 -pix_fmt yuv420p -r 30 -an -movflags +faststart 01_create.mp4
 ```
 
+Each keeper also needs a 960-wide cut for phones, about 57 percent lighter. `src/js/site.js` swaps these in below 600px, before anything is fetched. Note `03_reuse-small.mp4` comes from the master's misspelled `r4/03_resue.mp4`.
+
+```sh
+ffmpeg -i r4/02_learn.mp4 -vf "scale=960:540:flags=lanczos" -c:v libx264 \
+  -crf 28 -preset slow -pix_fmt yuv420p -an -movflags +faststart 02_learn-small.mp4
+```
+
 ## Lead
 
 - `01_create.mp4`: start the task in chat, no preferences form. Muted loop, autoplay-safe.

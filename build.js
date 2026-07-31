@@ -122,7 +122,9 @@ function resolveAsset(slug, asset) {
   }
   const exists = fs.existsSync(path.join(dir, asset.file));
   const poster = asset.poster ? fs.existsSync(path.join(dir, asset.poster)) : false;
-  return { exists, poster };
+  const small =
+    asset.kind === "video" && fs.existsSync(path.join(dir, t.smallVideo(asset.file)));
+  return { exists, poster, small };
 }
 
 function resolvePiece(piece) {
@@ -241,6 +243,7 @@ function addAssetToManifest(files, directories, slug, asset, resolved) {
   } else if (resolved.exists) {
     files.add(normalizeAssetPath(`${slug}/${asset.file}`));
   }
+  if (resolved.small) files.add(normalizeAssetPath(`${slug}/${t.smallVideo(asset.file)}`));
   if (resolved.poster) files.add(normalizeAssetPath(`${slug}/${asset.poster}`));
   if (asset.bundle && asset.file) {
     const bundleDir = normalizeAssetPath(`${slug}/${path.dirname(asset.file)}`);

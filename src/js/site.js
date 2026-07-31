@@ -42,6 +42,15 @@
     });
   }
 
+  // A phone renders these about a third of their intrinsic width, so swap in the
+  // 960-wide cut. Safe to reassign src because these carry preload="none": nothing
+  // has been fetched yet. Without JS the full-size file still plays.
+  if (window.matchMedia("(max-width: 600px)").matches) {
+    document.querySelectorAll("video[data-src-small]").forEach(function (v) {
+      v.src = v.getAttribute("data-src-small");
+    });
+  }
+
   var videos = document.querySelectorAll("video[data-autoplay]");
   if (!videos.length) return;
 

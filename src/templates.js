@@ -143,6 +143,11 @@ ${body}
 `;
 }
 
+// Phones get a 960-wide cut of each video. Naming rule shared with build.js.
+function smallVideo(file) {
+  return file.replace(/\.mp4$/, "-small.mp4");
+}
+
 function figure(asset, resolved, root, slug, opts) {
   const dir = `assets/${slug}/`;
   const cap = asset.caption ? `<figcaption class="${CAPTION}">${esc(asset.caption)}</figcaption>` : "";
@@ -157,11 +162,14 @@ function figure(asset, resolved, root, slug, opts) {
       return placeholder("Video placeholder", asset.caption, dir + asset.file);
     }
     const poster = resolved.poster ? ` poster="${root}${dir}${asset.poster}"` : "";
+    const small = resolved.small
+      ? ` data-src-small="${root}${dir}${smallVideo(asset.file)}"`
+      : "";
     const attrs = asset.sound
       ? `controls preload="metadata"${poster}`
       : `data-autoplay muted loop playsinline preload="${resolved.poster ? "none" : "metadata"}"${poster}`;
     return `<figure ${media}>
-<video class="block h-auto w-full rounded-[32px] bg-ink" ${attrs} src="${root}${dir}${asset.file}" aria-label="${esc(asset.caption)}"></video>
+<video class="block h-auto w-full rounded-[32px] bg-ink" ${attrs} src="${root}${dir}${asset.file}"${small} aria-label="${esc(asset.caption)}"></video>
 ${cap}
 </figure>`;
   }
@@ -726,4 +734,4 @@ ${footer(site)}
   });
 }
 
-module.exports = { home, piecePage, editorialPage, clippyPage, notFound };
+module.exports = { home, piecePage, editorialPage, clippyPage, notFound, smallVideo };

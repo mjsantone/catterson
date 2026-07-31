@@ -115,7 +115,7 @@ for (const page of hostPages) {
   }
 
   const references = [];
-  for (const match of html.matchAll(/(?:src|href|data-src)="([^"]+)"/g)) references.push(match[1]);
+  for (const match of html.matchAll(/(?:data-src-small|data-src|src|href)="([^"]+)"/g)) references.push(match[1]);
   for (const match of html.matchAll(/srcset="([^"]+)"/g)) {
     match[1].split(",").forEach((candidate) => references.push(candidate.trim().split(/\s+/)[0]));
   }
@@ -210,6 +210,34 @@ assert.strictEqual(count(editorial, /data-document-viewer[^>]*\binert\b/g), 3);
 const cameo = fs.readFileSync(path.join(DIST, "js", "clippy-cameo.js"), "utf8");
 assert.match(cameo, /aria-label="Main stories"/);
 assert.doesNotMatch(cameo, /aria-label="Pieces"/);
+
+// Phones get a 960-wide cut. Every autoplaying video must offer one, the swap must
+// stay cheap (preload="none" means nothing is fetched before src is reassigned),
+// and the small file has to actually be smaller or it is not worth shipping.
+const siteJs = fs.readFileSync(path.join(ROOT, "src", "js", "site.js"), "utf8");
+assert.match(siteJs, /max-width:\s*600px/);
+assert.match(siteJs, /video\[data-src-small\]/);
+let autoplayVideos = 0;
+for (const page of hostPages) {
+  const html = fs.readFileSync(page, "utf8");
+  for (const tag of html.matchAll(/<video\b[^>]*>/g)) {
+    if (!/\bdata-autoplay\b/.test(tag[0])) continue;
+    autoplayVideos++;
+    assert.match(tag[0], /data-src-small="[^"]+-small\.mp4"/, `no small cut: ${tag[0].slice(0, 90)}`);
+    assert.match(tag[0], /preload="none"/, `small cut needs preload none: ${tag[0].slice(0, 90)}`);
+  }
+}
+assert.strictEqual(autoplayVideos, 6);
+const smallCuts = walk(path.join(DIST, "assets")).filter((file) => file.endsWith("-small.mp4"));
+assert.strictEqual(smallCuts.length, 6);
+for (const small of smallCuts) {
+  const full = small.replace(/-small\.mp4$/, ".mp4");
+  assert(fs.existsSync(full), `small cut without a full-size original: ${full}`);
+  assert(
+    fs.statSync(small).size < fs.statSync(full).size,
+    `${path.basename(small)} is not smaller than its full-size original`
+  );
+}
 
 const css = fs.readFileSync(path.join(ROOT, "src", "css", "site.css"), "utf8");
 const faint = css.match(/--color-ink-faint:\s*(#[0-9a-f]{6})/i)[1];
