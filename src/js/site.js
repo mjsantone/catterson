@@ -385,37 +385,3 @@
   window.addEventListener("resize", onScroll);
   sweep();
 })();
-
-/* A rule in the margin of the long pieces, filling as the article is read. */
-(function readingProgress() {
-  var article = document.querySelector("main article");
-  if (!article || document.querySelector('nav[aria-label="Main stories"]')) return;
-
-  var rule = document.createElement("div");
-  rule.className = "reading-rule";
-  rule.setAttribute("aria-hidden", "true");
-  var fill = document.createElement("span");
-  fill.className = "reading-rule__fill";
-  rule.appendChild(fill);
-  document.body.appendChild(rule);
-
-  var ticking = false;
-  function update() {
-    ticking = false;
-    var box = article.getBoundingClientRect();
-    var scrolled = -box.top;
-    var runway = box.height - window.innerHeight;
-    var progress = runway > 0 ? scrolled / runway : 0;
-    progress = Math.max(0, Math.min(1, progress));
-    fill.style.setProperty("--reading-progress", progress.toFixed(4));
-    rule.setAttribute("data-visible", scrolled > 40 ? "true" : "false");
-  }
-  function onScroll() {
-    if (ticking) return;
-    ticking = true;
-    window.requestAnimationFrame(update);
-  }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll);
-  update();
-})();
