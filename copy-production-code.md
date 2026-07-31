@@ -25,6 +25,6 @@ BUILD: lead = the visual regression diff from a pull request, cropped to the ove
 
 ## INLINE STORY
 
-Design feedback is easy to send and easy to ignore, and a defect this small never reaches the top of anyone's queue. Over nine months I opened twenty-nine pull requests instead: a dropdown that produced two scrollbars, a loading skeleton whose label did not match the one that replaced it, a title that drifted off center at narrow widths, an input inset that was symmetric in the spec and not in the build.
+Design feedback is easy to send and easy to ignore, and a defect this small never reaches the top of anyone's queue. Over nine months I opened twenty-nine pull requests instead: a dropdown that produced two scrollbars, a title that drifted off center at narrow widths, an input inset that was symmetric in the spec and not in the build.
 
-The larger changes retired components I had made myself and put the shared design system in their place: a custom title, a hand-rolled carousel, a bespoke tab list. All twenty-nine merged.
+The larger changes retired components I had made myself and put the shared design system in their place: a custom title, a hand-rolled carousel, a bespoke tab list. All twenty-nine merged. The right ending for a component you built alone is to disappear into the system everyone else already uses.

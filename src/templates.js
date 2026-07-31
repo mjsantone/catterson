@@ -313,7 +313,7 @@ ${inlineStories.map(({ piece, copy, body: storyBody, resolved }, storyIndex) => 
   return `<article class="${storyClass}" id="${piece.slug}">
 <div class="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,25rem)] md:gap-12">
 <header>
-<p class="${META}"><span>${esc(piece.title)}</span><span class="max-sm:hidden" aria-hidden="true"> · </span><span class="max-sm:block">${esc(piece.kicker)}</span></p>
+<p class="${META}">${esc(piece.kicker)}</p>
 <h2 class="${DISPLAY} mt-4 max-w-[18em] text-[clamp(1.55rem,3vw,2.1rem)] leading-[1.08]">${esc(copy.headline)}</h2>
 ${media ? `<div class="mt-[clamp(2rem,5vh,3rem)]">${media}</div>` : ""}
 </header>

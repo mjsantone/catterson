@@ -178,12 +178,15 @@ assert.strictEqual(count(home, /class="archive-origin/g), 1);
 assert.match(home, /archive-origin[^>]+href="assets\/archive\/slide-005\.webp"/);
 // The writing titles no longer carry an arrow inline; theirs sits at the row edge.
 assert.doesNotMatch(home, /&nbsp;<span class="text-ink-faint" aria-hidden="true">↗/);
-assert.doesNotMatch(home, /formal training alone/);
+// The deck's thesis runs as plain first-person prose. It was never a real quotation,
+// so it must never come back dressed as one.
+assert.match(home, /formal training alone/);
 assert.doesNotMatch(home, /<blockquote/);
+assert.doesNotMatch(home, /["“”][^<]*formal training alone/);
 assert.strictEqual(count(home, /https:\/\/fuse-catterson/g), 1);
 assert.doesNotMatch(home, /fonts\.googleapis\.com/);
 assert.match(home, /confirm\.webp"[^>]+width="1600" height="900"/);
-assert.match(home, /landing\.webp"[^>]+width="1600" height="900"/);
+assert.match(home, /persona\.webp"[^>]+width="1600" height="900"/);
 assert.match(home, /diff\.webp"[^>]+width="604" height="340"/);
 
 const detailRoutes = ["agent-debrief", "editorial", "steering"];

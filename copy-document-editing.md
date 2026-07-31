@@ -25,4 +25,4 @@ BUILD: one unbroken recording of select text, Ask, streamed tracked changes, and
 
 Normal handoff turns an interaction into a translation of a translation. This one could not survive that route. Select text inside an AI-generated document and a toolbar follows with Ask, Comment, and Copy. Ask streams a proposed edit back as tracked changes to accept or reject, with comments anchored to the words they touch.
 
-I made it work instead of describing it, down to fixing a stale closure that sent only the first selected passage. Engineering used the working prototype as the specification. I made the prototype. They built the product.
+I made it work instead of describing it, down to bundling the model calls into one stream so two edits in flight could not race the same document. Engineering used the working prototype as the specification. I made the prototype. They built the product.

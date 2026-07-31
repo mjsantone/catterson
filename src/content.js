@@ -12,7 +12,7 @@ const site = {
   // The first paragraph says who Matthew is; the second establishes the breadth
   // of an ongoing practice. Both stay in present tense.
   intro: [
-    "I design complicated software and make it easier to understand and use.",
+    "I design software that makes complicated systems learnable, so people become more capable than their formal training alone.",
     "My work ranges from developer tools and enterprise platforms to mixed reality and consumer products. Depending on the problem, I move between product strategy, interaction design, prototyping, design systems, writing, and production code.",
   ],
   // Change this if the site moves to a custom domain. Used for canonical + OG URLs.
@@ -94,11 +94,11 @@ const pieces = [
     copy: "copy-kit.md",
     lead: {
       kind: "stills",
-      files: ["images/landing.webp"],
+      files: ["images/persona.webp"],
       width: 1600,
       height: 900,
       layout: "sequence",
-      caption: "The empty state: one input, a few starting points, nothing else.",
+      caption: "The synthetic user picker, open over the greeting and suggestions it produced. Mock data, no credentials.",
     },
     supporting: [
       {
