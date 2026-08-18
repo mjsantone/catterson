@@ -33,6 +33,12 @@ const site = {
   // Published elsewhere, newest first. Titles and outlets are as printed.
   writing: [
     {
+      title: "The naked designer: what happens when you can't hide behind craft",
+      publication: "Microsoft Design",
+      year: "2026",
+      url: "https://microsoft.design/articles/the-naked-designer-what-happens-when-you-cant-hide-behind-craft/",
+    },
+    {
       title: "Lucid dreaming together with AI",
       publication: "Microsoft Design",
       year: "2025",

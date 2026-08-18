@@ -147,10 +147,10 @@ assert.match(home, /<section[^>]+aria-labelledby="archive-heading"/);
 assert.match(home, /<h2 class="sr-only" id="archive-heading">Earlier work<\/h2>/);
 // Stories and writing rows both hide an arrow that is revealed as the label springs aside.
 assert.strictEqual(count(home, /aria-hidden="true"[^>]*>→<\/span>/g), 3);
-assert.strictEqual(count(home, /opacity-0[^"]*group-hover:opacity-100/g), 5);
-assert.strictEqual(count(home, /group-hover:-translate-x-7/g), 5);
-// Index rules draw themselves in: three stories and two writing rows.
-assert.strictEqual(count(home, /\brule-draw\b/g), 5);
+assert.strictEqual(count(home, /opacity-0[^"]*group-hover:opacity-100/g), 6);
+assert.strictEqual(count(home, /group-hover:-translate-x-7/g), 6);
+// Index rules draw themselves in: three stories and three writing rows.
+assert.strictEqual(count(home, /\brule-draw\b/g), 6);
 // Main stories outrank the smaller ones at every width, so both scale fluidly
 // and the main floor clears the mini ceiling.
 assert.match(home, /text-\[clamp\(2\.3rem,4\.15vw,3\.05rem\)\]/);
@@ -168,7 +168,7 @@ assert.doesNotMatch(
 );
 // Arrival nudges the arrow where it is already visible. Transform, not
 // translate, or the nudge would drop the vertical centring.
-assert.strictEqual(count(home, /data-row-arrow/g), 5);
+assert.strictEqual(count(home, /data-row-arrow/g), 6);
 const siteCss = fs.readFileSync(path.join(ROOT, "src", "css", "site.css"), "utf8");
 assert.match(siteCss, /@keyframes row-arrow-nudge/);
 assert.match(siteCss, /@media \(hover: none\)[\s\S]{0,160}row-arrow-nudge/);
@@ -223,7 +223,7 @@ for (const page of hostPages) {
     `bare U+2197 renders as an emoji on mobile: ${path.relative(DIST, page)}`
   );
 }
-assert.strictEqual(neArrows, 6);
+assert.strictEqual(neArrows, 7);
 
 // Phones get a 960-wide cut. Every autoplaying video must offer one, the swap must
 // stay cheap (preload="none" means nothing is fetched before src is reassigned),
