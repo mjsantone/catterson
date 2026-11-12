@@ -172,6 +172,21 @@ const pieces = [
         caption: "Draft an email from the project's evidence, confirm it, then ask for it shorter. The same draft changes in place.",
       },
       {
+        kind: "video",
+        file: "05_share.mp4",
+        poster: "05_share-poster.webp",
+        optional: true,
+        afterParagraph: 6,
+        caption: "Move to Shared. The dialog says what changes and what does not before anything moves.",
+      },
+      {
+        kind: "stills",
+        prefix: "share-",
+        optional: true,
+        afterParagraph: 6,
+        caption: "Three questions kept apart: who is in the project, what is shared, who can open the original.",
+      },
+      {
         kind: "stills",
         prefix: "layers-",
         optional: true,

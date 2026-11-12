@@ -95,7 +95,7 @@ if (build.status !== 0) {
 
 const buildOutput = `${build.stdout}${build.stderr}`;
 assert.match(buildOutput, /Built 7 pages to dist\//);
-assert.match(buildOutput, /11 optional slots empty/);
+assert.match(buildOutput, /13 optional slots empty/);
 assert.match(buildOutput, /editorial\/bolt-dodger\.html/);
 
 const hostPages = walk(DIST).filter((file) => {
@@ -263,7 +263,7 @@ assert(contrast("#6f6862", "#f4f2ee") >= 4.5);
 assert(contrast("#8f8880", "#1b1917") >= 4.5);
 
 const allAssets = pieces.flatMap((piece) => [piece.lead, ...(piece.supporting || [])]);
-assert.strictEqual(allAssets.filter((asset) => asset.optional).length, 11);
+assert.strictEqual(allAssets.filter((asset) => asset.optional).length, 13);
 assert.strictEqual(clippy.lead.bundle, true);
 
 const archiveFull = fs.readdirSync(path.join(DIST, "assets", "archive")).filter((file) => /^slide-\d+\.webp$/.test(file));

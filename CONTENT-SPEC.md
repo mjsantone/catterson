@@ -72,7 +72,7 @@ a README naming its money moments. Lead asset per piece:
 
 | Piece | Lead asset | Supporting |
 |---|---|---|
-| Projects | home-cards video (requests, commitments, decisions, each with its why and a source link, then suggested projects) | create-from-suggestion video; since-your-last-visit video with citations and one held-back item; act-and-revise video; two-layer-split stills |
+| Projects | home-cards video (requests, commitments, decisions, each with its why and a source link, then suggested projects) | create-from-suggestion video; since-your-last-visit video with citations and one held-back item; act-and-revise video; Move to Shared clip if the live step records cleanly, otherwise share-dialog stills; two-layer-split stills |
 | Document Editing inline story | selection to Ask to tracked-change review video | none |
 | 1P Starter Kit inline story | empty-state landing still (one input, a few starting points, nothing else) | restraint-detail stills if present |
 | Steering | start-in-chat video | refine-into-named-workflow video; reuse video showing each rule's originating correction; pause-learning clip |
