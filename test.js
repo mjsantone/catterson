@@ -94,15 +94,15 @@ if (build.status !== 0) {
 }
 
 const buildOutput = `${build.stdout}${build.stderr}`;
-assert.match(buildOutput, /Built 6 pages to dist\//);
-assert.match(buildOutput, /6 optional slots empty/);
+assert.match(buildOutput, /Built 7 pages to dist\//);
+assert.match(buildOutput, /11 optional slots empty/);
 assert.match(buildOutput, /editorial\/bolt-dodger\.html/);
 
 const hostPages = walk(DIST).filter((file) => {
   const rel = path.relative(DIST, file);
   return file.endsWith(".html") && !rel.startsWith(`assets${path.sep}`);
 });
-assert.strictEqual(hostPages.length, 6);
+assert.strictEqual(hostPages.length, 7);
 
 const missing = [];
 for (const page of hostPages) {
@@ -146,17 +146,17 @@ assert.strictEqual((130 - 10 + 10 * 4 + 8) % 8, 0);
 assert.match(home, /<section[^>]+aria-labelledby="archive-heading"/);
 assert.match(home, /<h2 class="sr-only" id="archive-heading">Earlier work<\/h2>/);
 // Stories and writing rows both hide an arrow that is revealed as the label springs aside.
-assert.strictEqual(count(home, /aria-hidden="true"[^>]*>→<\/span>/g), 3);
-assert.strictEqual(count(home, /opacity-0[^"]*group-hover:opacity-100/g), 6);
-assert.strictEqual(count(home, /group-hover:-translate-x-7/g), 6);
-// Index rules draw themselves in: three stories and three writing rows.
-assert.strictEqual(count(home, /\brule-draw\b/g), 6);
+assert.strictEqual(count(home, /aria-hidden="true"[^>]*>→<\/span>/g), 4);
+assert.strictEqual(count(home, /opacity-0[^"]*group-hover:opacity-100/g), 7);
+assert.strictEqual(count(home, /group-hover:-translate-x-7/g), 7);
+// Index rules draw themselves in: four stories and three writing rows.
+assert.strictEqual(count(home, /\brule-draw\b/g), 7);
 // Main stories outrank the smaller ones at every width, so both scale fluidly
 // and the main floor clears the mini ceiling.
 assert.match(home, /text-\[clamp\(2\.3rem,4\.15vw,3\.05rem\)\]/);
-// A measure on the index titles: without it the line counts run 1, 3, 2 and
-// change with the window. At 13em they hold at 2, 3, 3 from 768px up.
-assert.strictEqual(count(home, /max-w-\[13em\]/g), 3);
+// A measure on the index titles: without it the line counts change with the
+// window. At 13em the original three hold at 2, 3, 3 from 768px up.
+assert.strictEqual(count(home, /max-w-\[13em\]/g), 4);
 assert.match(home, /text-\[clamp\(1\.55rem,3vw,2\.1rem\)\]/);
 assert.doesNotMatch(home, /sm:text-\[40px\]/);
 // Neither hover nor scroll may reflow a headline: Fraunces italic refits the
@@ -168,7 +168,7 @@ assert.doesNotMatch(
 );
 // Arrival nudges the arrow where it is already visible. Transform, not
 // translate, or the nudge would drop the vertical centring.
-assert.strictEqual(count(home, /data-row-arrow/g), 6);
+assert.strictEqual(count(home, /data-row-arrow/g), 7);
 const siteCss = fs.readFileSync(path.join(ROOT, "src", "css", "site.css"), "utf8");
 assert.match(siteCss, /@keyframes row-arrow-nudge/);
 assert.match(siteCss, /@media \(hover: none\)[\s\S]{0,160}row-arrow-nudge/);
@@ -189,7 +189,7 @@ assert.match(home, /confirm\.webp"[^>]+width="1600" height="900"/);
 assert.match(home, /persona\.webp"[^>]+width="1600" height="900"/);
 assert.match(home, /diff\.webp"[^>]+width="604" height="340"/);
 
-const detailRoutes = ["agent-debrief", "editorial", "steering"];
+const detailRoutes = ["projects", "agent-debrief", "editorial", "steering"];
 for (const route of detailRoutes) {
   const html = fs.readFileSync(path.join(DIST, route, "index.html"), "utf8");
   assert.doesNotMatch(html, /<h2 class="mt-6 max-w-\[44rem\]/);
@@ -263,7 +263,7 @@ assert(contrast("#6f6862", "#f4f2ee") >= 4.5);
 assert(contrast("#8f8880", "#1b1917") >= 4.5);
 
 const allAssets = pieces.flatMap((piece) => [piece.lead, ...(piece.supporting || [])]);
-assert.strictEqual(allAssets.filter((asset) => asset.optional).length, 6);
+assert.strictEqual(allAssets.filter((asset) => asset.optional).length, 11);
 assert.strictEqual(clippy.lead.bundle, true);
 
 const archiveFull = fs.readdirSync(path.join(DIST, "assets", "archive")).filter((file) => /^slide-\d+\.webp$/.test(file));
@@ -292,4 +292,4 @@ for (const file of ["home.jpg", "agent-debrief.jpg", "editorial.jpg", "steering.
   assert.deepStrictEqual(jpegSize(socialFile), { width: 1200, height: 630 });
 }
 
-console.log("Static checks passed: 6 pages, 138 archive tiles, 0 missing local targets.");
+console.log("Static checks passed: 7 pages, 138 archive tiles, 0 missing local targets.");

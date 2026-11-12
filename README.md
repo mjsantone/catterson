@@ -1,6 +1,6 @@
 # catterson
 
-A lean, static, flip-through portfolio. Paper and ink, three main stories, and smaller stories told inline.
+A lean, static, flip-through portfolio. Paper and ink, four main stories, and smaller stories told inline.
 
 ## How it works
 

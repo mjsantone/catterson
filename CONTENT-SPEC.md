@@ -16,13 +16,14 @@ Quiet confidence, zero salesmanship.
 
 0. **Access gate** — first load shows nine rounded password cells. A successful unlock
   persists in the current browser, so reviewers do not need to re-enter it in every tab.
-1. **Home / index** — minimal. Name, one line of positioning, the three published pieces as a
+1. **Home / index** — minimal. Name, one line of positioning, the four published pieces as a
    flip-through sequence (cards or a vertical scroll — designer's call, keep it familiar).
    No manifesto, no intro essay, no stated thesis.
-2. **Three main piece pages** form the published index and previous/next sequence:
-  1. Editorial    (note: judgment + pull)
-  2. Steering     (note: the learning loop)
-  3. Agent debrief (note: accountability)
+2. **Four main piece pages** form the published index and previous/next sequence:
+  1. Projects     (note: context and receipts)
+  2. Editorial    (note: judgment + pull)
+  3. Steering     (note: the learning loop)
+  4. Agent debrief (note: accountability)
 3. **Mini inline stories** sit below the main index and are fulfilled entirely on Home.
   They have no detail route or previous/next navigation. Document Editing comes first,
   followed by the 1P Starter Kit. Mini headlines render one step below detail-page
@@ -58,7 +59,7 @@ Every main piece renders identically:
   render immediately, and reduced-motion users receive no animation.
 
 ## FINAL COPY
-The four copy files are FINAL and verbatim: copy-kit.md, copy-steering.md,
+The five copy files are FINAL and verbatim: copy-projects.md, copy-kit.md, copy-steering.md,
 copy-agent-debrief.md, copy-editorial.md (headline, standfirst, body in each; ignore the
 file-header metadata lines and BUILD NOTES sections — those are instructions, not copy).
 DO NOT rewrite, "improve," tighten, or expand ANY sentence. Voice rules are in
@@ -66,11 +67,12 @@ voice-and-tone.md — they apply to any microcopy you must generate (nav labels,
 captions): no em dashes anywhere on the site, "made" not "built," plain and direct.
 
 ## PER-PIECE ASSET PLAN
-Assets arrive in /assets/{kit,steering,agent-debrief,editorial,clippy}/ — each folder has
+Assets arrive in /assets/{projects,kit,steering,agent-debrief,editorial,clippy}/ — each folder has
 a README naming its money moments. Lead asset per piece:
 
 | Piece | Lead asset | Supporting |
 |---|---|---|
+| Projects | home-cards video (requests, commitments, decisions, each with its why and a source link, then suggested projects) | create-from-suggestion video; since-your-last-visit video with citations and one held-back item; act-and-revise video; two-layer-split stills |
 | Document Editing inline story | selection to Ask to tracked-change review video | none |
 | 1P Starter Kit inline story | empty-state landing still (one input, a few starting points, nothing else) | restraint-detail stills if present |
 | Steering | start-in-chat video | refine-into-named-workflow video; reuse video showing each rule's originating correction; pause-learning clip |

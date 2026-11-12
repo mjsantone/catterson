@@ -131,6 +131,55 @@ const pieces = [
     supporting: [],
   },
   {
+    slug: "projects",
+    title: "Projects",
+    kicker: "Context and receipts",
+    social: {
+      image: "assets/social/projects.jpg",
+      alt: "A project that already knows your work, and shows where it learned it.",
+    },
+    copy: "copy-projects.md",
+    lead: {
+      kind: "video",
+      file: "01_home.mp4",
+      poster: "01_home-poster.webp",
+      optional: true,
+      caption: "Home opens on cards made from your own work. Each says why it is there and links to its source.",
+    },
+    supporting: [
+      {
+        kind: "video",
+        file: "02_create.mp4",
+        poster: "02_create-poster.webp",
+        optional: true,
+        afterParagraph: 3,
+        caption: "Accept a suggestion, answer two questions, and the project fills in with the real files, chats, and meetings behind it.",
+      },
+      {
+        kind: "video",
+        file: "03_catchup.mp4",
+        poster: "03_catchup-poster.webp",
+        optional: true,
+        afterParagraph: 4,
+        caption: "Since your last visit, with a citation on every point. What it cannot verify, it holds back and says so.",
+      },
+      {
+        kind: "video",
+        file: "04_act.mp4",
+        poster: "04_act-poster.webp",
+        optional: true,
+        afterParagraph: 5,
+        caption: "Draft an email from the project's evidence, confirm it, then ask for it shorter. The same draft changes in place.",
+      },
+      {
+        kind: "stills",
+        prefix: "layers-",
+        optional: true,
+        caption: "Two layers: what people see above, receipts back to source below.",
+      },
+    ],
+  },
+  {
     slug: "steering",
     title: "Steering",
     kicker: "The learning loop",
@@ -263,7 +312,7 @@ const pieces = [
 ];
 
 // Main stories appear in the Home index and previous/next sequence.
-const publishedPieceSlugs = ["agent-debrief", "editorial", "steering"];
+const publishedPieceSlugs = ["projects", "agent-debrief", "editorial", "steering"];
 
 // Smaller stories render in full on Home and do not generate detail routes.
 // Pieces omitted from both lists still generate hidden, directly accessible routes.
