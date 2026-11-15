@@ -9,9 +9,9 @@ Note: context and receipts. Interactivity: home cards; a project that makes itse
 
 A matter, a launch, a deal runs for months, and every time you ask an assistant for help you rebuild the context by hand. Every product team saw this through its own lens. Content here, chat there. Nobody owned the project itself. In July a handful of us were pulled together because we were neutral, and told to start from the unit of work instead of the app. We made a repo the same day.
 
-Home opens on cards made from your own work: requests to you, commitments you made, decisions waiting on you. Each says why it is there and links to where it came from. Beneath them, suggested projects name the workstreams already running through your files, chats, and meetings. Nothing was set up.
+Home opens on cards made from your own work: requests to you, commitments you made, decisions waiting on you. Each says why it is there and where it came from. Beneath them, suggested projects name the workstreams already running through your files, chats, and meetings. Nothing was set up.
 
-Accept a suggestion, answer two questions, press Create. The project fills in with the real files, chats, and meetings behind it, each linked where it lives rather than copied, each moving from preparing to ready. That was the first boundary I held. A reference is a pointer, not a copy, and not proof the system has read it.
+Accept a suggestion, answer two questions, press Create. The project fills in with the real files, chats, and meetings behind it, each linked where it lives rather than copied. That was the first boundary I held. A reference is a pointer, not a copy, and not proof the system has read it.
 
 Come back later and the project writes what changed since your last visit, with a citation on every point. What it cannot verify it holds back, and says so. In September I split the prototype in two, what people see on top and a data layer underneath that pulls commitments and decisions out of real sources with a receipt on each, and the catch-up is that layer showing its work. A summary that is right most of the time teaches you to stop reading it. One that tells you what it does not know is one you can act on.
 

@@ -95,7 +95,7 @@ if (build.status !== 0) {
 
 const buildOutput = `${build.stdout}${build.stderr}`;
 assert.match(buildOutput, /Built 7 pages to dist\//);
-assert.match(buildOutput, /13 optional slots empty/);
+assert.match(buildOutput, /9 optional slots empty/);
 assert.match(buildOutput, /editorial\/bolt-dodger\.html/);
 
 const hostPages = walk(DIST).filter((file) => {
@@ -241,9 +241,9 @@ for (const page of hostPages) {
     assert.match(tag[0], /preload="none"/, `small cut needs preload none: ${tag[0].slice(0, 90)}`);
   }
 }
-assert.strictEqual(autoplayVideos, 6);
+assert.strictEqual(autoplayVideos, 10);
 const smallCuts = walk(path.join(DIST, "assets")).filter((file) => file.endsWith("-small.mp4"));
-assert.strictEqual(smallCuts.length, 6);
+assert.strictEqual(smallCuts.length, 10);
 for (const small of smallCuts) {
   const full = small.replace(/-small\.mp4$/, ".mp4");
   assert(fs.existsSync(full), `small cut without a full-size original: ${full}`);
@@ -263,7 +263,7 @@ assert(contrast("#6f6862", "#f4f2ee") >= 4.5);
 assert(contrast("#8f8880", "#1b1917") >= 4.5);
 
 const allAssets = pieces.flatMap((piece) => [piece.lead, ...(piece.supporting || [])]);
-assert.strictEqual(allAssets.filter((asset) => asset.optional).length, 13);
+assert.strictEqual(allAssets.filter((asset) => asset.optional).length, 9);
 assert.strictEqual(clippy.lead.bundle, true);
 
 const archiveFull = fs.readdirSync(path.join(DIST, "assets", "archive")).filter((file) => /^slide-\d+\.webp$/.test(file));
@@ -286,7 +286,7 @@ for (const name of ["06 - Show us.webp", "06 - Show us-2.webp", "06 - Show us-3.
   assert(!fs.existsSync(path.join(DIST, "assets", "agent-debrief", "images", name)));
 }
 
-for (const file of ["home.jpg", "agent-debrief.jpg", "editorial.jpg", "steering.jpg"]) {
+for (const file of ["home.jpg", "projects.jpg", "agent-debrief.jpg", "editorial.jpg", "steering.jpg"]) {
   const socialFile = path.join(DIST, "assets", "social", file);
   assert(fs.existsSync(socialFile));
   assert.deepStrictEqual(jpegSize(socialFile), { width: 1200, height: 630 });
