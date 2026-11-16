@@ -136,7 +136,7 @@ const pieces = [
     kicker: "Context and receipts",
     social: {
       image: "assets/social/projects.jpg",
-      alt: "A project that already knows your work, and shows where it learned it.",
+      alt: "A project that knows your work, and shows where it learned it.",
     },
     copy: "copy-projects.md",
     lead: {
@@ -150,21 +150,21 @@ const pieces = [
         kind: "video",
         file: "02_create.mp4",
         poster: "02_create-poster.webp",
-        afterParagraph: 3,
+        afterParagraph: 2,
         caption: "Ask what is new, get a cited answer and a suggested project. Create it and the real files, chats, and meetings behind it fill in.",
       },
       {
         kind: "video",
         file: "03_catchup.mp4",
         poster: "03_catchup-poster.webp",
-        afterParagraph: 4,
+        afterParagraph: 3,
         caption: "Welcome back. The catch-up writes itself, with a citation on every point.",
       },
       {
         kind: "video",
         file: "04_act.mp4",
         poster: "04_act-poster.webp",
-        afterParagraph: 5,
+        afterParagraph: 4,
         caption: "Draft an email from the project's evidence. Say \"make it shorter\" and the same draft changes in place, with a note on what changed.",
       },
       {
@@ -172,14 +172,14 @@ const pieces = [
         file: "05_share.mp4",
         poster: "05_share-poster.webp",
         optional: true,
-        afterParagraph: 6,
+        afterParagraph: 5,
         caption: "Move to Shared. The dialog says what changes and what does not before anything moves.",
       },
       {
         kind: "stills",
         prefix: "share-",
         optional: true,
-        afterParagraph: 6,
+        afterParagraph: 5,
         caption: "Sharing one reference. The dialog shows the project before and after: the reference moves, everything else stays where it is.",
       },
       {
