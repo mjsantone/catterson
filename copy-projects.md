@@ -7,7 +7,7 @@ Note: context and receipts. Interactivity: home cards; a project that makes itse
 
 ## Every product team was solving "projects" from inside its own app, so a small neutral team started from the work itself. I made a workspace that organizes itself from real work, catches you up, and acts for you, with a receipt on everything it claims.
 
-Long work runs for months, and every time you ask an assistant for help you rebuild the context by hand. Every product team saw this through its own lens: content here, chat there, nobody owning the project itself. In July a handful of us were pulled together because we were neutral, and told to start from the unit of work. We made a repo the same day.
+A project here holds its goal, people, sources, decisions, and history, and anything you ask inside it starts from all of that. It exists because every product team was solving "projects" from inside its own app, content here, chat there, nobody owning the project itself. In July a handful of us were pulled together because we were neutral, and told to start from the unit of work. We made a repo the same day.
 
 Home opens on cards made from a person's own work: requests, commitments, decisions waiting. Each says why it is there and where it came from. Ask what is new on something and the answer comes cited, with a project offered beneath it. Accept, and the files, chats, and meetings behind it fill in, each linked where it lives rather than copied. That was the first boundary I held. A reference is a pointer, not a copy, and not proof the system has read it.
 
