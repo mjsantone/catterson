@@ -95,7 +95,7 @@ if (build.status !== 0) {
 
 const buildOutput = `${build.stdout}${build.stderr}`;
 assert.match(buildOutput, /Built 7 pages to dist\//);
-assert.match(buildOutput, /9 optional slots empty/);
+assert.match(buildOutput, /8 optional slots empty/);
 assert.match(buildOutput, /editorial\/bolt-dodger\.html/);
 
 const hostPages = walk(DIST).filter((file) => {

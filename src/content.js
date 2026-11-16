@@ -180,7 +180,7 @@ const pieces = [
         prefix: "share-",
         optional: true,
         afterParagraph: 6,
-        caption: "Three questions kept apart: who is in the project, what is shared, who can open the original.",
+        caption: "Sharing one reference. The dialog shows the project before and after: the reference moves, everything else stays where it is.",
       },
       {
         kind: "stills",
